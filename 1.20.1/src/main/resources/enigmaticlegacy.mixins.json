@@ -4,15 +4,22 @@
 	"package": "com.aizistral.enigmaticlegacy.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
+		"MixinApplyBonusCount",
 		"MixinBindingCurseEnchantment",
+		"MixinBonusLevelTableCondition",
 		"MixinBrewingStandBlockEntity",
 		"MixinBrewingStandPotionSlot",
 		"MixinEnchantmentHelper",
 		"MixinLivingEntity",
 		"MixinPiglinAi",
-		"MixinPotionBrewing"
+		"MixinPlayer",
+		"MixinPotionBrewing",
+		"MixinServerGamePacketListenerImpl",
+		"MixinServerPlayerGameMode"
 	],
-	"client": [],
+	"client": [
+		"MixinMultiPlayerGameMode"
+	],
 	"injectors": {
 		"defaultRequire": 1
 	}

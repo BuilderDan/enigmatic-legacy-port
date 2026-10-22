@@ -24,6 +24,7 @@ import com.aizistral.enigmaticlegacy.items.IronRing;
 import com.aizistral.enigmaticlegacy.items.LoreFragment;
 import com.aizistral.enigmaticlegacy.items.MagnetRing;
 import com.aizistral.enigmaticlegacy.items.MendingMixture;
+import com.aizistral.enigmaticlegacy.items.MiningCharm;
 import com.aizistral.enigmaticlegacy.items.MonsterCharm;
 import com.aizistral.enigmaticlegacy.items.RecallPotion;
 import com.aizistral.enigmaticlegacy.items.SuperMagnetRing;
@@ -160,6 +161,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ObjectHolder(value = MODID + ":astral_potato", registryName = "item")
 	public static AstralPotato ASTRAL_POTATO;
 
+	@ConfigurableItem("Charm of Treasure Hunter")
+	@ObjectHolder(value = MODID + ":mining_charm", registryName = "item")
+	public static MiningCharm MINING_CHARM;
+
 	@ConfigurableItem("Soul Dust")
 	@ObjectHolder(value = MODID + ":soul_dust", registryName = "item")
 	public static Item SOUL_DUST;
@@ -196,6 +201,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("monster_charm", MonsterCharm::new);
 		this.register("infinimeal", Infinimeal::new);
 		this.register("astral_potato", AstralPotato::new);
+		this.register("mining_charm", MiningCharm::new);
 	}
 
 	/** Port: forces class loading, which registers the items. */

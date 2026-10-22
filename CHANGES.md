@@ -86,7 +86,7 @@ Sections are added here as each Minecraft version / loader is ported.
   Fragment, Heart of the Earth, Twisted Heart, Exquisite Ring, Nefarious Essence, Nefarious
   Ingot, Unholy Stone, Darkest Scroll, Tome of Hungering Knowledge, Heart of the Cosmos,
   Heart of the Abyss, Soul Dust, Emblem of Monster Slayer, Scroll of Ageless Wisdom, Ring of
-  Ender, Essence of Raging Life, Astral Potato),
+  Ender, Essence of Raging Life, Astral Potato, Charm of Treasure Hunter),
   registered in upstream order.
 - Creative tabs: built with `FabricItemGroup`; contents come from `ICreativeTabMember` in
   `displayItems` instead of Forge's `BuildCreativeModeTabContentsEvent`. Temporary: the main
@@ -243,3 +243,19 @@ Sections are added here as each Minecraft version / loader is ported.
   `@Nullable`.
 - Dev only, port-only: `DevSelfCheck` also checks that the `LivingEntity` and
   `EnchantmentHelper` mixin handlers were merged.
+- Charm of Treasure Hunter (`MiningCharm`, port-only `registries/EnigmaticAttributes`):
+  - Reach: Forge's `BLOCK_REACH` attribute does not exist on Fabric. The port registers its own
+    attribute, `enigmaticlegacy:block_reach` (added to players by `MixinPlayer`), and the charm
+    uses it. Port-only mixins apply it to the client pick range (`MixinMultiPlayerGameMode`) and
+    to the server's distance checks for breaking (`MixinServerPlayerGameMode`) and using blocks
+    (`MixinServerGamePacketListenerImpl`). It covers block reach only, like upstream; other
+    mods' reach attributes do not stack with it.
+  - Fortune: Curios' fortune loot modifier is replaced by port-only mixins on
+    `ApplyBonusCount` and `BonusLevelTableCondition`, which add accessory Fortune where vanilla
+    reads the tool's Fortune level.
+  - Break speed: Forge's `BreakSpeed` event becomes a `Player.getDestroySpeed` RETURN mixin
+    calling `EnigmaticEventHandler.onBreakSpeed`. Only the charm's term of upstream's
+    `miningStuff` handler is ported; the other items' terms come with those items.
+  - `EnigmaticEventHandler.isApplyingNightVision` is kept as a static flag, as upstream.
+- Dev only, port-only: `DevSelfCheck` also checks the new mixins and that players get the
+  block reach attribute.

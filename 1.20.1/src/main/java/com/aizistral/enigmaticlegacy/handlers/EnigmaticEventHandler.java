@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 import com.aizistral.enigmaticlegacy.config.OmniconfigHandler;
 import com.aizistral.enigmaticlegacy.helpers.ItemNBTHelper;
+import com.aizistral.enigmaticlegacy.items.MiningCharm;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
 import com.aizistral.enigmaticlegacy.platform.Services;
@@ -20,9 +21,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
 /**
@@ -31,6 +36,9 @@ import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
  * events (Fabric: {@code EnigmaticLegacyFabric}).
  */
 public class EnigmaticEventHandler {
+	// Port: set while the Charm of Treasure Hunter applies Night Vision; upstream's potion handler
+	// skips that case. No ported item reads it yet.
+	public static boolean isApplyingNightVision = false;
 
 	/**
 	 * Port: was part of the Forge {@code LivingAttackEvent} handler. Fabric calls it from
@@ -101,6 +109,43 @@ public class EnigmaticEventHandler {
 			addPool.accept(epic);
 			// Port: upstream's second End pool (Corrupted Tome with a revelation function) is not ported.
 		}
+	}
+
+	/**
+	 * Port: was the Forge {@code PlayerEvent.BreakSpeed} handler (miningStuff). Fabric calls it from
+	 * {@code MixinPlayer} at the end of {@code Player.getDestroySpeed}, where Forge fires the event.
+	 * Only the Charm of Treasure Hunter's boost is ported so far; the Cursed Scroll, Enigmatic Amulet,
+	 * Cube, flight scrolls and Ocean Stone terms follow with those items.
+	 *
+	 * @return the new break speed.
+	 */
+	public static float onBreakSpeed(Player player, float originalSpeed) {
+		float correctedSpeed = originalSpeed;
+
+		float miningBoost = 1.0F;
+		if (SuperpositionHandler.hasCurio(player, EnigmaticItems.MINING_CHARM)) {
+			miningBoost += MiningCharm.breakSpeedBonus.getValue().asModifier();
+		}
+
+		correctedSpeed = correctedSpeed * miningBoost;
+		correctedSpeed -= originalSpeed;
+
+		return originalSpeed + correctedSpeed;
+	}
+
+	/**
+	 * Port: stands in for Curios' fortune loot modifier, which adds each worn curio's
+	 * getFortuneLevel to the tool's Fortune. Fabric calls it from {@code MixinApplyBonusCount}
+	 * and {@code MixinBonusLevelTableCondition}, where vanilla reads the tool's enchantment level.
+	 *
+	 * @return the enchantment level with worn accessories' Fortune added.
+	 */
+	public static int addAccessoryFortune(int level, Enchantment enchantment, LootContext context) {
+		if (enchantment == Enchantments.BLOCK_FORTUNE
+				&& context.getParamOrNull(LootContextParams.THIS_ENTITY) instanceof LivingEntity entity)
+			return level + Services.ACCESSORIES.getFortuneBonus(entity, context);
+
+		return level;
 	}
 
 }

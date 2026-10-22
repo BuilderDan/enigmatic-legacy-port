@@ -132,6 +132,13 @@ public final class DevSelfCheck {
 		problems += checkBrewing();
 		problems += checkMixinApplied("net.minecraft.world.entity.LivingEntity", "onHurt", "onExperienceDrop");
 		problems += checkMixinApplied("net.minecraft.world.item.enchantment.EnchantmentHelper", "addAccessoryLooting");
+		problems += checkMixinApplied("net.minecraft.world.entity.player.Player", "addAttributes", "onBreakSpeed");
+		problems += checkMixinApplied("net.minecraft.world.level.storage.loot.functions.ApplyBonusCount", "addAccessoryFortune");
+		problems += checkMixinApplied("net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition", "addAccessoryFortune");
+		problems += checkMixinApplied("net.minecraft.server.level.ServerPlayerGameMode", "widenBreakDistance");
+		problems += checkMixinApplied("net.minecraft.server.network.ServerGamePacketListenerImpl", "widenUseDistance");
+		problems += checkMixinApplied("net.minecraft.client.multiplayer.MultiPlayerGameMode", "addBlockReach");
+		problems += checkPlayerAttributes();
 		LOGGER.info("[devcheck] Done: {} problem(s)", problems);
 	}
 
@@ -201,6 +208,26 @@ public final class DevSelfCheck {
 			LOGGER.error("[devcheck] loot check failed", ex);
 		}
 		return 1;
+	}
+
+	/**
+	 * Checks that players get the port's block reach attribute (MixinPlayer) and that it is registered.
+	 */
+	private static int checkPlayerAttributes() {
+		try {
+			var supplier = net.minecraft.world.entity.ai.attributes.DefaultAttributes.getSupplier(net.minecraft.world.entity.EntityType.PLAYER);
+			var id = net.minecraft.core.registries.BuiltInRegistries.ATTRIBUTE.getKey(com.aizistral.enigmaticlegacy.registries.EnigmaticAttributes.BLOCK_REACH);
+			if (!supplier.hasAttribute(com.aizistral.enigmaticlegacy.registries.EnigmaticAttributes.BLOCK_REACH) || id == null) {
+				LOGGER.error("[devcheck] block reach attribute missing (on player: {}, registered as: {})",
+						supplier.hasAttribute(com.aizistral.enigmaticlegacy.registries.EnigmaticAttributes.BLOCK_REACH), id);
+				return 1;
+			}
+			LOGGER.info("[devcheck] player attribute ok: {}", id);
+			return 0;
+		} catch (Throwable ex) {
+			LOGGER.error("[devcheck] player attribute check failed", ex);
+			return 1;
+		}
 	}
 
 	/**

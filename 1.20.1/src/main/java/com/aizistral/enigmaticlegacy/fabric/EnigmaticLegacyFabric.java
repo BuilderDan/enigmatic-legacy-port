@@ -17,6 +17,7 @@ import com.aizistral.enigmaticlegacy.packets.server.PacketEnderRingKey;
 import com.aizistral.enigmaticlegacy.packets.server.PacketXPScrollKey;
 import com.aizistral.enigmaticlegacy.platform.Services;
 import com.aizistral.enigmaticlegacy.platform.network.PacketDirection;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticAttributes;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticRecipes;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticSounds;
@@ -42,6 +43,7 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		FabricPlatformHelper.init();
 		OmniconfigHandler.initialize();
 		EnigmaticSounds.init();
+		EnigmaticAttributes.init();
 		EnigmaticItems.init();
 		EnigmaticRecipes.init();
 		EnigmaticRecipes.registerBrewingRecipes();
