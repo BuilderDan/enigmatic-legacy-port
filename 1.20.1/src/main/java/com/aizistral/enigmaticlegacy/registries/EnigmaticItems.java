@@ -11,6 +11,7 @@ import com.aizistral.enigmaticlegacy.items.AstralDust;
 import com.aizistral.enigmaticlegacy.items.AstralPotato;
 import com.aizistral.enigmaticlegacy.items.CosmicHeart;
 import com.aizistral.enigmaticlegacy.items.EnchantmentTransposer;
+import com.aizistral.enigmaticlegacy.items.EnigmaticItem;
 import com.aizistral.enigmaticlegacy.items.EnderRing;
 import com.aizistral.enigmaticlegacy.items.CursedStone;
 import com.aizistral.enigmaticlegacy.items.DarkestScroll;
@@ -49,6 +50,9 @@ import net.minecraft.world.item.Item;
 public class EnigmaticItems extends AbstractRegistry<Item> {
 	public static final List<Item> SPELLSTONES = new ArrayList<>();
 	private static final EnigmaticItems INSTANCE = new EnigmaticItems();
+
+	@ObjectHolder(value = MODID + ":enigmatic_item", registryName = "item")
+	public static EnigmaticItem ENIGMATIC_ITEM;
 
 	@ConfigurableItem("Mending Mixture")
 	@ObjectHolder(value = MODID + ":mending_mixture", registryName = "item")
@@ -177,6 +181,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	private EnigmaticItems() {
 		super(BuiltInRegistries.ITEM);
 
+		this.register("enigmatic_item", EnigmaticItem::new);
 		this.register("xp_scroll", XPScroll::new);
 		this.register("magnet_ring", MagnetRing::new);
 		this.register("extradimensional_eye", ExtradimensionalEye::new);

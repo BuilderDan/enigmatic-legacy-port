@@ -86,8 +86,8 @@ Sections are added here as each Minecraft version / loader is ported.
   Fragment, Heart of the Earth, Twisted Heart, Exquisite Ring, Nefarious Essence, Nefarious
   Ingot, Unholy Stone, Darkest Scroll, Tome of Hungering Knowledge, Heart of the Cosmos,
   Heart of the Abyss, Soul Dust, Emblem of Monster Slayer, Scroll of Ageless Wisdom, Ring of
-  Ender, Essence of Raging Life, Astral Potato, Charm of Treasure Hunter, Axe of Executioner),
-  registered in upstream order.
+  Ender, Essence of Raging Life, Astral Potato, Charm of Treasure Hunter, Axe of Executioner, Heart of
+  Creation), registered in upstream order.
 - Creative tabs: built with `FabricItemGroup`; contents come from `ICreativeTabMember` in
   `displayItems` instead of Forge's `BuildCreativeModeTabContentsEvent`. Temporary: the main
   tab icon is Blank Scroll until the Enigmatic Amulet is ported; the potions tab returns with
@@ -274,3 +274,33 @@ Sections are added here as each Minecraft version / loader is ported.
   - `BeheadingTrigger` is registered with `CriteriaTriggers.register` in the Fabric entry
     point; `javax.annotation.Nonnull` becomes `org.jetbrains.annotations.NotNull`.
 - Dev only, port-only: `DevSelfCheck` also checks the drop-capture mixins.
+- Heart of Creation (`EnigmaticItem`, `ItemSpellstoneCurio`, `ISpellstone`, entity
+  `UltimateWitherSkullEntity`):
+  - The main creative tab icon is now the Heart of Creation, as upstream.
+  - `EnigmaticItems.SPELLSTONES.add(ENIGMATIC_ITEM)` moves from upstream's `onLoadComplete` to
+    the Fabric entry point, right after item registration.
+  - Entities: port-only `registries/EnigmaticEntities` registers the Ultimate Wither Skull through
+    `AbstractRegistry`; the renderer is registered with `EntityRendererRegistry` in the client
+    entry point. The skull uses the vanilla spawn packet instead of Forge's `NetworkHooks`.
+  - `WitherExplosion`: Forge's `onBlockExploded` is inlined. The skull drops Forge's
+    `ExplosionEvent.Start` hook (the explosion always runs) and uses its own position instead
+    of Forge's `Explosion.getPosition()`.
+  - Renderer: the Etherium `ShieldAuraLayer` texture and offset are inlined (same values).
+  - Spellstone cooldowns: upstream's `TransientPlayerData` field becomes a server-only
+    `SuperpositionHandler.SPELLSTONE_COOLDOWNS` map (cleared when the server stops); the
+    client cooldown overlay comes from vanilla item cooldowns, as upstream also sets them.
+  - `SuperpositionHandler`: spellstone, advanced curio and observed-entity helpers added;
+    `hasArchitectsFavor` returns false until that item is ported.
+    `helpers/AOEMiningHelper` holds only `calcRayTrace` for now.
+  - Events: damage immunities run in `onLivingAttack` (`ALLOW_DAMAGE`); death prevention
+    becomes `ServerLivingEntityEvents.ALLOW_DEATH` (`onLivingDeath`); flight and cooldown
+    ticking become `ServerTickEvents.END_SERVER_TICK` (`onPlayerTick`); Forge's
+    `MobEffectEvent.Applicable` becomes a `LivingEntity.canBeAffected` HEAD mixin
+    (`onPotionApplicable`); the airborne ×5 break speed joins `onBreakSpeed`. Only the Heart's
+    terms of these upstream handlers are ported.
+  - Keybind: the spellstone ability key (K) is registered with `KeyBindingHelper`.
+  - Network: `PacketWitherParticles` (to client) and `PacketSpellstoneKey` (to server) are
+    registered with `Services.NETWORK` and handled with `PacketContext`; sends use
+    `sendToNear` with `TargetPoint` instead of Forge `PacketDistributor.NEAR`.
+  - `EnigmaticItem` and `ItemSpellstoneCurio` use the platform `SlotContext` (Trinkets) instead
+    of Curios, `BuiltInRegistries` instead of `ForgeRegistries`, and drop `@OnlyIn`.

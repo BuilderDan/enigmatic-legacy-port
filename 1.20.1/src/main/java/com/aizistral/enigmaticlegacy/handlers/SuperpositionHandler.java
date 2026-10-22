@@ -6,6 +6,11 @@ import java.math.RoundingMode;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.WeakHashMap;
+import com.aizistral.enigmaticlegacy.api.items.ISpellstone;
+import com.aizistral.enigmaticlegacy.items.generic.ItemSpellstoneCurio;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -402,5 +407,96 @@ public class SuperpositionHandler {
 		Services.NETWORK.sendToNear(new TargetPoint(serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), 128, serverPlayer.level().dimension()), new PacketRecallParticles(serverPlayer.getX(), serverPlayer.getY() + (serverPlayer.getBbHeight() / 2), serverPlayer.getZ(), 48, false));
 
 		return destinationWorld;
+	}
+
+	/**
+	 * Port: upstream keeps the spellstone cooldown in TransientPlayerData, which also
+	 * syncs it to the client. The port only needs it server-side (the vanilla item
+	 * cooldown packet shows it on the client), so it lives in this map.
+	 */
+	private static final Map<Player, Integer> SPELLSTONE_COOLDOWNS = new WeakHashMap<>();
+
+	public static List<ItemStack> getAdvancedCurios(final LivingEntity entity) {
+		// Port: Curios lookup replaced by the accessory service (Trinkets on Fabric).
+		return Services.ACCESSORIES.findAll(entity, stack -> stack.getItem() instanceof ItemSpellstoneCurio);
+	}
+
+	public static boolean hasAdvancedCurios(final LivingEntity entity) {
+		return SuperpositionHandler.getAdvancedCurios(entity).size() > 0;
+	}
+
+	public static boolean hasSpellstone(final LivingEntity entity) {
+		return SuperpositionHandler.getSpellstone(entity) != null;
+	}
+
+	@Nullable
+	public static ItemStack getSpellstone(final LivingEntity entity) {
+		// Port: Curios lookup replaced by the accessory service (Trinkets on Fabric).
+		for (ItemStack stack : Services.ACCESSORIES.getSlotStacks(entity, "spellstone")) {
+			if (stack != null && stack.getItem() instanceof ISpellstone)
+				return stack;
+		}
+
+		return null;
+	}
+
+	public static LivingEntity getObservedEntity(Player player, Level world, float range, int maxDist) {
+		List<LivingEntity> entities = getObservedEntities(player, world, range, maxDist, true);
+		return entities.size() > 0 ? entities.get(0) : null;
+	}
+
+	public static List<LivingEntity> getObservedEntities(Player player, Level world, float range, int maxDist, boolean stopWhenFound) {
+		Vector3 target = Vector3.fromEntityCenter(player);
+		List<LivingEntity> entities = new ArrayList<>();
+
+		for (int distance = 1; distance < maxDist; ++distance) {
+			target = target.add(new Vector3(player.getLookAngle()).multiply(distance)).add(0.0, 0.5, 0.0);
+			List<LivingEntity> list = player.level().getEntitiesOfClass(LivingEntity.class, new AABB(target.x - range, target.y - range, target.z - range, target.x + range, target.y + range, target.z + range));
+			list.removeIf(entity -> entity == player || !player.hasLineOfSight(entity));
+			entities.addAll(list);
+
+			if (stopWhenFound && entities.size() > 0) {
+				break;
+			}
+		}
+
+		return entities;
+	}
+
+	public static int getSpellstoneCooldown(Player player) {
+		return SPELLSTONE_COOLDOWNS.getOrDefault(player, 0);
+	}
+
+	public static void setSpellstoneCooldown(Player player, int value) {
+		int newValue = Math.max(value, 0);
+
+		if (getSpellstoneCooldown(player) != newValue) {
+			SPELLSTONE_COOLDOWNS.put(player, newValue);
+
+			for (Item spellstone : EnigmaticItems.SPELLSTONES) {
+				player.getCooldowns().addCooldown(spellstone, newValue);
+			}
+		}
+	}
+
+	public static void tickSpellstoneCooldown(Player player, int decrementedTicks) {
+		// Same as upstream: only the counter drops, the item cooldowns run out on their own.
+		SPELLSTONE_COOLDOWNS.put(player, getSpellstoneCooldown(player) - decrementedTicks);
+	}
+
+	/**
+	 * Checks whether player's spellstone cooldown is greater than zero.
+	 */
+	public static boolean hasSpellstoneCooldown(Player player) {
+		return getSpellstoneCooldown(player) > 0;
+	}
+
+	public static void clearSpellstoneCooldowns() {
+		SPELLSTONE_COOLDOWNS.clear();
+	}
+
+	public static boolean hasArchitectsFavor(Player player) {
+		// Port: Architect's Favor (cosmic_scroll) is not ported yet.
+		return false;
 	}
 }

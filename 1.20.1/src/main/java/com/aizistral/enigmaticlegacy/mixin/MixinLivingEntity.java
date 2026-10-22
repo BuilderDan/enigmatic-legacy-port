@@ -11,12 +11,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.aizistral.enigmaticlegacy.handlers.EnigmaticEventHandler;
 import com.aizistral.enigmaticlegacy.items.MonsterCharm;
 import com.aizistral.enigmaticlegacy.objects.DropCapture;
 
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -40,6 +42,14 @@ public abstract class MixinLivingEntity {
 	private float enigmaticlegacy$onHurt(float amount, DamageSource source) {
 		LivingEntity self = (LivingEntity) (Object) this;
 		return MonsterCharm.modifyHurtAmount(self, source, amount);
+	}
+
+	/** Forge fires MobEffectEvent.Applicable at the head of canBeAffected; DENY returns false. */
+	@Inject(method = "canBeAffected", at = @At("HEAD"), cancellable = true)
+	private void enigmaticlegacy$onPotionApplicable(MobEffectInstance effect, CallbackInfoReturnable<Boolean> info) {
+		if (!EnigmaticEventHandler.onPotionApplicable((LivingEntity) (Object) this, effect)) {
+			info.setReturnValue(false);
+		}
 	}
 
 	/** Forge's LivingExperienceDropEvent wraps the amount passed to ExperienceOrb.award. */

@@ -20,9 +20,8 @@ public class EnigmaticTabs extends AbstractRegistry<CreativeModeTab> {
 	// Port: POTIONS ("tab_potions", icon RECALL_POTION) returns with the potion items.
 
 	static {
-		// Port: icon is THICC_SCROLL until ENIGMATIC_ITEM is ported.
 		MAIN = FabricItemGroup.builder().title(Component.translatable("itemGroup.enigmaticCreativeTab"))
-				.icon(() -> new ItemStack(EnigmaticItems.THICC_SCROLL))
+				.icon(() -> new ItemStack(EnigmaticItems.ENIGMATIC_ITEM))
 				.displayItems((params, output) -> fillTab(EnigmaticTabs.MAIN, output)).build();
 	}
 

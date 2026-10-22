@@ -27,6 +27,12 @@ import com.aizistral.omniconfig.packets.PacketSyncOptions;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.server.level.ServerPlayer;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketWitherParticles;
+import com.aizistral.enigmaticlegacy.packets.server.PacketSpellstoneKey;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticEntities;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -47,6 +53,9 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		EnigmaticSounds.init();
 		EnigmaticAttributes.init();
 		EnigmaticItems.init();
+		EnigmaticEntities.init();
+		// Port: upstream adds this in onLoadComplete.
+		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.ENIGMATIC_ITEM);
 		EnigmaticRecipes.init();
 		EnigmaticRecipes.registerBrewingRecipes();
 		EnigmaticTabs.init();
@@ -59,6 +68,13 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
 				OmniconfigSync.onPlayerLoggedIn(handler.getPlayer()));
 		ServerLivingEntityEvents.ALLOW_DAMAGE.register(EnigmaticEventHandler::onLivingAttack);
+		ServerLivingEntityEvents.ALLOW_DEATH.register(EnigmaticEventHandler::onLivingDeath);
+		ServerTickEvents.END_SERVER_TICK.register(server -> {
+			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+				EnigmaticEventHandler.onPlayerTick(player);
+			}
+		});
+		ServerLifecycleEvents.SERVER_STOPPED.register(server -> EnigmaticEventHandler.onServerStopped());
 		LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) ->
 				EnigmaticEventHandler.onLootTablesLoaded(id, tableBuilder::pool));
 	}
@@ -77,5 +93,9 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 				PacketEnderRingKey::decode, PacketEnderRingKey::handle);
 		network.register(PacketXPScrollKey.class, PacketDirection.TO_SERVER, PacketXPScrollKey::encode,
 				PacketXPScrollKey::decode, PacketXPScrollKey::handle);
+		network.register(PacketWitherParticles.class, PacketDirection.TO_CLIENT, PacketWitherParticles::encode,
+				PacketWitherParticles::decode, PacketWitherParticles::handle);
+		network.register(PacketSpellstoneKey.class, PacketDirection.TO_SERVER, PacketSpellstoneKey::encode,
+				PacketSpellstoneKey::decode, PacketSpellstoneKey::handle);
 	}
 }

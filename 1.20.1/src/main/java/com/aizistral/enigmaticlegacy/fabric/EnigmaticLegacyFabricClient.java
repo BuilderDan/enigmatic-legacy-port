@@ -2,13 +2,16 @@ package com.aizistral.enigmaticlegacy.fabric;
 
 import com.aizistral.enigmaticlegacy.config.OmniconfigSync;
 import com.aizistral.enigmaticlegacy.fabric.platform.client.FabricClientNetwork;
+import com.aizistral.enigmaticlegacy.client.renderers.UltimateWitherSkullRenderer;
 import com.aizistral.enigmaticlegacy.handlers.EnigmaticKeybindHandler;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticEntities;
 
 import org.lwjgl.glfw.GLFW;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.KeyMapping;
 
@@ -31,6 +34,9 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 		// Port: upstream EnigmaticLegacy.registerKeybinds (RegisterKeyMappingsEvent).
 		KEYBIND_HANDLER.enderRingKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.enderRing", GLFW.GLFW_KEY_I, "key.categories.enigmaticLegacy"));
 		KEYBIND_HANDLER.xpScrollKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.xpScroll", GLFW.GLFW_KEY_J, "key.categories.enigmaticLegacy"));
+		KEYBIND_HANDLER.spellstoneAbilityKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.spellstoneAbility", GLFW.GLFW_KEY_K, "key.categories.enigmaticLegacy"));
+		// Port: upstream registers this in EntityRenderersEvent.RegisterRenderers.
+		EntityRendererRegistry.register(EnigmaticEntities.ULTIMATE_WITHER_SKULL, UltimateWitherSkullRenderer::new);
 		ClientTickEvents.START_CLIENT_TICK.register(KEYBIND_HANDLER::onKeyInput);
 	}
 }

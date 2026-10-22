@@ -1,11 +1,13 @@
 package com.aizistral.enigmaticlegacy.handlers;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
 
 import com.aizistral.enigmaticlegacy.config.OmniconfigHandler;
 import com.aizistral.enigmaticlegacy.helpers.ItemNBTHelper;
 import com.aizistral.enigmaticlegacy.items.ForbiddenAxe;
+import com.aizistral.enigmaticlegacy.items.generic.ItemSpellstoneCurio;
 import com.aizistral.enigmaticlegacy.items.MiningCharm;
 import com.aizistral.enigmaticlegacy.objects.Perhaps;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
@@ -21,6 +23,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -89,7 +94,77 @@ public class EnigmaticEventHandler {
 					}
 		}
 
+		if (entity instanceof Player player) {
+			List<ItemStack> advancedCurios = SuperpositionHandler.getAdvancedCurios(player);
+			if (advancedCurios.size() > 0) {
+				for (ItemStack advancedCurioStack : advancedCurios) {
+					ItemSpellstoneCurio advancedCurio = (ItemSpellstoneCurio) advancedCurioStack.getItem();
+
+					if (advancedCurio.immunityList.stream().anyMatch(source::is))
+						return false;
+				}
+			}
+		}
+
 		return true;
+	}
+
+	/**
+	 * Port: was the Forge {@code MobEffectEvent.Applicable} handler. Fabric calls it from
+	 * {@code MixinLivingEntity} at the head of {@code canBeAffected}, where Forge fires the event.
+	 * The Pearl of the Void and Cube terms follow with those items.
+	 *
+	 * @return false to deny the effect (upstream: {@code event.setResult(Result.DENY)}).
+	 */
+	public static boolean onPotionApplicable(LivingEntity entity, MobEffectInstance effect) {
+		if (entity instanceof Player player) {
+			if (isApplyingNightVision)
+				return true;
+
+			if (new ResourceLocation("mana-and-artifice", "chrono-exhaustion").equals(BuiltInRegistries.MOB_EFFECT.getKey(effect.getEffect())))
+				return true;
+
+			if (SuperpositionHandler.hasCurio(player, EnigmaticItems.ENIGMATIC_ITEM) && !effect.getEffect().isBeneficial())
+				return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Port: was the Heart of Creation part of the Forge {@code LivingDeathEvent} handler. Fabric
+	 * calls it from {@code ServerLivingEntityEvents.ALLOW_DEATH}. The Nemesis Curse term follows
+	 * with that item.
+	 *
+	 * @return false to cancel the death (upstream: {@code event.setCanceled(true)}).
+	 */
+	public static boolean onLivingDeath(LivingEntity entity, DamageSource source, float amount) {
+		if (entity instanceof Player player) {
+			if (SuperpositionHandler.hasCurio(player, EnigmaticItems.ENIGMATIC_ITEM) || player.getInventory().contains(new ItemStack(EnigmaticItems.ENIGMATIC_ITEM))) {
+				player.setHealth(1);
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Port: was the Heart of Creation part of the Forge {@code PlayerTickEvent} handler (server
+	 * side). Fabric calls it for each player from {@code ServerTickEvents.END_SERVER_TICK}.
+	 */
+	public static void onPlayerTick(ServerPlayer player) {
+		if (SuperpositionHandler.hasSpellstoneCooldown(player)) {
+			SuperpositionHandler.tickSpellstoneCooldown(player, 1);
+		}
+
+		EnigmaticItems.ENIGMATIC_ITEM.handleEnigmaticFlight(player);
+	}
+
+	/** Port-only: drops per-player state kept in static maps when the server stops. */
+	public static void onServerStopped() {
+		EnigmaticItems.ENIGMATIC_ITEM.flightMap.clear();
+		SuperpositionHandler.clearSpellstoneCooldowns();
 	}
 
 	/**
@@ -126,8 +201,9 @@ public class EnigmaticEventHandler {
 	/**
 	 * Port: was the Forge {@code PlayerEvent.BreakSpeed} handler (miningStuff). Fabric calls it from
 	 * {@code MixinPlayer} at the end of {@code Player.getDestroySpeed}, where Forge fires the event.
-	 * Only the Charm of Treasure Hunter's boost is ported so far; the Cursed Scroll, Enigmatic Amulet,
-	 * Cube, flight scrolls and Ocean Stone terms follow with those items.
+	 * Only the Charm of Treasure Hunter's boost and the Heart of Creation's airborne term are ported
+	 * so far; the Cursed Scroll, Enigmatic Amulet, Cube, flight scrolls and Ocean Stone terms follow
+	 * with those items.
 	 *
 	 * @return the new break speed.
 	 */
@@ -138,6 +214,11 @@ public class EnigmaticEventHandler {
 		if (SuperpositionHandler.hasCurio(player, EnigmaticItems.MINING_CHARM)) {
 			miningBoost += MiningCharm.breakSpeedBonus.getValue().asModifier();
 		}
+
+		if (!player.onGround())
+			if (SuperpositionHandler.hasCurio(player, EnigmaticItems.ENIGMATIC_ITEM)) {
+				correctedSpeed *= 5F;
+			}
 
 		correctedSpeed = correctedSpeed * miningBoost;
 		correctedSpeed -= originalSpeed;
