@@ -60,6 +60,9 @@ import com.aizistral.enigmaticlegacy.items.TheCube;
 import com.aizistral.enigmaticlegacy.items.CosmicScroll;
 import com.aizistral.enigmaticlegacy.items.MegaSponge;
 import com.aizistral.enigmaticlegacy.items.LootGenerator;
+import com.aizistral.enigmaticlegacy.items.AstralBreaker;
+import com.aizistral.enigmaticlegacy.items.OblivionStone;
+import com.aizistral.enigmaticlegacy.items.CurseTransposer;
 import com.aizistral.etherium.items.EnderRod;
 import com.aizistral.etherium.items.EtheriumArmor;
 import com.aizistral.etherium.items.EtheriumAxe;
@@ -106,6 +109,18 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 
 	@ObjectHolder(value = MODID + ":loot_generator", registryName = "item")
 	public static LootGenerator LOOT_GENERATOR;
+
+	@ConfigurableItem("Astral Breaker")
+	@ObjectHolder(value = MODID + ":astral_breaker", registryName = "item")
+	public static AstralBreaker ASTRAL_BREAKER;
+
+	@ConfigurableItem("Keystone of The Oblivion")
+	@ObjectHolder(value = MODID + ":void_stone", registryName = "item")
+	public static OblivionStone VOID_STONE;
+
+	@ConfigurableItem("Tome of Devoured Malignancy")
+	@ObjectHolder(value = MODID + ":curse_transposer", registryName = "item")
+	public static CurseTransposer CURSE_TRANSPOSER;
 
 	@ConfigurableItem("Mending Mixture")
 	@ObjectHolder(value = MODID + ":mending_mixture", registryName = "item")
@@ -436,6 +451,9 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("cosmic_scroll", CosmicScroll::new);
 		this.register("mega_sponge", MegaSponge::new);
 		this.register("loot_generator", LootGenerator::new);
+		this.register("astral_breaker", AstralBreaker::new);
+		this.register("void_stone", OblivionStone::new);
+		this.register("curse_transposer", CurseTransposer::new);
 	}
 
 	/** Port: forces class loading, which registers the items. */

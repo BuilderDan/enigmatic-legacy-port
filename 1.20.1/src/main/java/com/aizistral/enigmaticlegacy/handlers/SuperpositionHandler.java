@@ -69,7 +69,9 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
+import net.minecraft.world.level.storage.loot.functions.EnchantWithLevelsFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.functions.SetItemDamageFunction;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -268,6 +270,26 @@ public class SuperpositionHandler {
 			return null;
 
 		return LootItem.lootTableItem(item).setWeight(weight);
+	}
+
+	public static LootPoolSingletonContainer.Builder<?> itemEntryBuilderED(Item item, int weight, float enchantLevelMin, float enchantLevelMax, float damageMin, float damageMax) {
+		LootPoolSingletonContainer.Builder<?> builder = LootItem.lootTableItem(item);
+
+		builder.setWeight(weight);
+		builder.apply(SetItemDamageFunction.setDamage(UniformGenerator.between(damageMax, damageMin)));
+		builder.apply(EnchantWithLevelsFunction.enchantWithLevels(UniformGenerator.between(enchantLevelMin, enchantLevelMax)).allowTreasure());
+
+		return builder;
+	}
+
+	public static List<ResourceLocation> getBastionChests() {
+		List<ResourceLocation> lootChestList = new ArrayList<ResourceLocation>();
+		lootChestList.add(BuiltInLootTables.BASTION_TREASURE);
+		lootChestList.add(BuiltInLootTables.BASTION_OTHER);
+		lootChestList.add(BuiltInLootTables.BASTION_BRIDGE);
+		lootChestList.add(BuiltInLootTables.BASTION_HOGLIN_STABLE);
+
+		return lootChestList;
 	}
 
 	public static List<ResourceLocation> getNetherDungeons() {

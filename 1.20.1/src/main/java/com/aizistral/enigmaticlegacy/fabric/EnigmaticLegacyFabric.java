@@ -13,6 +13,7 @@ import com.aizistral.enigmaticlegacy.objects.EnabledCondition;
 import com.aizistral.enigmaticlegacy.objects.PersistentData;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketForceArrowRotations;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketHandleItemPickup;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketFlameParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncFireImmunity;
@@ -125,6 +126,8 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 				PacketSyncOptions::decode, PacketSyncOptions::handle);
 		network.register(PacketPortalParticles.class, PacketDirection.TO_CLIENT, PacketPortalParticles::encode,
 				PacketPortalParticles::decode, PacketPortalParticles::handle);
+		network.register(PacketFlameParticles.class, PacketDirection.TO_CLIENT, PacketFlameParticles::encode,
+				PacketFlameParticles::decode, PacketFlameParticles::handle);
 		network.register(PacketRecallParticles.class, PacketDirection.TO_CLIENT, PacketRecallParticles::encode,
 				PacketRecallParticles::decode, PacketRecallParticles::handle);
 		network.register(PacketHandleItemPickup.class, PacketDirection.TO_CLIENT, PacketHandleItemPickup::encode,

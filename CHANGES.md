@@ -441,3 +441,20 @@ Sections are added here as each Minecraft version / loader is ported.
     gives the same result and avoids vanilla's texture lookup on the namespaced material name.
   - `ShieldAuraLayer` is added to player renderers through Fabric's
     `LivingEntityFeatureRendererRegistrationCallback` instead of `EntityRenderersEvent.AddLayers`.
+- Astral Breaker, Keystone of the Oblivion (Void Stone) and Curse Transposer batch:
+  - `ItemBaseTool` and `AstralBreaker`: Forge's `ToolAction` set and `canPerformAction`
+    override are dropped (no Fabric equivalent). Mining speed and harvest checks still come
+    from the block tags, as upstream.
+  - `PacketFlameParticles` uses the port's packet context instead of Forge's
+    `NetworkEvent.Context`; it is registered in `EnigmaticLegacyFabric`.
+  - `OblivionStone`, `OblivionStoneCombineRecipe`: `ForgeRegistries.ITEMS` ->
+    `BuiltInRegistries.ITEM`. When the item list hits the hardcap, the combine recipe returns
+    an empty stack instead of upstream's `null`, which would crash.
+  - Crafting sounds (Curse/Enchantment Transposer, Cursed Stone): upstream listens to Forge's
+    `PlayerEvent.ItemCraftedEvent`. The port's `MixinResultSlot` calls
+    `EnigmaticEventHandler.onItemCrafted` from the head of `ResultSlot.checkTakeAchievements`,
+    where Forge fires that event.
+  - Nether fortress and bastion chest loot: upstream's "epic" pool (golden tools, Void Stone,
+    Forbidden Fruit in bastions, and others) and the Bastion Treasure "darkest_scroll" pool are
+    ported. Upstream's "netherLiterature" pool (Withered Tome) is not ported yet.
+  - `SuperpositionHandler`: `itemEntryBuilderED` and `getBastionChests` added, same as upstream.

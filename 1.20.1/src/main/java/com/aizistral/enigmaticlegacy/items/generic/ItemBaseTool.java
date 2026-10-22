@@ -1,21 +1,75 @@
 package com.aizistral.enigmaticlegacy.items.generic;
 
+import java.util.Set;
+
+import com.aizistral.enigmaticlegacy.api.items.ICreativeTabMember;
+import com.aizistral.enigmaticlegacy.api.materials.EnigmaticMaterials;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticTabs;
+import com.google.common.collect.Sets;
+
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.DiggerItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.Tier;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Port: only the default properties of upstream's ItemBaseTool so far; the base class
- * itself is ported with the first item that extends it.
+ * Port: Forge's ToolAction set and canPerformAction override are dropped (no Fabric
+ * equivalent; no subclass in this port adds tool actions).
  */
-public final class ItemBaseTool {
-	private ItemBaseTool() {}
+public abstract class ItemBaseTool extends DiggerItem implements ICreativeTabMember {
+	public Set<TagKey<Block>> effectiveTags;
 
-	public static Item.Properties getDefaultProperties() {
-		Item.Properties props = new Item.Properties();
+	public ItemBaseTool(float attackDamageIn, float attackSpeedIn, Tier tier, Properties builder, Set<TagKey<Block>> effectiveBlocksIn) {
+		super(attackDamageIn, attackSpeedIn, tier, effectiveBlocksIn.stream().findAny().get(), builder);
+		this.effectiveTags = effectiveBlocksIn;
+	}
+
+	@SuppressWarnings("unchecked")
+	public ItemBaseTool(Tier tier) {
+		this(4F, -2.8F, tier, ItemBaseTool.getDefaultProperties(), Sets.newHashSet(BlockTags.MINEABLE_WITH_PICKAXE));
+	}
+
+	@SuppressWarnings("unchecked")
+	public ItemBaseTool() {
+		this(4F, -2.8F, EnigmaticMaterials.ETHERIUM, ItemBaseTool.getDefaultProperties(), Sets.newHashSet(BlockTags.MINEABLE_WITH_PICKAXE));
+	}
+
+	@Override
+	public boolean isCorrectToolForDrops(BlockState blockIn) {
+		return super.isCorrectToolForDrops(blockIn) || this.hasAnyTag(blockIn, this.effectiveTags);
+	}
+
+	@Override
+	public float getDestroySpeed(ItemStack stack, BlockState state) {
+		return !this.hasAnyTag(state, this.effectiveTags) ? super.getDestroySpeed(stack, state) : this.speed;
+	}
+
+	protected boolean hasAnyTag(BlockState state, Set<TagKey<Block>> tags) {
+		return tags.stream().anyMatch(tag -> this.hasTag(state, tag));
+	}
+
+	protected boolean hasTag(BlockState state, TagKey<Block> tag) {
+		return state.is(tag);
+	}
+
+	@Override
+	public CreativeModeTab getCreativeTab() {
+		return EnigmaticTabs.MAIN;
+	}
+
+	public static Properties getDefaultProperties() {
+		Properties props = new Item.Properties();
 
 		props.stacksTo(1);
 		props.rarity(Rarity.COMMON);
 
 		return props;
 	}
+
 }

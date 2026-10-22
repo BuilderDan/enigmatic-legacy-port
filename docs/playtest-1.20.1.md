@@ -28,6 +28,7 @@ name, model and tooltip. Results go to the log with a `[devcheck]` prefix. With
 | 2026-10-22 | 29 | 29 | 0 | Added Essence of Raging Life (infinimeal) and Astral Potato. |
 | 2026-10-22 | 30 | 30 | 0 | Added Charm of Treasure Hunter (mining_charm); 6 new mixin targets and the block reach attribute checked. |
 | 2026-10-22 | 31 | 31 | 0 | Added Axe of Executioner (forbidden_axe); drop-capture mixins on `Entity` and `LivingEntity` checked. |
+| 2026-10-22 | 72 | 73 | 0 | Added Astral Breaker, Void Stone and Curse Transposer. `void_stone_combine` recipe ok; recipe pass: 61 parsed, 25 skipped by conditions, 7 pending, 0 failed. `ResultSlot` crafting mixin checked. |
 
 ## Manual checklist
 
@@ -90,6 +91,9 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 | Scroll of a Thousand Curses (cursed_scroll) | - | - | - | - (cursed-only; inactive until the Cursed Ring) | - |
 | Scroll of Avarice (avarice_scroll) | - | - | - | - (cursed-only; inactive until the Cursed Ring) | - |
 | Cosmic Scroll (cosmic_scroll, not in creative tab: /give) | - | - | - | - (blessed-only; +1 scroll slot, revive at 50% on cooldown, extra tooltip lines) | - |
+| Astral Breaker (astral_breaker) | - | - | - | - (mines 3x3 on pickaxe, axe and shovel blocks; sneak mines one block; flame particles on other players' clients; fireproof item) | - |
+| Keystone of the Oblivion (void_stone) | - | - | - | - (use toggles voiding; picked-up items on its list are voided; Ctrl tooltip shows the list; combine recipe adds an item to the list; in Nether fortress/bastion chests, weight 8) | - |
+| Curse Transposer (curse_transposer) | - | - | - | - (craft with an item and a book: moves only curses to the book; enchant-table sound on crafting; Cursed Stone crafting plays the beacon sound) | - |
 
 Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).

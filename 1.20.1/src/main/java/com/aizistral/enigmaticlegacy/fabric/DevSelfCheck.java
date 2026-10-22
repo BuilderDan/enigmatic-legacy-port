@@ -148,6 +148,7 @@ public final class DevSelfCheck {
 		problems += checkMixinApplied("net.minecraft.world.entity.projectile.ThrownEnderpearl", "pearlDamage");
 		problems += checkMixinApplied("net.minecraft.world.item.ItemStack", "beginTooltip", "endTooltip");
 		problems += checkMixinApplied("net.minecraft.world.level.block.entity.BeaconBlockEntity", "enigmaticlegacy$getLevels");
+		problems += checkMixinApplied("net.minecraft.world.inventory.ResultSlot", "enigmaticlegacy$checkTakeAchievements");
 		problems += checkPlayerAttributes();
 		LOGGER.info("[devcheck] Done: {} problem(s)", problems);
 	}

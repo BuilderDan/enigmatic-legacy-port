@@ -20,6 +20,7 @@
 		"MixinPiglinAi",
 		"MixinPlayer",
 		"MixinPotionBrewing",
+		"MixinResultSlot",
 		"MixinServerGamePacketListenerImpl",
 		"MixinServerPlayer",
 		"MixinServerPlayerGameMode",

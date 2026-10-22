@@ -10,6 +10,7 @@ import com.aizistral.enigmaticlegacy.crafting.BlessedShapedRecipe;
 import com.aizistral.enigmaticlegacy.crafting.CursedShapedRecipe;
 import com.aizistral.enigmaticlegacy.crafting.EnchantmentTransposingRecipe;
 import com.aizistral.enigmaticlegacy.crafting.MendingMixtureRepairRecipe;
+import com.aizistral.enigmaticlegacy.crafting.OblivionStoneCombineRecipe;
 import com.aizistral.enigmaticlegacy.crafting.ShapelessNoReturnRecipe;
 import com.aizistral.enigmaticlegacy.helpers.PotionHelper;
 
@@ -32,8 +33,8 @@ public class EnigmaticRecipes extends AbstractRegistry<RecipeSerializer<?>> {
 	@ObjectHolder(value = MODID + ":enchantment_transposing", registryName = "recipe_serializer")
 	public static RecipeSerializer<EnchantmentTransposingRecipe> ENCHANTMENT_TRANSPOSING;
 
-	// Port: void_stone_combine (OblivionStoneCombineRecipe) is not registered yet; it needs the
-	// Keystone of the Oblivion (VOID_STONE). Its recipe JSON is skipped by its is_enabled condition.
+	@ObjectHolder(value = MODID + ":void_stone_combine", registryName = "recipe_serializer")
+	public static RecipeSerializer<OblivionStoneCombineRecipe> OBLIVION_STONE_COMBINE;
 
 	@ObjectHolder(value = MODID + ":bind_to_player", registryName = "recipe_serializer")
 	public static RecipeSerializer<BindToPlayerRecipe> BIND_TO_PLAYER;
@@ -54,6 +55,7 @@ public class EnigmaticRecipes extends AbstractRegistry<RecipeSerializer<?>> {
 		super(BuiltInRegistries.RECIPE_SERIALIZER);
 		this.register("mending_mixture_repair", () -> MendingMixtureRepairRecipe.SERIALIZER);
 		this.register("enchantment_transposing", () -> EnchantmentTransposingRecipe.SERIALIZER);
+		this.register("void_stone_combine", () -> OblivionStoneCombineRecipe.SERIALIZER);
 		this.register("bind_to_player", () -> BindToPlayerRecipe.SERIALIZER);
 		// Port: kept as upstream wrote it. ShapelessNoReturnRecipe.Serializer resolves to the
 		// inherited vanilla ShapelessRecipe.Serializer (upstream's nested class is named

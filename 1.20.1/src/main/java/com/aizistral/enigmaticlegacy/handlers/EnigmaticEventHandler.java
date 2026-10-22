@@ -70,6 +70,7 @@ import net.minecraft.world.entity.monster.Skeleton;
 import net.minecraft.world.entity.monster.WitherSkeleton;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -77,6 +78,8 @@ import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.food.FoodData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -85,6 +88,7 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.functions.SetNbtFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraft.world.phys.EntityHitResult;
@@ -580,9 +584,22 @@ public class EnigmaticEventHandler {
 	}
 
 	/**
+	 * Port: upstream's {@code ItemCraftedEvent} handler. Called from {@code MixinResultSlot}.
+	 */
+	public static void onItemCrafted(Player player, ItemStack crafted, CraftingContainer inventory) {
+		if (player != null && !player.level().isClientSide) {
+			if ((inventory.countItem(EnigmaticItems.ENCHANTMENT_TRANSPOSER) == 1 || inventory.countItem(EnigmaticItems.CURSE_TRANSPOSER) == 1) && crafted.getItem() == Items.ENCHANTED_BOOK) {
+				player.level().playSound(null, player.blockPosition(), SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.PLAYERS, 1.0F, (float) (0.9F + (Math.random() * 0.1F)));
+			} else if (crafted.getItem() == EnigmaticItems.CURSED_STONE) {
+				player.level().playSound(null, player.blockPosition(), SoundEvents.BEACON_ACTIVATE, SoundSource.PLAYERS, 1.0F, (float) (0.9F + (Math.random() * 0.1F)));
+			}
+		}
+	}
+
+	/**
 	 * Port: the End city part of upstream's {@code LootTableLoadEvent} handler. Fabric calls it
 	 * from {@code LootTableEvents.MODIFY}; {@code addPool} adds the pool to the table.
-	 * Also adds the spellstone pools; the other dungeon "epic" pools are not ported yet.
+	 * Also adds the spellstone pools and the Nether "epic" pool; the other dungeon "epic" pools are not ported yet.
 	 */
 	public static void onLootTablesLoaded(ResourceLocation id, Consumer<LootPool> addPool) {
 		if (!OmniconfigHandler.customDungeonLootEnabled.getValue())
@@ -628,7 +645,34 @@ public class EnigmaticEventHandler {
 			spellstones = SuperpositionHandler.constructLootPool("spellstones", -20F, 1F,
 					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.GOLEM_HEART, 100));
 		} else if (SuperpositionHandler.getNetherDungeons().contains(id)) {
-			// Port: upstream's nether "epic" pool is not ported yet; only the spellstone pool is.
+			ItemStack fireResistancePotion = new ItemStack(Items.POTION);
+			fireResistancePotion = PotionUtils.setPotion(fireResistancePotion, Potions.LONG_FIRE_RESISTANCE);
+
+			LootPool epic = SuperpositionHandler.constructLootPool("epic", 1F, 2F,
+					SuperpositionHandler.itemEntryBuilderED(Items.GOLDEN_PICKAXE, 10, 25F, 30F, 1.0F, 1.0F),
+					SuperpositionHandler.itemEntryBuilderED(Items.GOLDEN_AXE, 10, 25F, 30F, 1.0F, 1.0F),
+					SuperpositionHandler.itemEntryBuilderED(Items.GOLDEN_SWORD, 10, 25F, 30F, 1.0F, 1.0F),
+					SuperpositionHandler.itemEntryBuilderED(Items.GOLDEN_SHOVEL, 10, 25F, 30F, 1.0F, 1.0F),
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.VOID_STONE, 8),
+					LootItem.lootTableItem(Items.EMERALD).setWeight(30).apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 7F))),
+					LootItem.lootTableItem(Items.WITHER_ROSE).setWeight(25).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 4F))),
+					LootItem.lootTableItem(Items.GHAST_TEAR).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2F))),
+					LootItem.lootTableItem(Items.LAVA_BUCKET).setWeight(30),
+					LootItem.lootTableItem(Items.POTION).setWeight(15).apply(SetNbtFunction.setTag(fireResistancePotion.getTag())),
+					SuperpositionHandler.getBastionChests().contains(id) ? LootItem.lootTableItem(EnigmaticItems.FORBIDDEN_FRUIT).setWeight(4) : null
+					);
+
+			if (!id.equals(BuiltInLootTables.BASTION_TREASURE)) {
+				addPool.accept(epic);
+			} else {
+				LootPool scroll = SuperpositionHandler.constructLootPool("darkest_scroll", 0F, 1F,
+						LootItem.lootTableItem(EnigmaticItems.DARKEST_SCROLL).setWeight(100).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 1F)))
+						);
+
+				addPool.accept(scroll);
+			}
+
+			// Port: upstream's "netherLiterature" pool (Withered Tome) is not ported.
 			spellstones = SuperpositionHandler.constructLootPool("spellstones", -24F, 1F,
 					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.BLAZING_CORE, 100));
 		} else if (SuperpositionHandler.getWaterDungeons().contains(id)) {
