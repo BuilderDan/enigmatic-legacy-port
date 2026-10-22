@@ -28,6 +28,8 @@ import com.aizistral.enigmaticlegacy.items.Infinimeal;
 import com.aizistral.enigmaticlegacy.items.IronRing;
 import com.aizistral.enigmaticlegacy.items.LoreFragment;
 import com.aizistral.enigmaticlegacy.items.LoreInscriber;
+import com.aizistral.enigmaticlegacy.items.SoulCrystal;
+import com.aizistral.enigmaticlegacy.items.StorageCrystal;
 import com.aizistral.enigmaticlegacy.items.MagnetRing;
 import com.aizistral.enigmaticlegacy.items.MendingMixture;
 import com.aizistral.enigmaticlegacy.items.MiningCharm;
@@ -126,6 +128,14 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ConfigurableItem("The Architect's Inkwell")
 	@ObjectHolder(value = MODID + ":lore_inscriber", registryName = "item")
 	public static LoreInscriber LORE_INSCRIBER;
+
+	@ConfigurableItem
+	@ObjectHolder(value = MODID + ":storage_crystal", registryName = "item")
+	public static StorageCrystal STORAGE_CRYSTAL;
+
+	@ConfigurableItem
+	@ObjectHolder(value = MODID + ":soul_crystal", registryName = "item")
+	public static SoulCrystal SOUL_CRYSTAL;
 
 	@ConfigurableItem("Mending Mixture")
 	@ObjectHolder(value = MODID + ":mending_mixture", registryName = "item")
@@ -460,6 +470,8 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("void_stone", OblivionStone::new);
 		this.register("curse_transposer", CurseTransposer::new);
 		this.register("lore_inscriber", LoreInscriber::new);
+		this.register("storage_crystal", StorageCrystal::new);
+		this.register("soul_crystal", SoulCrystal::new);
 	}
 
 	/** Port: forces class loading, which registers the items. */

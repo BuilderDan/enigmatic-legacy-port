@@ -8,6 +8,7 @@ import com.aizistral.enigmaticlegacy.config.OmniconfigHandler;
 import com.aizistral.enigmaticlegacy.config.OmniconfigSync;
 import com.aizistral.enigmaticlegacy.fabric.platform.FabricPlatformHelper;
 import com.aizistral.enigmaticlegacy.handlers.EnigmaticEventHandler;
+import com.aizistral.enigmaticlegacy.handlers.SoulArchive;
 import com.aizistral.enigmaticlegacy.fabric.platform.TrinketsAccessorySlots;
 import com.aizistral.enigmaticlegacy.objects.EnabledCondition;
 import com.aizistral.enigmaticlegacy.objects.PersistentData;
@@ -105,6 +106,9 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) ->
 				((PersistentData) newPlayer).enigmaticlegacy$setPersistedTag(
 						((PersistentData) oldPlayer).enigmaticlegacy$getPersistedTag().copy()));
+		// Port: upstream reapplies the lost-soul max health penalty in its PlayerEvent.Clone handler.
+		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) ->
+				EnigmaticItems.SOUL_CRYSTAL.updatePlayerSoulMap(newPlayer));
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 				EnigmaticEventHandler.onPlayerTick(player);
@@ -112,6 +116,7 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		});
 		// Port: upstream builds this in common setup, after every mod has registered its items.
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> GolemHeart.buildArmorExclusions());
+		ServerLifecycleEvents.SERVER_STARTING.register(SoulArchive::initialize);
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> EnigmaticEventHandler.onServerStopped());
 		LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) ->
 				EnigmaticEventHandler.onLootTablesLoaded(id, tableBuilder::pool));

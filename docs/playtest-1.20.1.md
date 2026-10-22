@@ -96,6 +96,8 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 | Keystone of the Oblivion (void_stone) | - | - | - | - (use toggles voiding; picked-up items on its list are voided; Ctrl tooltip shows the list; combine recipe adds an item to the list; in Nether fortress/bastion chests, weight 8) | - |
 | Curse Transposer (curse_transposer) | - | - | - | - (craft with an item and a book: moves only curses to the book; enchant-table sound on crafting; Cursed Stone crafting plays the beacon sound) | - |
 | The Architect's Inkwell (lore_inscriber) | - | - | - | - (use opens the inkwell GUI; a Lore Fragment in the left slot gets the typed name or lore commands; taking the result plays the write sound) | - |
+| Extradimensional Vessel (storage_crystal) | - | - | - | - (die wearing the Enigmatic Amulet: drops and XP go into a floating vessel at the death point; only the owner can pick it up unless the config allows others; pickup returns items and XP, plus the soul if one was embedded) | - |
+| Soul Crystal (soul_crystal) | - | - | - | - (with soul loss on, death drops a crystal and lowers max health 10% per lost crystal; picking it up or using it restores the health; rejoining and respawning keep the penalty; `soul_archive.json` appears in the world folder) | - |
 
 Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).

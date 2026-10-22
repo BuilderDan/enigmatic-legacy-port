@@ -52,6 +52,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
@@ -1026,6 +1027,42 @@ public class SuperpositionHandler {
 			player.getAdvancements().award(adv, criterion);
 		}
 
+	}
+
+	public static void revokeAdvancement(ServerPlayer player, ResourceLocation location) {
+		Advancement adv = player.server.getAdvancements().getAdvancement(location);
+
+		for (String criterion : player.getAdvancements().getOrStartProgress(adv).getCompletedCriteria()) {
+			player.getAdvancements().revoke(adv, criterion);
+		}
+	}
+
+	public static boolean isPermanentlyDead(Player player) {
+		// TODO Proper permadeath screen, Cursed Mode
+		return EnigmaticItems.SOUL_CRYSTAL.getLostCrystals(player) >= 10
+				&& OmniconfigHandler.maxSoulCrystalLoss.getValue() >= 10;
+	}
+
+	public static boolean isAffectedBySoulLoss(Player player, boolean hadRing) {
+		int dropMode = OmniconfigHandler.soulCrystalsMode.getValue(); // TODO Use Enum config
+		boolean keepInventory = player.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY);
+
+		if (dropMode == 0)
+			return hadRing;
+		else if (dropMode == 1)
+			return (hadRing || keepInventory);
+		else if (dropMode == 2)
+			return true;
+		else
+			return false;
+	}
+
+	public static boolean canDropSoulCrystal(Player player, boolean hadRing) {
+		if (isAffectedBySoulLoss(player, hadRing)) {
+			int maxCrystalLoss = OmniconfigHandler.maxSoulCrystalLoss.getValue();
+			return EnigmaticItems.SOUL_CRYSTAL.getLostCrystals(player) < maxCrystalLoss;
+		} else
+			return false;
 	}
 
 	private static boolean contains(char[] array, char ch) {

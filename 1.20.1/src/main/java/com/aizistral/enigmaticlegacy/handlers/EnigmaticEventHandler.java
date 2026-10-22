@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import com.aizistral.enigmaticlegacy.EnigmaticLegacy;
 import com.aizistral.enigmaticlegacy.config.OmniconfigHandler;
 import com.aizistral.enigmaticlegacy.entities.PermanentItemEntity;
 import com.aizistral.enigmaticlegacy.helpers.ItemNBTHelper;
@@ -407,6 +408,7 @@ public class EnigmaticEventHandler {
 		EnigmaticItems.THE_CUBE.clearLocationCache();
 		EyeOfNebula.EMPOWERED_PLAYERS.clear();
 		LAST_HEALTH.clear();
+		EnigmaticItems.SOUL_CRYSTAL.attributeDispatcher.clear();
 	}
 
 	/**
@@ -419,9 +421,6 @@ public class EnigmaticEventHandler {
 		SuperpositionHandler.setPersistentBoolean(player, "DeathFromEntity", source.getEntity() instanceof LivingEntity);
 
 		// TODO: Ascension Amulet branch (else-if) when that item is ported.
-		// TODO: the POSTMORTAL_POSESSIONS amulet entry is read by upstream's drops handler to summon
-		// the Extradimensional Vessel (storage crystal, saved XP); not ported yet, so the amulet
-		// currently drops like any other item.
 		if (SuperpositionHandler.hasCurio(player, EnigmaticItems.ENIGMATIC_AMULET) || SuperpositionHandler.hasItem(player, EnigmaticItems.ENIGMATIC_AMULET)) {
 			POSTMORTAL_POSESSIONS.put(player, EnigmaticItems.ENIGMATIC_AMULET);
 		}
@@ -553,6 +552,7 @@ public class EnigmaticEventHandler {
 	public static void onPlayerJoin(ServerPlayer player) {
 		EnigmaticItems.FORBIDDEN_FRUIT.syncConsumedFruit(player);
 		EnigmaticItems.COSMIC_SCROLL.onPlayerJoin(player);
+		EnigmaticItems.SOUL_CRYSTAL.updatePlayerSoulMap(player);
 
 		if (EnigmaticItems.FORBIDDEN_FRUIT.haveConsumedFruit(player)) {
 			ForbiddenFruitTrigger.INSTANCE.trigger(player);
@@ -882,8 +882,8 @@ public class EnigmaticEventHandler {
 	}
 
 	/**
-	 * Upstream onLivingDropsLowest, Escape Scroll part. The Eldritch Pan, Enigmatic Amulet,
-	 * soul crystal and soul loss parts follow with those items.
+	 * Upstream onLivingDropsLowest: Escape Scroll, Extradimensional Vessel, Soul Crystal and soul
+	 * loss parts. The Eldritch Pan part follows with that item.
 	 */
 	private static void onLivingDropsLowest(LivingEntity entity, DamageSource source, Collection<ItemEntity> drops) {
 		if (entity instanceof ServerPlayer player) {
@@ -923,6 +923,40 @@ public class EnigmaticEventHandler {
 
 				dimPoint.world.playSound(null, BlockPos.containing(dimPoint.posX, dimPoint.posY, dimPoint.posZ), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F, (float) (0.8F + (Math.random() * 0.2)));
 				Services.NETWORK.sendToNear(new TargetPoint(dimPoint.posX, dimPoint.posY, dimPoint.posZ, 128, dimPoint.world.dimension()), new PacketRecallParticles(dimPoint.posX, dimPoint.posY, dimPoint.posZ, 48, false));
+			}
+
+			// Port: TODO Cursed Ring not ported; upstream checks whether the player wore it.
+			boolean hadCursedRing = false;
+
+			if (POSTMORTAL_POSESSIONS.containsEntry(player, EnigmaticItems.ENIGMATIC_AMULET) && !drops.isEmpty() && EnigmaticItems.ENIGMATIC_AMULET.isVesselEnabled()) {
+				ItemStack soulCrystal = SuperpositionHandler.canDropSoulCrystal(player, hadCursedRing) ? EnigmaticItems.SOUL_CRYSTAL.createCrystalFrom(player) : null;
+				ItemStack storageCrystal = EnigmaticItems.STORAGE_CRYSTAL.storeDropsOnCrystal(drops, player, soulCrystal);
+				PermanentItemEntity droppedStorageCrystal = new PermanentItemEntity(dimPoint.world, dimPoint.getPosX(), dimPoint.getPosY() + 1.5, dimPoint.getPosZ(), storageCrystal);
+				droppedStorageCrystal.setOwnerId(player.getUUID());
+				dimPoint.world.addFreshEntity(droppedStorageCrystal);
+				EnigmaticLegacy.LOGGER.info("Summoned Extradimensional Storage Crystal for " + player.getGameProfile().getName() + " at X: " + dimPoint.getPosX() + ", Y: " + dimPoint.getPosY() + ", Z: " + dimPoint.getPosZ());
+				drops.clear();
+
+				SoulArchive.getInstance().addItem(droppedStorageCrystal);
+			} else if (SuperpositionHandler.canDropSoulCrystal(player, hadCursedRing)) {
+				ItemStack soulCrystal = EnigmaticItems.SOUL_CRYSTAL.createCrystalFrom(player);
+				PermanentItemEntity droppedSoulCrystal = new PermanentItemEntity(dimPoint.world, dimPoint.getPosX(), dimPoint.getPosY() + 1.5, dimPoint.getPosZ(), soulCrystal);
+				droppedSoulCrystal.setOwnerId(player.getUUID());
+				dimPoint.world.addFreshEntity(droppedSoulCrystal);
+				EnigmaticLegacy.LOGGER.info("Teared Soul Crystal from " + player.getGameProfile().getName() + " at X: " + dimPoint.getPosX() + ", Y: " + dimPoint.getPosY() + ", Z: " + dimPoint.getPosZ());
+
+				SoulArchive.getInstance().addItem(droppedSoulCrystal);
+			}
+
+			// Port: TODO upstream sends PacketPermadeath and marks the world fractured when
+			// SuperpositionHandler.isPermanentlyDead(player); the permadeath screen is not ported yet.
+
+			ResourceLocation soulLossAdvancement = new ResourceLocation(EnigmaticLegacy.MODID, "book/soul_loss");
+
+			if (SuperpositionHandler.isAffectedBySoulLoss(player, hadCursedRing)) {
+				SuperpositionHandler.grantAdvancement(player, soulLossAdvancement);
+			} else if (SuperpositionHandler.hasAdvancement(player, soulLossAdvancement)) {
+				SuperpositionHandler.revokeAdvancement(player, soulLossAdvancement);
 			}
 
 			POSTMORTAL_POSESSIONS.removeAll(player);

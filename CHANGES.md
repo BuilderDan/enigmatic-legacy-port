@@ -333,8 +333,8 @@ Sections are added here as each Minecraft version / loader is ported.
     the player (NBT key `EnigmaticLegacyPersisted`), copied with `ServerPlayerEvents.COPY_FROM`.
     `SuperpositionHandler.getRespawnPoint` and the persistent-data helpers are added.
   - `PermanentItemEntity` uses the vanilla entity spawn packet; `changeDimension` returns null
-    (no portal travel, as upstream). Soul Crystal and `SoulArchive` parts are left as TODOs
-    until those items are ported (`containsSoul` returns false).
+    (no portal travel, as upstream). The Soul Crystal and `SoulArchive` parts were filled in
+    with those items (see below).
   - `PacketHandleItemPickup` uses `PacketContext`; `ClientProxy.handleItemPickup` is inlined
     into its handler. `PermanentItemRenderer` and `PermanentItemPickupParticle` drop `@OnlyIn`.
     The empty `IPermanentCrystal` interface is copied for the renderer.
@@ -466,3 +466,24 @@ Sections are added here as each Minecraft version / loader is ported.
     `EnigmaticLegacy.packetInstance`; `@OnlyIn` removed.
   - `PacketInkwellField` uses the port's packet context; registered in `EnigmaticLegacyFabric`.
   - `LoreInscriber`, `LoreInscriberContainer`: javax `@Nullable` -> jetbrains; logic unchanged.
+- Extradimensional Vessel (Storage Crystal) and Soul Crystal:
+  - `SoulArchive`: the save file is still `soul_archive.json` in the world folder, but each
+    record stores the dimension as a string and the position as plain `x`/`y`/`z`. Upstream let
+    Gson write `ResourceLocation` and `BlockPos` by reflection, which gives obfuscated field
+    names outside the dev environment. File access uses `java.nio.file.Files` instead of
+    commons-io. The archive is created on Fabric's `SERVER_STARTING`.
+    If the file cannot be read (corrupted, or written by upstream in its Forge format), it is
+    renamed to `soul_archive.json.invalid` and the archive starts empty. Upstream threw an
+    exception, which stopped the server from starting.
+  - `StorageCrystal`: Forge's `serializeNBT()` -> `ItemStack.save()`. Upstream called
+    `deserializeNBT()` on an empty tag when embedding a soul, which stored an empty compound;
+    the port saves the soul crystal stack instead. Only the tag's presence is read, so
+    behavior is the same.
+  - `SoulCrystal`, `PermanentItemEntity`: Forge's `PacketDistributor.NEAR` -> the port's
+    `Services.NETWORK.sendToNear`. `PermanentItemEntity.remove()` only touches the archive on
+    the logical server (null check added).
+  - The lost-soul health penalty is reapplied on join and on Fabric's
+    `ServerPlayerEvents.AFTER_RESPAWN` (upstream: `PlayerEvent.Clone`).
+  - Not ported yet: the permadeath screen and "fractured world" flag at 10 lost crystals
+    (`PacketPermadeath`, `EnigmaticTransience`), Soul Compass updates, and the Cursed Ring
+    check in soul-loss mode 0 (treated as "no ring" for now).
