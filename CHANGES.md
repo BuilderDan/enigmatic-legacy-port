@@ -82,7 +82,7 @@ Sections are added here as each Minecraft version / loader is ported.
   loading from the Fabric entry point. The `onRegister` block-item hook is left out until
   blocks are ported.
 - `EnigmaticItems` holds only the ported items (so far: Mending Mixture, Blank Scroll, Iron
-  Ring, Extradimensional Eye, Etherium Ingot, Etherium Nugget, Etherium Scraps, Ender Rod, Astral Dust, Lore
+  Ring, Extradimensional Eye, Potion of Recall, Etherium Ingot, Etherium Nugget, Etherium Scraps, Ender Rod, Astral Dust, Lore
   Fragment, Heart of the Earth, Twisted Heart, Exquisite Ring, Nefarious Essence, Nefarious
   Ingot, Unholy Stone, Darkest Scroll, Tome of Hungering Knowledge, Heart of the Cosmos,
   Heart of the Abyss, Soul Dust), registered in upstream order.
@@ -169,5 +169,16 @@ Sections are added here as each Minecraft version / loader is ported.
 - `PacketPortalParticles` and `PacketRecallParticles`: use `PacketContext`; `@OnlyIn` removed.
 - `SuperpositionHandler`: added `getParticleMultiplier`, copied unchanged from upstream
   (client only; `@OnlyIn` removed).
+- Potion of Recall (`RecallPotion`, `ItemBasePotion`, `helpers/AdvancedSpawnLocationHelper`):
+  `canDrink` used `EnigmaticLegacy.PROXY.isInVanillaDimension`; it now calls the new
+  `SuperpositionHandler.isInVanillaDimension`, which does the same check on both sides.
+  `@OnlyIn` removed from `isFoil` and the tooltip.
+- `SuperpositionHandler.backToSpawn`: upstream moved the player to another dimension with
+  Forge's `changeDimension(level, RealSmoothTeleporter)`; the port uses vanilla
+  `ServerPlayer.teleportTo(level, ...)`, which also keeps the position, before the same
+  spawn-point teleport. `getWorld` uses the platform server instead of `ServerLifecycleHooks`.
+- Potion of Recall: the brewing recipe (Awkward Potion + Eye of Ender) is not added yet.
+  Upstream uses Forge's `BrewingRecipeRegistry`; 1.20.1 Fabric needs a mixin for it. Also
+  not yet in End city loot (`LootTableLoadEvent` not ported).
 - `javax.annotation.Nullable` (from Forge's classpath) is replaced by
   `org.jetbrains.annotations.Nullable` where ported files used it.

@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -18,8 +19,12 @@ import com.aizistral.enigmaticlegacy.api.capabilities.IPlaytimeCounter;
 import com.aizistral.enigmaticlegacy.api.generic.ConfigurableItem;
 import com.aizistral.enigmaticlegacy.api.generic.SubscribeConfig;
 import com.aizistral.enigmaticlegacy.config.ConfigHolders;
+import com.aizistral.enigmaticlegacy.helpers.AdvancedSpawnLocationHelper;
 import com.aizistral.enigmaticlegacy.objects.Vector3;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
 import com.aizistral.enigmaticlegacy.platform.Services;
+import com.aizistral.enigmaticlegacy.platform.network.TargetPoint;
 import com.aizistral.omniconfig.Configuration;
 import com.aizistral.omniconfig.wrappers.OmniconfigWrapper;
 import com.google.common.collect.HashMultimap;
@@ -27,7 +32,12 @@ import com.google.common.collect.Multimap;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.ParticleStatus;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -35,6 +45,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 /**
  * Port of upstream's SuperpositionHandler. Methods are added as the code that calls them
@@ -269,5 +281,60 @@ public class SuperpositionHandler {
 		else
 			return 1.0F;
 
+	}
+
+	public static ServerLevel getWorld(ResourceKey<Level> key) {
+		return Services.PLATFORM.getServer().getLevel(key);
+	}
+
+	/**
+	 * Port: was {@code EnigmaticLegacy.PROXY.isInVanillaDimension}. Both proxies did the same
+	 * dimension check, so it lives here and works on either side.
+	 */
+	public static boolean isInVanillaDimension(Player player) {
+		ResourceKey<Level> dimension = player.level().dimension();
+		return dimension.equals(Level.OVERWORLD) || dimension.equals(Level.NETHER) || dimension.equals(Level.END);
+	}
+
+	public static ServerLevel backToSpawn(ServerPlayer serverPlayer) {
+		ResourceKey<Level> respawnDimension = AdvancedSpawnLocationHelper.getPlayerRespawnDimension(serverPlayer);
+		ServerLevel respawnWorld = SuperpositionHandler.getWorld(respawnDimension);
+
+		serverPlayer.level().playSound(null, serverPlayer.blockPosition(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F, (float) (0.8F + (Math.random() * 0.2)));
+
+		Services.NETWORK.sendToNear(new TargetPoint(serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), 128, serverPlayer.level().dimension()), new PacketPortalParticles(serverPlayer.getX(), serverPlayer.getY() + (serverPlayer.getBbHeight() / 2), serverPlayer.getZ(), 100, 1.25F, false));
+
+		Optional<Vec3> vec = AdvancedSpawnLocationHelper.getValidSpawn(respawnWorld, serverPlayer);
+		Optional<Vec3> vec2;
+		ServerLevel destinationWorld = vec.isPresent() ? respawnWorld : serverPlayer.server.overworld();
+
+		if (!serverPlayer.level().equals(destinationWorld)) {
+			// Port: upstream used Forge's changeDimension(level, ITeleporter) with RealSmoothTeleporter,
+			// which only kept the player's position (no portal search). Vanilla teleportTo across
+			// levels does the same; the exact spot is set right below either way.
+			serverPlayer.teleportTo(destinationWorld, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), serverPlayer.getYRot(), serverPlayer.getXRot());
+		}
+
+		if (!respawnWorld.equals(destinationWorld)) {
+			vec2 = AdvancedSpawnLocationHelper.getValidSpawn(destinationWorld, serverPlayer);
+		} else {
+			vec2 = Optional.empty();
+		}
+
+		if (vec.isPresent()) {
+			Vec3 trueVec = vec.get();
+			serverPlayer.teleportTo(trueVec.x, trueVec.y, trueVec.z);
+		} else if (vec2.isPresent()) {
+			Vec3 trueVec = vec2.get();
+			serverPlayer.teleportTo(trueVec.x, trueVec.y, trueVec.z);
+		} else {
+			AdvancedSpawnLocationHelper.fuckBackToSpawn(serverPlayer.serverLevel(), serverPlayer);
+		}
+
+		serverPlayer.level().playSound(null, serverPlayer.blockPosition(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F, (float) (0.8F + (Math.random() * 0.2)));
+
+		Services.NETWORK.sendToNear(new TargetPoint(serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), 128, serverPlayer.level().dimension()), new PacketRecallParticles(serverPlayer.getX(), serverPlayer.getY() + (serverPlayer.getBbHeight() / 2), serverPlayer.getZ(), 48, false));
+
+		return destinationWorld;
 	}
 }

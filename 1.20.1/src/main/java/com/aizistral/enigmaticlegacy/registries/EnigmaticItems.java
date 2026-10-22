@@ -21,6 +21,7 @@ import com.aizistral.enigmaticlegacy.items.IronRing;
 import com.aizistral.enigmaticlegacy.items.LoreFragment;
 import com.aizistral.enigmaticlegacy.items.MagnetRing;
 import com.aizistral.enigmaticlegacy.items.MendingMixture;
+import com.aizistral.enigmaticlegacy.items.RecallPotion;
 import com.aizistral.enigmaticlegacy.items.SuperMagnetRing;
 import com.aizistral.enigmaticlegacy.items.SoulDust;
 import com.aizistral.enigmaticlegacy.items.ThiccScroll;
@@ -114,6 +115,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ObjectHolder(value = MODID + ":extradimensional_eye", registryName = "item")
 	public static ExtradimensionalEye EXTRADIMENSIONAL_EYE;
 
+	@ConfigurableItem("Potion of Recall")
+	@ObjectHolder(value = MODID + ":recall_potion", registryName = "item")
+	public static RecallPotion RECALL_POTION;
+
 	@ConfigurableItem("Ring of Dislocation")
 	@ObjectHolder(value = MODID + ":super_magnet_ring", registryName = "item")
 	public static SuperMagnetRing SUPER_MAGNET_RING;
@@ -139,6 +144,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 
 		this.register("magnet_ring", MagnetRing::new);
 		this.register("extradimensional_eye", ExtradimensionalEye::new);
+		this.register("recall_potion", RecallPotion::new);
 		this.register("super_magnet_ring", SuperMagnetRing::new);
 		this.register("mending_mixture", MendingMixture::new);
 		this.register("thicc_scroll", ThiccScroll::new);
