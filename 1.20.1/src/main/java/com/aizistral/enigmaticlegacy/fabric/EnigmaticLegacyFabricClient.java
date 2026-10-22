@@ -3,6 +3,7 @@ package com.aizistral.enigmaticlegacy.fabric;
 import com.aizistral.enigmaticlegacy.client.BlazingCoreClient;
 import com.aizistral.enigmaticlegacy.config.OmniconfigSync;
 import com.aizistral.enigmaticlegacy.fabric.platform.client.FabricClientNetwork;
+import com.aizistral.enigmaticlegacy.client.renderers.PermanentItemRenderer;
 import com.aizistral.enigmaticlegacy.client.renderers.UltimateWitherSkullRenderer;
 import com.aizistral.enigmaticlegacy.handlers.EnigmaticKeybindHandler;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticEntities;
@@ -42,6 +43,7 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 		KEYBIND_HANDLER.spellstoneAbilityKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.spellstoneAbility", GLFW.GLFW_KEY_K, "key.categories.enigmaticLegacy"));
 		// Port: upstream registers this in EntityRenderersEvent.RegisterRenderers.
 		EntityRendererRegistry.register(EnigmaticEntities.ULTIMATE_WITHER_SKULL, UltimateWitherSkullRenderer::new);
+		EntityRendererRegistry.register(EnigmaticEntities.PERMANENT_ITEM_ENTITY, ctx -> new PermanentItemRenderer(ctx, ctx.getItemRenderer()));
 		ClientTickEvents.START_CLIENT_TICK.register(KEYBIND_HANDLER::onKeyInput);
 	}
 }

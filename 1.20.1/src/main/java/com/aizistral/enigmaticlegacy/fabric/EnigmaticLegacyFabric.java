@@ -10,6 +10,8 @@ import com.aizistral.enigmaticlegacy.fabric.platform.FabricPlatformHelper;
 import com.aizistral.enigmaticlegacy.handlers.EnigmaticEventHandler;
 import com.aizistral.enigmaticlegacy.fabric.platform.TrinketsAccessorySlots;
 import com.aizistral.enigmaticlegacy.objects.EnabledCondition;
+import com.aizistral.enigmaticlegacy.objects.PersistentData;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketHandleItemPickup;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncFireImmunity;
@@ -28,6 +30,7 @@ import com.aizistral.omniconfig.packets.PacketSyncOptions;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.level.ServerPlayer;
@@ -71,6 +74,10 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 				OmniconfigSync.onPlayerLoggedIn(handler.getPlayer()));
 		ServerLivingEntityEvents.ALLOW_DAMAGE.register(EnigmaticEventHandler::onLivingAttack);
 		ServerLivingEntityEvents.ALLOW_DEATH.register(EnigmaticEventHandler::onLivingDeath);
+		// Forge keeps the PlayerPersisted compound across respawns; copy ours over too.
+		ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) ->
+				((PersistentData) newPlayer).enigmaticlegacy$setPersistedTag(
+						((PersistentData) oldPlayer).enigmaticlegacy$getPersistedTag().copy()));
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 				EnigmaticEventHandler.onPlayerTick(player);
@@ -93,6 +100,8 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 				PacketPortalParticles::decode, PacketPortalParticles::handle);
 		network.register(PacketRecallParticles.class, PacketDirection.TO_CLIENT, PacketRecallParticles::encode,
 				PacketRecallParticles::decode, PacketRecallParticles::handle);
+		network.register(PacketHandleItemPickup.class, PacketDirection.TO_CLIENT, PacketHandleItemPickup::encode,
+				PacketHandleItemPickup::decode, PacketHandleItemPickup::handle);
 		network.register(PacketEnderRingKey.class, PacketDirection.TO_SERVER, PacketEnderRingKey::encode,
 				PacketEnderRingKey::decode, PacketEnderRingKey::handle);
 		network.register(PacketXPScrollKey.class, PacketDirection.TO_SERVER, PacketXPScrollKey::encode,

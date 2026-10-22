@@ -4,12 +4,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+
 import com.aizistral.enigmaticlegacy.config.OmniconfigHandler;
+import com.aizistral.enigmaticlegacy.entities.PermanentItemEntity;
 import com.aizistral.enigmaticlegacy.helpers.ItemNBTHelper;
 import com.aizistral.enigmaticlegacy.items.ForbiddenAxe;
 import com.aizistral.enigmaticlegacy.items.generic.ItemSpellstoneCurio;
 import com.aizistral.enigmaticlegacy.items.MiningCharm;
 import com.aizistral.enigmaticlegacy.items.BlazingCore;
+import com.aizistral.enigmaticlegacy.objects.DimensionalPosition;
 import com.aizistral.enigmaticlegacy.objects.FireImmunityData;
 import com.aizistral.enigmaticlegacy.objects.Perhaps;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
@@ -32,7 +37,9 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.monster.Drowned;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
@@ -64,6 +71,8 @@ public class EnigmaticEventHandler {
 	// Port: set while the Charm of Treasure Hunter applies Night Vision; upstream's potion handler
 	// skips that case. No ported item reads it yet.
 	public static boolean isApplyingNightVision = false;
+
+	public static final Multimap<Player, Item> POSTMORTAL_POSESSIONS = ArrayListMultimap.create();
 
 	/**
 	 * Port: was part of the Forge {@code LivingAttackEvent} handler. Fabric calls it from
@@ -264,6 +273,28 @@ public class EnigmaticEventHandler {
 		EnigmaticItems.ENIGMATIC_ITEM.flightMap.clear();
 		SuperpositionHandler.clearSpellstoneCooldowns();
 		FireImmunityData.clear();
+		POSTMORTAL_POSESSIONS.clear();
+	}
+
+	/**
+	 * Port: was upstream's {@code onConfirmedDeath} ({@code LivingDeathEvent}, LOWEST). Called by
+	 * MixinServerPlayer at the head of {@code ServerPlayer.die}, where totems and ALLOW_DEATH
+	 * have already had their chance, so the death is final. Upstream's canceled-event branch is
+	 * not needed. The Enigmatic Amulet and cursed-item parts follow with those items.
+	 */
+	public static void onConfirmedDeath(ServerPlayer player, DamageSource source) {
+		SuperpositionHandler.setPersistentBoolean(player, "DeathFromEntity", source.getEntity() instanceof LivingEntity);
+
+		if (SuperpositionHandler.hasCurio(player, EnigmaticItems.ESCAPE_SCROLL)) {
+			POSTMORTAL_POSESSIONS.put(player, EnigmaticItems.ESCAPE_SCROLL);
+
+			ItemStack tomeStack = SuperpositionHandler.getCurioStack(player, EnigmaticItems.ESCAPE_SCROLL);
+			PermanentItemEntity droppedTomeStack = new PermanentItemEntity(player.level(), player.getX(), player.getY() + (player.getBbHeight() / 2), player.getZ(), tomeStack.copy());
+			droppedTomeStack.setPickupDelay(10);
+			player.level().addFreshEntity(droppedTomeStack);
+
+			tomeStack.shrink(1);
+		}
 	}
 
 	/**
@@ -347,10 +378,18 @@ public class EnigmaticEventHandler {
 	}
 
 	/**
-	 * Upstream onLivingDrops, Axe of Executioner part. Called by MixinLivingEntity after
-	 * dropAllDeathLoot. The drops have already spawned, so this can only add more.
+	 * Port: stands in for {@code LivingDropsEvent}. Called by MixinLivingEntity at the end of
+	 * dropAllDeathLoot with every drop it captured; whatever is left in {@code drops} afterwards
+	 * is spawned, as Forge does. Runs upstream's NORMAL handler, then its LOWEST one.
 	 */
 	public static void onLivingDrops(LivingEntity entity, DamageSource source, Collection<ItemEntity> drops,
+			int lootingLevel, boolean recentlyHit) {
+		onLivingDropsNormal(entity, source, drops, lootingLevel, recentlyHit);
+		onLivingDropsLowest(entity, source, drops);
+	}
+
+	/** Upstream onLivingDrops (NORMAL), Axe of Executioner part. */
+	private static void onLivingDropsNormal(LivingEntity entity, DamageSource source, Collection<ItemEntity> drops,
 			int lootingLevel, boolean recentlyHit) {
 		if (!recentlyHit || !(source.getEntity() instanceof Player player)
 				|| player.getMainHandItem().getItem() != EnigmaticItems.FORBIDDEN_AXE)
@@ -386,11 +425,60 @@ public class EnigmaticEventHandler {
 		}
 	}
 
-	/** Upstream addDrop; spawned directly, since Forge would spawn the event's drop list later. */
+	/**
+	 * Upstream onLivingDropsLowest, Escape Scroll part. The Eldritch Pan, Enigmatic Amulet,
+	 * soul crystal and soul loss parts follow with those items.
+	 */
+	private static void onLivingDropsLowest(LivingEntity entity, DamageSource source, Collection<ItemEntity> drops) {
+		if (entity instanceof ServerPlayer player) {
+			CompoundTag deathLocation = new CompoundTag();
+			deathLocation.putDouble("x", player.getX());
+			deathLocation.putDouble("y", player.getY());
+			deathLocation.putDouble("z", player.getZ());
+			deathLocation.putString("dimension", player.level().dimension().location().toString());
+			SuperpositionHandler.setPersistentTag(player, "LastDeathLocation", deathLocation);
+
+			boolean hadEscapeScroll = POSTMORTAL_POSESSIONS.containsEntry(player, EnigmaticItems.ESCAPE_SCROLL);
+			DimensionalPosition dimPoint = hadEscapeScroll ? SuperpositionHandler.getRespawnPoint(player) : new DimensionalPosition(player.getX(), player.getY(), player.getZ(), player.level());
+
+			if (hadEscapeScroll) {
+				// TODO: upstream sends drops onto the End Anchor when the player respawns at one
+				// (no scatter); add that check when the End Anchor block is ported.
+				boolean isEndAnchor = false;
+
+				player.level().playSound(null, player.blockPosition(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F, (float) (0.8F + (Math.random() * 0.2)));
+				Services.NETWORK.sendToNear(new TargetPoint(player.getX(), player.getY(), player.getZ(), 128, player.level().dimension()), new PacketPortalParticles(player.getX(), player.getY() + (player.getBbHeight() / 2), player.getZ(), 100, 1.25F, false));
+
+				for (ItemEntity dropIt : drops) {
+					ItemEntity alternativeDrop = new ItemEntity(dimPoint.world, dimPoint.posX, dimPoint.posY, dimPoint.posZ, dropIt.getItem());
+					alternativeDrop.teleportTo(dimPoint.posX, dimPoint.posY, dimPoint.posZ);
+
+					if (!isEndAnchor) {
+						alternativeDrop.setDeltaMovement(player.getRandom().nextDouble() - 0.5, player.getRandom().nextDouble() - 0.5, player.getRandom().nextDouble() - 0.5);
+					} else {
+						alternativeDrop.setDeltaMovement(0, 0, 0);
+					}
+
+					dimPoint.world.addFreshEntity(alternativeDrop);
+					dropIt.setItem(ItemStack.EMPTY);
+				}
+
+				drops.clear();
+
+				dimPoint.world.playSound(null, BlockPos.containing(dimPoint.posX, dimPoint.posY, dimPoint.posZ), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F, (float) (0.8F + (Math.random() * 0.2)));
+				Services.NETWORK.sendToNear(new TargetPoint(dimPoint.posX, dimPoint.posY, dimPoint.posZ, 128, dimPoint.world.dimension()), new PacketRecallParticles(dimPoint.posX, dimPoint.posY, dimPoint.posZ, 48, false));
+			}
+
+			POSTMORTAL_POSESSIONS.removeAll(player);
+		} else if (entity instanceof Player) {
+			POSTMORTAL_POSESSIONS.removeAll(entity);
+		}
+	}
+
+	/** Upstream addDrop. The drop spawns with the rest of the list after the handlers run. */
 	private static void addDrop(LivingEntity entity, Collection<ItemEntity> drops, ItemStack stack) {
 		ItemEntity drop = new ItemEntity(entity.level(), entity.getX(), entity.getY(), entity.getZ(), stack);
 		drop.setPickUpDelay(10);
-		entity.level().addFreshEntity(drop);
 		drops.add(drop);
 	}
 

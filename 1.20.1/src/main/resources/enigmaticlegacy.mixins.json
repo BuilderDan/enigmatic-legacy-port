@@ -16,6 +16,7 @@
 		"MixinPlayer",
 		"MixinPotionBrewing",
 		"MixinServerGamePacketListenerImpl",
+		"MixinServerPlayer",
 		"MixinServerPlayerGameMode"
 	],
 	"client": [

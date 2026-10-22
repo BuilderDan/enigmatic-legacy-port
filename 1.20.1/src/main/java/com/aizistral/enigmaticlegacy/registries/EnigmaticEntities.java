@@ -1,6 +1,7 @@
 package com.aizistral.enigmaticlegacy.registries;
 
 import com.aizistral.enigmaticlegacy.api.generic.ObjectHolder;
+import com.aizistral.enigmaticlegacy.entities.PermanentItemEntity;
 import com.aizistral.enigmaticlegacy.entities.UltimateWitherSkullEntity;
 
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -17,11 +18,16 @@ public class EnigmaticEntities extends AbstractRegistry<EntityType<?>> {
 	@ObjectHolder(value = MODID + ":ultimate_wither_skull_entity", registryName = "entity_type")
 	public static EntityType<UltimateWitherSkullEntity> ULTIMATE_WITHER_SKULL;
 
+	@ObjectHolder(value = MODID + ":permanent_item_entity", registryName = "entity_type")
+	public static EntityType<PermanentItemEntity> PERMANENT_ITEM_ENTITY;
+
 	private EnigmaticEntities() {
 		super(BuiltInRegistries.ENTITY_TYPE);
 
 		this.register("ultimate_wither_skull_entity", () -> EntityType.Builder.<UltimateWitherSkullEntity>of(UltimateWitherSkullEntity::new, MobCategory.MISC)
 				.sized(0.25F, 0.25F).clientTrackingRange(64).build(MODID + ":ultimate_wither_skull_entity"));
+		this.register("permanent_item_entity", () -> EntityType.Builder.<PermanentItemEntity>of(PermanentItemEntity::new, MobCategory.MISC)
+				.sized(0.25F, 0.25F).clientTrackingRange(64).build(MODID + ":permanent_item_entity"));
 	}
 
 	/** Port: forces class loading, which registers the entities. */

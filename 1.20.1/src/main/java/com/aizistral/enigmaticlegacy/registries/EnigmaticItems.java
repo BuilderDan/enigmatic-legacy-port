@@ -10,6 +10,7 @@ import com.aizistral.enigmaticlegacy.items.AbyssalHeart;
 import com.aizistral.enigmaticlegacy.items.AstralDust;
 import com.aizistral.enigmaticlegacy.items.AstralPotato;
 import com.aizistral.enigmaticlegacy.items.BlazingCore;
+import com.aizistral.enigmaticlegacy.items.EscapeScroll;
 import com.aizistral.enigmaticlegacy.items.CosmicHeart;
 import com.aizistral.enigmaticlegacy.items.EnchantmentTransposer;
 import com.aizistral.enigmaticlegacy.items.EnigmaticItem;
@@ -58,6 +59,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ConfigurableItem("Blazing Core")
 	@ObjectHolder(value = MODID + ":blazing_core", registryName = "item")
 	public static BlazingCore BLAZING_CORE;
+
+	@ConfigurableItem("Scroll of Postmortal Recall")
+	@ObjectHolder(value = MODID + ":escape_scroll", registryName = "item")
+	public static EscapeScroll ESCAPE_SCROLL;
 
 	@ConfigurableItem("Mending Mixture")
 	@ObjectHolder(value = MODID + ":mending_mixture", registryName = "item")
@@ -194,6 +199,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("forbidden_axe", ForbiddenAxe::new);
 		this.register("super_magnet_ring", SuperMagnetRing::new);
 		this.register("blazing_core", BlazingCore::new);
+		this.register("escape_scroll", EscapeScroll::new);
 		this.register("ender_ring", EnderRing::new);
 		this.register("mending_mixture", MendingMixture::new);
 		this.register("thicc_scroll", ThiccScroll::new);

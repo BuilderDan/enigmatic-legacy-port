@@ -26,6 +26,8 @@ import com.aizistral.enigmaticlegacy.api.generic.SubscribeConfig;
 import com.aizistral.enigmaticlegacy.config.ConfigHolders;
 import com.aizistral.enigmaticlegacy.config.OmniconfigHandler;
 import com.aizistral.enigmaticlegacy.helpers.AdvancedSpawnLocationHelper;
+import com.aizistral.enigmaticlegacy.objects.DimensionalPosition;
+import com.aizistral.enigmaticlegacy.objects.PersistentData;
 import com.aizistral.enigmaticlegacy.objects.Vector3;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
@@ -38,6 +40,11 @@ import com.google.common.collect.Multimap;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.ParticleStatus;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.ByteTag;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -422,6 +429,99 @@ public class SuperpositionHandler {
 		Services.NETWORK.sendToNear(new TargetPoint(serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), 128, serverPlayer.level().dimension()), new PacketRecallParticles(serverPlayer.getX(), serverPlayer.getY() + (serverPlayer.getBbHeight() / 2), serverPlayer.getZ(), 48, false));
 
 		return destinationWorld;
+	}
+
+	public static DimensionalPosition getRespawnPoint(ServerPlayer serverPlayer) {
+		ResourceKey<Level> respawnDimension = AdvancedSpawnLocationHelper.getPlayerRespawnDimension(serverPlayer);
+		ServerLevel respawnWorld = SuperpositionHandler.getWorld(respawnDimension);
+
+		Optional<Vec3> currentDimensionRespawnCoords = AdvancedSpawnLocationHelper.getValidSpawn(respawnWorld, serverPlayer);
+		Optional<Vec3> destinationDimensionRespawnCoords;
+		ServerLevel destinationWorld = currentDimensionRespawnCoords.isPresent() ? respawnWorld : serverPlayer.server.overworld();
+
+		if (!respawnWorld.equals(destinationWorld)) {
+			destinationDimensionRespawnCoords = AdvancedSpawnLocationHelper.getValidSpawn(destinationWorld, serverPlayer);
+		} else {
+			destinationDimensionRespawnCoords = Optional.empty();
+		}
+
+		Vec3 trueVec;
+
+		if (currentDimensionRespawnCoords.isPresent()) {
+			trueVec = currentDimensionRespawnCoords.get();
+		} else if (destinationDimensionRespawnCoords.isPresent()) {
+			trueVec = destinationDimensionRespawnCoords.get();
+		} else {
+			trueVec = new Vec3(destinationWorld.getSharedSpawnPos().getX() + 0.5, destinationWorld.getSharedSpawnPos().getY() + 0.5, destinationWorld.getSharedSpawnPos().getZ() + 0.5);
+
+			while (!destinationWorld.getBlockState(BlockPos.containing(trueVec)).isAir() && trueVec.y < 255.0D) {
+				trueVec = trueVec.add(0, 1D, 0);
+			}
+		}
+
+		return new DimensionalPosition(trueVec.x, trueVec.y, trueVec.z, destinationWorld);
+	}
+
+	/**
+	 * Port: upstream read the {@code PlayerPersisted} compound of Forge's getPersistentData();
+	 * the port keeps that compound on the player through MixinPlayer.
+	 */
+	private static CompoundTag getPersistedCompound(Player player) {
+		return ((PersistentData) player).enigmaticlegacy$getPersistedTag();
+	}
+
+	/**
+	 * Retrieves the given Tag from the player's persistent NBT, or expectedValue if it is missing.
+	 */
+	public static Tag getPersistentTag(Player player, String tag, Tag expectedValue) {
+		CompoundTag persistent = getPersistedCompound(player);
+
+		if (persistent.contains(tag))
+			return persistent.get(tag);
+		else
+			return expectedValue;
+	}
+
+	/**
+	 * Remove tag from the player's persistent NBT.
+	 */
+	public static void removePersistentTag(Player player, String tag) {
+		getPersistedCompound(player).remove(tag);
+	}
+
+	/**
+	 * Sets the given Tag type to the player's persistent NBT.
+	 */
+	public static void setPersistentTag(Player player, String tag, Tag value) {
+		getPersistedCompound(player).put(tag, value);
+	}
+
+	/**
+	 * Sets the given boolean tag to the player's persistent NBT.
+	 */
+	public static void setPersistentBoolean(Player player, String tag, boolean value) {
+		SuperpositionHandler.setPersistentTag(player, tag, ByteTag.valueOf(value));
+	}
+
+	/**
+	 * Retrieves the given boolean tag from the player's persistent NBT.
+	 */
+	public static boolean getPersistentBoolean(Player player, String tag, boolean expectedValue) {
+		Tag theTag = SuperpositionHandler.getPersistentTag(player, tag, ByteTag.valueOf(expectedValue));
+		return theTag instanceof ByteTag ? ((ByteTag) theTag).getAsByte() != 0 : expectedValue;
+	}
+
+	public static void setPersistentInteger(Player player, String tag, int value) {
+		SuperpositionHandler.setPersistentTag(player, tag, IntTag.valueOf(value));
+	}
+
+	public static int getPersistentInteger(Player player, String tag, int expectedValue) {
+		Tag theTag = SuperpositionHandler.getPersistentTag(player, tag, IntTag.valueOf(expectedValue));
+		return theTag instanceof IntTag ? ((IntTag) theTag).getAsInt() : expectedValue;
+	}
+
+	public static boolean isAbsolute(DamageSource source) {
+		return source.is(DamageTypeTags.BYPASSES_INVULNERABILITY);
 	}
 
 	/**

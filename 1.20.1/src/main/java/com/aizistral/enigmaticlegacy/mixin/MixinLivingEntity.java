@@ -61,7 +61,10 @@ public abstract class MixinLivingEntity {
 		return MonsterCharm.modifyExperience(self, this.lastHurtByPlayer, experience);
 	}
 
-	/** Forge captures everything dropAllDeathLoot spawns and fires LivingDropsEvent with it. */
+	/**
+	 * Forge captures everything dropAllDeathLoot spawns, fires LivingDropsEvent with it, then
+	 * spawns what is left in the list (see MixinEntity and MixinServerPlayer).
+	 */
 	@Inject(method = "dropAllDeathLoot", at = @At("HEAD"))
 	private void enigmaticlegacy$startDropCapture(DamageSource source, CallbackInfo info) {
 		((DropCapture) this).enigmaticlegacy$setCapturedDrops(new ArrayList<>());
@@ -80,5 +83,9 @@ public abstract class MixinLivingEntity {
 		// through MixinEnchantmentHelper).
 		int looting = source.getEntity() instanceof LivingEntity killer ? EnchantmentHelper.getMobLooting(killer) : 0;
 		EnigmaticEventHandler.onLivingDrops(self, source, drops, looting, this.lastHurtByPlayerTime > 0);
+
+		for (ItemEntity drop : drops) {
+			self.level().addFreshEntity(drop);
+		}
 	}
 }

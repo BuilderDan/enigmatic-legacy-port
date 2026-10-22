@@ -87,7 +87,7 @@ Sections are added here as each Minecraft version / loader is ported.
   Ingot, Unholy Stone, Darkest Scroll, Tome of Hungering Knowledge, Heart of the Cosmos,
   Heart of the Abyss, Soul Dust, Emblem of Monster Slayer, Scroll of Ageless Wisdom, Ring of
   Ender, Essence of Raging Life, Astral Potato, Charm of Treasure Hunter, Axe of Executioner, Heart of
-  Creation), registered in upstream order.
+  Creation, Blazing Core, Scroll of Postmortal Recall), registered in upstream order.
 - Creative tabs: built with `FabricItemGroup`; contents come from `ICreativeTabMember` in
   `displayItems` instead of Forge's `BuildCreativeModeTabContentsEvent`. Temporary: the main
   tab icon is Blank Scroll until the Enigmatic Amulet is ported; the potions tab returns with
@@ -267,8 +267,8 @@ Sections are added here as each Minecraft version / loader is ported.
   - Beheading: Forge's `LivingDropsEvent` becomes port-only `MixinLivingEntity`
     (`dropAllDeathLoot` HEAD/RETURN) plus `MixinEntity` (records `spawnAtLocation` results
     through the port-only `objects/DropCapture` interface), calling
-    `EnigmaticEventHandler.onLivingDrops`. Unlike Forge, the drops still spawn normally, so the
-    handler only adds drops. The looting level passed in is `EnchantmentHelper.getMobLooting`
+    `EnigmaticEventHandler.onLivingDrops`. Since the Escape Scroll, drops are captured before
+    they spawn (see below), so handlers can add and remove drops like Forge. The looting level passed in is `EnchantmentHelper.getMobLooting`
     of the killer (which includes accessory looting).
   - `SuperpositionHandler.ifDroplistContainsItem` is a private helper in the handler for now.
   - `BeheadingTrigger` is registered with `CriteriaTriggers.register` in the Fabric entry
@@ -321,3 +321,20 @@ Sections are added here as each Minecraft version / loader is ported.
     mixin instead of `ViewportEvent.RenderFog` (the Molten Heart effect branch comes later).
   - Loot: the spellstone pool is added to nether dungeon chests
     (`SuperpositionHandler.getNetherDungeons`); upstream's nether "epic" pool is not ported yet.
+- Scroll of Postmortal Recall (`EscapeScroll`, entity `PermanentItemEntity`):
+  - Drops: Forge's `captureDrops` is emulated. Port-only `MixinEntity` and `MixinServerPlayer`
+    wrap `Level.addFreshEntity` in `Entity.spawnAtLocation` and `ServerPlayer.drop` while
+    `dropAllDeathLoot` runs (Trinkets' death drops included); `MixinLivingEntity` calls
+    `onLivingDrops` at RETURN and then spawns whatever is left in the list.
+  - Death: the `LivingDeathEvent` (LOWEST) confirmation becomes a `ServerPlayer.die` HEAD mixin
+    calling `onConfirmedDeath`.
+  - Persistent data: Forge's `PERSISTED_NBT_TAG` becomes port-only `objects/PersistentData` on
+    the player (NBT key `EnigmaticLegacyPersisted`), copied with `ServerPlayerEvents.COPY_FROM`.
+    `SuperpositionHandler.getRespawnPoint` and the persistent-data helpers are added.
+  - `PermanentItemEntity` uses the vanilla entity spawn packet; `changeDimension` returns null
+    (no portal travel, as upstream). Soul Crystal and `SoulArchive` parts are left as TODOs
+    until those items are ported (`containsSoul` returns false).
+  - `PacketHandleItemPickup` uses `PacketContext`; `ClientProxy.handleItemPickup` is inlined
+    into its handler. `PermanentItemRenderer` and `PermanentItemPickupParticle` drop `@OnlyIn`.
+    The empty `IPermanentCrystal` interface is copied for the renderer.
+  - `EscapeScroll` drops `@OnlyIn` on its tooltip; `javax` `Nullable` becomes `org.jetbrains`.

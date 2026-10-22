@@ -68,6 +68,7 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 | Axe of Executioner (forbidden_axe) | - | - | - | - (10% + 5%/looting head drop from skeleton, wither skeleton, zombie, creeper, dragon when killed with it; tooltip chance includes Trinkets looting; no head duplicated if one already dropped; beheading advancement; cannot harvest blocks) | - |
 | Heart of Creation (enigmatic_item) | - | - | - | - (spellstone slot; creative-style flight; no fall, fire, lava, drowning, wall, void, starve damage; harmful effects blocked; never dies while worn or in inventory; ×5 mining speed in the air; K fires Ultimate Wither Skulls, hold K for rapid fire; explosion and particles) | - |
 | Blazing Core (blazing_core) | - | - | - | - (spellstone slot; fire, burning and hot floor immunity; ~30 s lava immunity, then the heat bar fills and lava hurts; extinguish sound and particles on first lava touch; double damage from water mobs and drowned; attackers burn and take damage; status effects tick twice as fast; clear lava fog; found in nether chests) | - |
+| Scroll of Postmortal Recall (escape_scroll) | - | - | - | - (scroll slot; on death all drops, trinkets included, become permanent items at the respawn point; only the owner picks them up; pickup particles and sound; immune to lava, fire and other damage except /kill) | - |
 
 Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).
