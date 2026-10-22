@@ -1,0 +1,110 @@
+# Port plan
+
+Written 2026-10-21. Living document: update it as decisions are made.
+
+## 1. Upstream base
+
+- Repo: https://github.com/Aizistral-Studios/Enigmatic-Legacy
+- **Base branch: `1.20.X`** (commit `a0294f1`, mod 2.30.1, Forge 1.20.1-47.1.43, last
+  commit 2026-08-18). It is the active branch; `1.19.X` is older (1.19.4, 2.28.0).
+- Also useful as reference: `neoforge_1.20.1` (upstream's own NeoForge 1.20.1 build, 2.30.2).
+- Related project: [Enigmatic Legacy Plus](https://modrinth.com/mod/enigmaticlegacy-plus)
+  by Auviotre ([source](https://github.com/Auviotre/Enigmatic-Legacy-Plus)), an active
+  1.21.1 NeoForge port under the same license. It overlaps with our 1.21.1 NeoForge target
+  (see open questions).
+
+## 2. Size of the job
+
+| Area | Upstream (1.20.1 Forge) |
+|---|---|
+| Java | 345 files, ~41,800 lines |
+| Items / blocks / block entities / entities | 105 / 13 / 1 / 3 |
+| Enchantments / effects / potions | 8 / 4 / 23 |
+| Recipe serializers / loot modifiers / loot functions | 8 / 1 / 1 |
+| Advancements / criteria triggers | 196 JSON / 7 |
+| Menus / screens / keybinds | 1 / 2 / 2 handlers |
+| Assets | 289 textures, 237 models, 45 sounds, 7 languages |
+| Guide book (Patchouli) | 10 categories, 100 entries |
+
+## 3. Dependencies and their replacements
+
+| Upstream (Forge) | Used for | Fabric | NeoForge |
+|---|---|---|---|
+| Curios (38 files; slots: charm 11, ring 7, scroll 8, spellstone 8, back 1) | Rings, charms, scrolls, spellstones | **Trinkets** (1.20.1, 1.21.1). Accessories as fallback up to 1.21.10. **Nothing for 26.3 yet** | Curios (available up to 26.3) |
+| Patchouli (9 files + 2 GUI mixins) | The Acknowledgment guide book | Patchouli (1.20.1, 1.21.1; 26.1.2 is newest) | Patchouli |
+| Caelus (2 files) | Enigmatic Elytra (back slot) | Fabric API elytra events (1.20.1); vanilla glider component (1.21.2+) | Caelus (1.21.1); vanilla glider component later |
+| Omniconfig (bundled, by Aizistral) | All config | Keep the library; write a Fabric backend for its one Forge wrapper | Keep; port the wrapper |
+| Quark, Dark Utilities, CSG, Blue Skies, JEI (soft compat) | Small compat fixes | Drop at first; re-add per mod if the mod exists there | Same |
+
+Design rule: game code talks to a small `common` interface (`SlotAccess`, `Network`,
+`PlayerData`, `Platform`), never to Trinkets/Curios directly. Each loader implements it.
+
+## 4. Loader-specific systems to rewrite
+
+| System | Upstream | Plan |
+|---|---|---|
+| Events | 73 `@SubscribeEvent`, 56 of them in `EnigmaticEventHandler` (3,428 lines) | Split into loader-neutral handler methods; Fabric calls them from Fabric API events or mixins, NeoForge from its event bus |
+| Networking | 1 SimpleChannel, 31 packets | Common packet classes + per-loader send/receive (Fabric networking API; NeoForge payloads). 1.20.5+ uses custom payload codecs |
+| Player data | 1 capability (playtime counter) | Fabric: Cardinal Components (1.20.1) or Fabric data attachments (1.21+); NeoForge: data attachments |
+| Mixins | 33 (Player, LivingEntity, ItemStack, Villager, Piglin/Hoglin AI, EnchantmentHelper, PlayerList, Forge hooks, Patchouli GUI, 3rd-party) | Keep vanilla ones; replace Forge-hook targets; drop 3rd-party ones until needed |
+| Access transformers | ~76 lines, SRG names | Access widener (Fabric) / AT with Mojang names (NeoForge) |
+| Forge item hooks | `canApplyAtEnchantingTable`, `getEnchantmentValue`, `isEnchantable`, `canElytraFly`, `elytraFlightTick`, `getEquipmentSlot` | Fabric API equivalents where they exist, mixins otherwise |
+| Loot | GlobalLootModifier + reflection into LootTable | Fabric `LootTableEvents.MODIFY`; NeoForge GLM |
+| Reflection | 3 spots (screen fields, LootTable/LootPool internals) | Access widener / accessor mixins |
+| Rendering | ~28 files (elytra layer, dark armor model, renderers) | Port per loader render API; test visually |
+
+## 5. Big version jumps (beyond the loader port)
+
+- **1.20.1 -> 1.21.1:** item NBT becomes data components; enchantments become
+  data-driven (all 8 must be rewritten as JSON + effect components); attribute and
+  damage API changes; networking moves to payload codecs; Java 17 -> 21.
+- **1.21.1 -> 26.3:** check when we get there (new versioning scheme; expect rendering,
+  item model and registry changes). Fabric has no trinket API on 26.3 yet; this target
+  may have to wait or ship NeoForge-only first.
+
+## 6. Repository layout
+
+One multiloader Gradle project per Minecraft version, side by side in this repo:
+
+```
+1.20.1/   common/ fabric/            (Fabric only for this version)
+1.21.1/   common/ fabric/ neoforge/
+26.3/     common/ fabric/ neoforge/
+```
+
+Tooling: Fabric Loom with Mojang mappings + Parchment (keeps names close to upstream, so
+diffs stay readable), ModDevGradle for NeoForge. Mod id stays `enigmaticlegacy` unless
+decided otherwise.
+
+## 7. Order and milestones
+
+1. **1.20.1 Fabric**
+   1. Gradle project builds and launches a dev client with Fabric API, Trinkets, Patchouli.
+   2. Copy upstream content: registries, assets, data, lang (CHANGES.md notes every edit).
+   3. Common abstraction layer (slots, network, player data, platform hooks).
+   4. Port game logic and the event handler; port mixins and access widener.
+   5. Config (Omniconfig Fabric backend), guide book, client rendering.
+   6. Playtest every item in the dev client (checklist in `docs/playtest-1.20.1.md`).
+2. **1.21.1 NeoForge** (see open question about Enigmatic Legacy Plus), then **1.21.1 Fabric**.
+3. **26.3** NeoForge, then Fabric when a trinket API exists.
+4. Mid-point version (e.g. 1.21.4) only if cheap.
+
+A version counts as done only after a full dev-client playtest of every item.
+
+## 8. Release rules
+
+- License: same Enigmatic Legacy License, II Edition (copied verbatim in `LICENSE.md`).
+- Credit Aizistral as the owner on every page, jar metadata and README.
+- Every change from upstream listed in `CHANGES.md`.
+- Free only: no paid downloads, no ad-gated or shortened links.
+- No public release before the creator has been asked for permission and their answer
+  is recorded in `docs/permission/`.
+
+## 9. Open questions
+
+- **Enigmatic Legacy Plus already covers 1.21.1 NeoForge.** Skip that target (and point
+  NeoForge players there), or port it anyway for a matching Fabric/NeoForge pair?
+- Mod name on the mod sites (e.g. "Enigmatic Legacy (Fabric)")?
+- Upstream has no `package-info.java`, so the license's API exemption covers nothing.
+  Ask the creator about it in the permission request.
+- 26.3 Fabric: wait for Trinkets/Accessories, or write a minimal slot system?

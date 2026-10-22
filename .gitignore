@@ -1,0 +1,20 @@
+# Upstream reference clone (read-only, re-clonable)
+upstream/
+
+# Private working notes (kept local, backed up separately)
+CLAUDE.md
+FEEDBACK.md
+IDEAS.md
+backup.txt
+
+# Build output, caches, run dirs
+build/
+.gradle/
+run/
+runs/
+out/
+*.class
+.idea/
+*.iml
+.vscode/
+test-output/
