@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:etherium_chestplate"
+    }
+  ],
+  "pattern": [
+    "X X",
+    "XXX",
+    "XXX"
+  ],
+  "key": {
+    "X": {
+      "item": "enigmaticlegacy:etherium_ingot"
+    }
+  },
+  "result": {
+    "item": "enigmaticlegacy:etherium_chestplate"
+  }
+}

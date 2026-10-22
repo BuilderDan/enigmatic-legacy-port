@@ -3,6 +3,8 @@ package com.aizistral.enigmaticlegacy.fabric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.aizistral.enigmaticlegacy.objects.EnabledCondition;
+
 import net.fabricmc.api.ModInitializer;
 
 /**
@@ -16,5 +18,6 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		LOGGER.info("Enigmatic Legacy (Fabric port) initializing");
+		EnabledCondition.register();
 	}
 }

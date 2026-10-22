@@ -25,3 +25,19 @@ Sections are added here as each Minecraft version / loader is ported.
 - Mod version: `2.30.1+fabric.N`, where N counts port releases.
 - Build only: Trinkets is pulled from the Modrinth maven (the TerraformersMC maven jar of
   3.7.2 crashes Mojang-mapped dev runs). No effect on the released mod.
+- Resources: upstream `assets/` and `data/` are copied unchanged by `tools/sync_resources.py`,
+  except for the conversions below.
+- Accessory slots (Curios -> Trinkets), via `data/trinkets/`:
+  - charm -> new slot `chest/charm` (one slot for amulets and charms, as upstream).
+  - ring -> Trinkets' standard `hand/ring` and `offhand/ring` (2 ring slots, as upstream;
+    shared with other Trinkets mods).
+  - back -> Trinkets' standard `chest/back`.
+  - spellstone -> new slot `legs/spellstone`, scroll -> new slot `head/scroll`. Both start
+    at 0 slots and are unlocked per player, like upstream.
+  - Curios item tags become Trinkets tags; all slots are enabled for players in
+    `data/trinkets/entities/enigmaticlegacy.json`. `data/curios/` is not copied.
+- Recipes: Forge `"conditions"` become Fabric API `"fabric:load_conditions"`.
+  `EnabledCondition` is rewritten as a Fabric resource condition. Until the config is
+  ported it only checks that the item exists, so every recipe is enabled.
+- Not copied (to be ported in code): `data/forge/` and the Forge global loot modifier
+  under `data/enigmaticlegacy/loot_modifiers/`.

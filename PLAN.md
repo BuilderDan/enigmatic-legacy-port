@@ -86,6 +86,7 @@ decided otherwise.
 1. **1.20.1 Fabric**
    1. Gradle project builds and launches a dev client with Fabric API, Trinkets, Patchouli.
    2. Copy upstream content: registries, assets, data, lang (CHANGES.md notes every edit).
+      Assets, data and Trinkets slots done 2026-10-21 (`tools/sync_resources.py`).
    3. Common abstraction layer (slots, network, player data, platform hooks).
    4. Port game logic and the event handler; port mixins and access widener.
    5. Config (Omniconfig Fabric backend), guide book, client rendering.
