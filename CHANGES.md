@@ -82,7 +82,7 @@ Sections are added here as each Minecraft version / loader is ported.
   loading from the Fabric entry point. The `onRegister` block-item hook is left out until
   blocks are ported.
 - `EnigmaticItems` holds only the ported items (so far: Mending Mixture, Blank Scroll, Iron
-  Ring, Etherium Ingot, Etherium Nugget, Etherium Scraps, Ender Rod, Astral Dust, Lore
+  Ring, Extradimensional Eye, Etherium Ingot, Etherium Nugget, Etherium Scraps, Ender Rod, Astral Dust, Lore
   Fragment, Heart of the Earth, Twisted Heart, Exquisite Ring, Nefarious Essence, Nefarious
   Ingot, Unholy Stone, Darkest Scroll, Tome of Hungering Knowledge, Heart of the Cosmos,
   Heart of the Abyss, Soul Dust), registered in upstream order.
@@ -160,3 +160,14 @@ Sections are added here as each Minecraft version / loader is ported.
   `MixinEnderDragon` is not ported.
 - Dev only, port-only: `DevSelfCheck` also checks that `MixinPiglinAi` applied (piglins
   take the Exquisite Ring as barter currency).
+- `handlers/EnigmaticEventHandler`: upstream's Forge event subscriber is ported piece by
+  piece as plain static methods that each loader wires to its own events. So far it has
+  the Extradimensional Eye part of the `LivingAttackEvent` handler, called on Fabric from
+  `ServerLivingEntityEvents.ALLOW_DAMAGE` (returning false instead of cancelling the event).
+- Extradimensional Eye: not yet added to End city loot. Upstream injects it into End city
+  chests through `LootTableLoadEvent`, which is not ported yet.
+- `PacketPortalParticles` and `PacketRecallParticles`: use `PacketContext`; `@OnlyIn` removed.
+- `SuperpositionHandler`: added `getParticleMultiplier`, copied unchanged from upstream
+  (client only; `@OnlyIn` removed).
+- `javax.annotation.Nullable` (from Forge's classpath) is replaced by
+  `org.jetbrains.annotations.Nullable` where ported files used it.

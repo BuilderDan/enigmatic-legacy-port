@@ -7,8 +7,11 @@ import com.aizistral.enigmaticlegacy.api.capabilities.PlayerPlaytimeCounter;
 import com.aizistral.enigmaticlegacy.config.OmniconfigHandler;
 import com.aizistral.enigmaticlegacy.config.OmniconfigSync;
 import com.aizistral.enigmaticlegacy.fabric.platform.FabricPlatformHelper;
+import com.aizistral.enigmaticlegacy.handlers.EnigmaticEventHandler;
 import com.aizistral.enigmaticlegacy.fabric.platform.TrinketsAccessorySlots;
 import com.aizistral.enigmaticlegacy.objects.EnabledCondition;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncPlayTime;
 import com.aizistral.enigmaticlegacy.platform.Services;
 import com.aizistral.enigmaticlegacy.platform.network.PacketDirection;
@@ -18,6 +21,7 @@ import com.aizistral.enigmaticlegacy.registries.EnigmaticTabs;
 import com.aizistral.omniconfig.packets.PacketSyncOptions;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 
 /**
@@ -43,6 +47,7 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
 				OmniconfigSync.onPlayerLoggedIn(handler.getPlayer()));
+		ServerLivingEntityEvents.ALLOW_DAMAGE.register(EnigmaticEventHandler::onLivingAttack);
 	}
 
 	private static void registerPackets() {
@@ -51,5 +56,9 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 				PacketSyncPlayTime::decode, PacketSyncPlayTime::handle);
 		network.register(PacketSyncOptions.class, PacketDirection.TO_CLIENT, PacketSyncOptions::encode,
 				PacketSyncOptions::decode, PacketSyncOptions::handle);
+		network.register(PacketPortalParticles.class, PacketDirection.TO_CLIENT, PacketPortalParticles::encode,
+				PacketPortalParticles::decode, PacketPortalParticles::handle);
+		network.register(PacketRecallParticles.class, PacketDirection.TO_CLIENT, PacketRecallParticles::encode,
+				PacketRecallParticles::decode, PacketRecallParticles::handle);
 	}
 }

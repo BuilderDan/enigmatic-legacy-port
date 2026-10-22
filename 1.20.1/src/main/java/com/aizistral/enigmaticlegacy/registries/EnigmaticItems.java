@@ -15,6 +15,7 @@ import com.aizistral.enigmaticlegacy.items.DarkestScroll;
 import com.aizistral.enigmaticlegacy.items.EarthHeart;
 import com.aizistral.enigmaticlegacy.items.EvilEssence;
 import com.aizistral.enigmaticlegacy.items.EvilIngot;
+import com.aizistral.enigmaticlegacy.items.ExtradimensionalEye;
 import com.aizistral.enigmaticlegacy.items.GoldenRing;
 import com.aizistral.enigmaticlegacy.items.IronRing;
 import com.aizistral.enigmaticlegacy.items.LoreFragment;
@@ -109,6 +110,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ObjectHolder(value = MODID + ":magnet_ring", registryName = "item")
 	public static MagnetRing MAGNET_RING;
 
+	@ConfigurableItem("Extradimensional Eye")
+	@ObjectHolder(value = MODID + ":extradimensional_eye", registryName = "item")
+	public static ExtradimensionalEye EXTRADIMENSIONAL_EYE;
+
 	@ConfigurableItem("Ring of Dislocation")
 	@ObjectHolder(value = MODID + ":super_magnet_ring", registryName = "item")
 	public static SuperMagnetRing SUPER_MAGNET_RING;
@@ -133,6 +138,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		super(BuiltInRegistries.ITEM);
 
 		this.register("magnet_ring", MagnetRing::new);
+		this.register("extradimensional_eye", ExtradimensionalEye::new);
 		this.register("super_magnet_ring", SuperMagnetRing::new);
 		this.register("mending_mixture", MendingMixture::new);
 		this.register("thicc_scroll", ThiccScroll::new);

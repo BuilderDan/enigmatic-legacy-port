@@ -25,6 +25,8 @@ import com.aizistral.omniconfig.wrappers.OmniconfigWrapper;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.ParticleStatus;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
@@ -254,5 +256,18 @@ public class SuperpositionHandler {
 	 */
 	public static boolean stackEqualExact(ItemStack stack1, ItemStack stack2) {
 		return stack1.getItem() == stack2.getItem() && ItemStack.isSameItemSameTags(stack1, stack2);
+	}
+
+	/**
+	 * @return Multiplier for amount of particles based on client settings.
+	 */
+	public static float getParticleMultiplier() {
+		if (Minecraft.getInstance().options.particles().get() == ParticleStatus.MINIMAL)
+			return 0.35F;
+		else if (Minecraft.getInstance().options.particles().get() == ParticleStatus.DECREASED)
+			return 0.65F;
+		else
+			return 1.0F;
+
 	}
 }
