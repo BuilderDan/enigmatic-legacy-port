@@ -31,6 +31,7 @@ name, model and tooltip. Results go to the log with a `[devcheck]` prefix. With
 | 2026-10-22 | 72 | 73 | 0 | Added Astral Breaker, Void Stone and Curse Transposer. `void_stone_combine` recipe ok; recipe pass: 61 parsed, 25 skipped by conditions, 7 pending, 0 failed. `ResultSlot` crafting mixin checked. |
 | 2026-10-22 | 73 | 74 | 0 | Added The Architect's Inkwell (lore_inscriber): menu type registered, screen and `PacketInkwellField` load. Recipe pass: 62 parsed, 24 skipped by conditions, 7 pending, 0 failed. GUI itself still needs an in-world playtest. |
 | 2026-10-22 | 74 | 76 | 0 | Added Extradimensional Vessel (storage_crystal, hidden from the tab) and Soul Crystal. |
+| 2026-10-22 | 78 | 80 | 0 | Added The Acknowledgment and the Tattered, Withered and Corrupted Tomes. Loot check now builds 6 pools (literature and overworld epic pools added). New mixins on `Mob`, `Enchantment`, `EnchantmentHelper` (Bane) and `AbstractFurnaceBlockEntity` checked. Recipe pass: 66 parsed, 23 skipped by conditions, 4 pending, 0 failed. |
 
 ## Manual checklist
 
