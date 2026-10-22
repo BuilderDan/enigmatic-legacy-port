@@ -116,6 +116,18 @@ Sections are added here as each Minecraft version / loader is ported.
 - Etherium items live in the `com.aizistral.etherium` package as upstream. `EtheriumUtil.
   defaultProperties` no longer reads the Etherium config, which upstream fetched but never
   used.
+- `objects/Vector3`: `glVertex()` removed. It was an unused immediate-mode GL helper and
+  the only client-only member, so the class is now safe on dedicated servers. `objects/Quat`
+  is copied unchanged.
+- `SuperpositionHandler`: added `setEntityMotionFromVector`, `canPickStack`,
+  `canMergeStacks` and `stackEqualExact`, copied unchanged from upstream.
+- Magnetic Ring and Dislocation Ring: the inventory button that toggles magnet effects
+  (and the `TransientPlayerData` flag and packet behind it) is not ported yet, so magnet
+  effects are always on. The client config keys for the button (`ButtonEnabled`,
+  `ButtonOffset*`) are still read but do nothing yet.
+- Magnetic Ring and Dislocation Ring: upstream skipped items whose Forge entity
+  persistent data held `PreventRemoteMovement` (a cross-mod convention). Fabric entities
+  have no such data map, so that check is dropped and those items are pulled too.
 - Not yet ported: the recipe serializers (`EnigmaticRecipes`, e.g.
   `enigmaticlegacy:mending_mixture_repair`). Until they are, recipes of those types fail
   to load, so Mending Mixture cannot repair items yet.

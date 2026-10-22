@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -16,6 +18,7 @@ import com.aizistral.enigmaticlegacy.api.capabilities.IPlaytimeCounter;
 import com.aizistral.enigmaticlegacy.api.generic.ConfigurableItem;
 import com.aizistral.enigmaticlegacy.api.generic.SubscribeConfig;
 import com.aizistral.enigmaticlegacy.config.ConfigHolders;
+import com.aizistral.enigmaticlegacy.objects.Vector3;
 import com.aizistral.enigmaticlegacy.platform.Services;
 import com.aizistral.omniconfig.Configuration;
 import com.aizistral.omniconfig.wrappers.OmniconfigWrapper;
@@ -25,9 +28,11 @@ import com.google.common.collect.Multimap;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 
 /**
  * Port of upstream's SuperpositionHandler. Methods are added as the code that calls them
@@ -202,5 +207,45 @@ public class SuperpositionHandler {
 			return Integer.toString((int) num);
 		else
 			return Double.toString(num);
+	}
+
+	public static void setEntityMotionFromVector(final Entity entity, final Vector3 originalPosVector, final float modifier) {
+		final Vector3 entityVector = Vector3.fromEntityCenter(entity);
+		Vector3 finalVector = originalPosVector.subtract(entityVector);
+
+		if (finalVector.mag() > 1.0) {
+			finalVector = finalVector.normalize();
+		}
+
+		entity.setDeltaMovement(finalVector.x * modifier, finalVector.y * modifier, finalVector.z * modifier);
+	}
+
+	public static boolean canPickStack(Player player, ItemStack stack) {
+		if (player.getInventory().getFreeSlot() >= 0)
+			return true;
+		else {
+			List<ItemStack> allInventories = new ArrayList<ItemStack>();
+
+			allInventories.addAll(player.getInventory().items);
+			allInventories.addAll(player.getInventory().offhand);
+
+			for (ItemStack invStack : allInventories) {
+				if (SuperpositionHandler.canMergeStacks(invStack, stack, player.getInventory().getMaxStackSize()))
+					return true;
+			}
+		}
+
+		return false;
+	}
+
+	public static boolean canMergeStacks(ItemStack stack1, ItemStack stack2, int invStackLimit) {
+		return !stack1.isEmpty() && SuperpositionHandler.stackEqualExact(stack1, stack2) && stack1.isStackable() && stack1.getCount() < stack1.getMaxStackSize() && stack1.getCount() < invStackLimit;
+	}
+
+	/**
+	 * Checks item, NBT, and meta if the item is not damageable
+	 */
+	public static boolean stackEqualExact(ItemStack stack1, ItemStack stack2) {
+		return stack1.getItem() == stack2.getItem() && ItemStack.isSameItemSameTags(stack1, stack2);
 	}
 }
