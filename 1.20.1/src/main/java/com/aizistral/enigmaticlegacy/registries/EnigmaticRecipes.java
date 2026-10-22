@@ -1,6 +1,10 @@
 package com.aizistral.enigmaticlegacy.registries;
 
 import com.aizistral.enigmaticlegacy.api.generic.ObjectHolder;
+import com.aizistral.enigmaticlegacy.brewing.BrewingRecipeRegistry;
+import com.aizistral.enigmaticlegacy.brewing.SpecialBrewingRecipe;
+import com.aizistral.enigmaticlegacy.brewing.ValidationBrewingRecipe;
+import com.aizistral.enigmaticlegacy.config.OmniconfigHandler;
 import com.aizistral.enigmaticlegacy.crafting.BindToPlayerRecipe;
 import com.aizistral.enigmaticlegacy.crafting.BlessedShapedRecipe;
 import com.aizistral.enigmaticlegacy.crafting.CursedShapedRecipe;
@@ -9,6 +13,12 @@ import com.aizistral.enigmaticlegacy.crafting.MendingMixtureRepairRecipe;
 import com.aizistral.enigmaticlegacy.crafting.ShapelessNoReturnRecipe;
 
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 
@@ -55,6 +65,21 @@ public class EnigmaticRecipes extends AbstractRegistry<RecipeSerializer<?>> {
 	public static void init() {
 		// NO-OP; loading the class registers the serializers.
 		// Port: upstream's onRegister CraftingHelper call is EnabledCondition.register() on Fabric.
+	}
+
+	/**
+	 * Port: upstream registers these in EnigmaticLegacy's common setup through Forge's
+	 * BrewingRecipeRegistry; here they go to the port's own registry (see the brewing package).
+	 * The Twisted, Common and Ultimate potion recipes return with those items.
+	 */
+	public static void registerBrewingRecipes() {
+		if (OmniconfigHandler.isItemEnabled(EnigmaticItems.RECALL_POTION)) {
+			// Port: upstream's PotionHelper.createVanillaPotion is not ported; PotionUtils does the same.
+			BrewingRecipeRegistry.addRecipe(new SpecialBrewingRecipe(Ingredient.of(PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.AWKWARD)), Ingredient.of(Items.ENDER_EYE), new ItemStack(EnigmaticItems.RECALL_POTION), new ResourceLocation(MODID, "recall_potion")));
+		}
+
+		// Port: upstream also lists TWISTED_POTION, ULTIMATE_POTION_LINGERING and COMMON_POTION_LINGERING.
+		BrewingRecipeRegistry.addRecipe(new ValidationBrewingRecipe(Ingredient.of(EnigmaticItems.RECALL_POTION), null));
 	}
 
 }

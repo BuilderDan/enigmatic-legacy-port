@@ -187,8 +187,17 @@ Sections are added here as each Minecraft version / loader is ported.
   Forge's `changeDimension(level, RealSmoothTeleporter)`; the port uses vanilla
   `ServerPlayer.teleportTo(level, ...)`, which also keeps the position, before the same
   spawn-point teleport. `getWorld` uses the platform server instead of `ServerLifecycleHooks`.
-- Potion of Recall: the brewing recipe (Awkward Potion + Eye of Ender) is not added yet.
-  Upstream uses Forge's `BrewingRecipeRegistry`; 1.20.1 Fabric needs a mixin for it.
+- Brewing (`brewing/`): upstream's `AbstractBrewingRecipe`, `SpecialBrewingRecipe` and
+  `ValidationBrewingRecipe` are copied as is (`javax` `@Nonnull` becomes JetBrains `@NotNull`).
+  Fabric has no equivalent of Forge's `IBrewingRecipe` and `BrewingRecipeRegistry`, so the
+  port adds its own (port-only, mod recipes only) plus three port-only mixins:
+  `MixinPotionBrewing` (`isIngredient`, `hasMix`, `mix`; vanilla mixes always win),
+  `MixinBrewingStandPotionSlot` (bottle slots accept mod inputs) and
+  `MixinBrewingStandBlockEntity` (hoppers can insert them). Registration moved from upstream's
+  common setup to `EnigmaticRecipes.registerBrewingRecipes()`. Only the Potion of Recall recipe
+  (Awkward Potion + Eye of Ender) is registered; the Twisted, Common and Ultimate potion recipes
+  return with those items. Upstream's `PotionHelper.createVanillaPotion` is replaced by
+  `PotionUtils.setPotion`. Brewing-stand slot and hopper behavior: verify in game.
 - `javax.annotation.Nullable` (from Forge's classpath) is replaced by
   `org.jetbrains.annotations.Nullable` where ported files used it.
 - Emblem of Monster Slayer (`MonsterCharm`): upstream's Forge event cases are port-only

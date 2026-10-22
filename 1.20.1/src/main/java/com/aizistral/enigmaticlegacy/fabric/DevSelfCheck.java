@@ -22,6 +22,9 @@ import org.slf4j.LoggerFactory;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.resources.model.BakedModel;
@@ -126,6 +129,7 @@ public final class DevSelfCheck {
 		problems += checkRecipes();
 		problems += checkPiglinMixin();
 		problems += checkLootPools();
+		problems += checkBrewing();
 		problems += checkMixinApplied("net.minecraft.world.entity.LivingEntity", "onHurt", "onExperienceDrop");
 		problems += checkMixinApplied("net.minecraft.world.item.enchantment.EnchantmentHelper", "addAccessoryLooting");
 		LOGGER.info("[devcheck] Done: {} problem(s)", problems);
@@ -148,6 +152,33 @@ public final class DevSelfCheck {
 			LOGGER.error("[devcheck] piglin mixin wrong: golden_ring={}, dirt={}", ring, dirt);
 		} catch (Throwable ex) {
 			LOGGER.error("[devcheck] piglin mixin check failed", ex);
+		}
+		return 1;
+	}
+
+	/**
+	 * Calls vanilla PotionBrewing the way the brewing stand does, so MixinPotionBrewing and the
+	 * port's BrewingRecipeRegistry are both exercised: awkward potion + ender eye -> recall.
+	 */
+	private static int checkBrewing() {
+		try {
+			ItemStack awkward = PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.AWKWARD);
+			ItemStack water = PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.WATER);
+			ItemStack eye = new ItemStack(Items.ENDER_EYE);
+			boolean ingredient = PotionBrewing.isIngredient(eye);
+			boolean hasMix = PotionBrewing.hasMix(awkward, eye);
+			boolean waterMix = PotionBrewing.hasMix(water, eye);
+			ItemStack result = PotionBrewing.mix(eye, awkward);
+			ItemStack vanilla = PotionBrewing.mix(new ItemStack(Items.NETHER_WART), water);
+			if (ingredient && hasMix && !waterMix && result.is(EnigmaticItems.RECALL_POTION)
+					&& PotionUtils.getPotion(vanilla) == Potions.AWKWARD) {
+				LOGGER.info("[devcheck] brewing ok (awkward + ender_eye -> recall_potion)");
+				return 0;
+			}
+			LOGGER.error("[devcheck] brewing wrong: ingredient={}, hasMix={}, waterMix={}, result={}, vanilla={}",
+					ingredient, hasMix, waterMix, result, PotionUtils.getPotion(vanilla));
+		} catch (Throwable ex) {
+			LOGGER.error("[devcheck] brewing check failed", ex);
 		}
 		return 1;
 	}

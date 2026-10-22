@@ -40,6 +40,7 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		OmniconfigHandler.initialize();
 		EnigmaticItems.init();
 		EnigmaticRecipes.init();
+		EnigmaticRecipes.registerBrewingRecipes();
 		EnigmaticTabs.init();
 		TrinketsAccessorySlots.init();
 		EnabledCondition.register();
