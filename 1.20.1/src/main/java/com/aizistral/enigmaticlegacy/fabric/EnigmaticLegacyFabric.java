@@ -33,17 +33,21 @@ import com.aizistral.enigmaticlegacy.registries.EnigmaticAttributes;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticEffects;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticPotions;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticLootFunctions;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticRecipes;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticSounds;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticTabs;
 import com.aizistral.enigmaticlegacy.triggers.BeheadingTrigger;
 import com.aizistral.enigmaticlegacy.triggers.ForbiddenFruitTrigger;
+import com.aizistral.enigmaticlegacy.triggers.RevelationGainTrigger;
+import com.aizistral.enigmaticlegacy.triggers.RevelationTomeBurntTrigger;
 import com.aizistral.enigmaticlegacy.triggers.UseUnholyGrailTrigger;
 import com.aizistral.omniconfig.packets.PacketSyncOptions;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.level.ServerPlayer;
@@ -53,6 +57,7 @@ import com.aizistral.enigmaticlegacy.registries.EnigmaticEntities;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticMenus;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.minecraft.advancements.CriteriaTriggers;
 
 /**
@@ -75,6 +80,11 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		EnigmaticItems.init();
 		EnigmaticEntities.init();
 		EnigmaticMenus.init();
+		EnigmaticLootFunctions.init();
+		// Port: upstream RevelationTome.getBurnTime.
+		FuelRegistry.INSTANCE.add(EnigmaticItems.TATTERED_TOME, 400);
+		FuelRegistry.INSTANCE.add(EnigmaticItems.WITHERED_TOME, 400);
+		FuelRegistry.INSTANCE.add(EnigmaticItems.CORRUPTED_TOME, 400);
 		// Port: upstream adds this in onLoadComplete.
 		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.ANGEL_BLESSING);
 		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.GOLEM_HEART);
@@ -94,6 +104,8 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		CriteriaTriggers.register(BeheadingTrigger.INSTANCE);
 		CriteriaTriggers.register(UseUnholyGrailTrigger.INSTANCE);
 		CriteriaTriggers.register(ForbiddenFruitTrigger.INSTANCE);
+		CriteriaTriggers.register(RevelationGainTrigger.INSTANCE);
+		CriteriaTriggers.register(RevelationTomeBurntTrigger.INSTANCE);
 
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			OmniconfigSync.onPlayerLoggedIn(handler.getPlayer());
@@ -102,6 +114,8 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		ServerLivingEntityEvents.ALLOW_DAMAGE.register(EnigmaticEventHandler::onLivingAttack);
 		ServerLivingEntityEvents.ALLOW_DEATH.register(EnigmaticEventHandler::onLivingDeath);
 		ServerLivingEntityEvents.AFTER_DEATH.register(EnigmaticEventHandler::onEntityKilled);
+		// Port: upstream EntityJoinLevelEvent (arthropods avoid Acknowledgment holders).
+		ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> EnigmaticEventHandler.onEntityLoad(entity));
 		// Forge keeps the PlayerPersisted compound across respawns; copy ours over too.
 		ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) ->
 				((PersistentData) newPlayer).enigmaticlegacy$setPersistedTag(

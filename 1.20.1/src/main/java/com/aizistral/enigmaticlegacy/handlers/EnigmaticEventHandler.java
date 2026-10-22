@@ -14,6 +14,7 @@ import com.aizistral.enigmaticlegacy.EnigmaticLegacy;
 import com.aizistral.enigmaticlegacy.config.OmniconfigHandler;
 import com.aizistral.enigmaticlegacy.entities.PermanentItemEntity;
 import com.aizistral.enigmaticlegacy.helpers.ItemNBTHelper;
+import com.aizistral.enigmaticlegacy.helpers.PotionHelper;
 import com.aizistral.enigmaticlegacy.items.EnigmaticAmulet;
 import com.aizistral.enigmaticlegacy.items.EnigmaticAmulet.AmuletColor;
 import com.aizistral.enigmaticlegacy.items.ForbiddenAxe;
@@ -26,6 +27,7 @@ import com.aizistral.enigmaticlegacy.items.CursedScroll;
 import com.aizistral.enigmaticlegacy.items.EyeOfNebula;
 import com.aizistral.enigmaticlegacy.items.OceanStone;
 import com.aizistral.enigmaticlegacy.items.VoidPearl;
+import com.aizistral.enigmaticlegacy.mixin.AccessorMob;
 import com.aizistral.enigmaticlegacy.objects.DimensionalPosition;
 import com.aizistral.enigmaticlegacy.objects.FireImmunityData;
 import com.aizistral.enigmaticlegacy.mixin.AccessorAbstractArrow;
@@ -42,6 +44,7 @@ import com.aizistral.enigmaticlegacy.platform.network.TargetPoint;
 import com.aizistral.enigmaticlegacy.mixin.AccessorMobEffectInstance;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticEffects;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticPotions;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticSounds;
 import com.aizistral.enigmaticlegacy.triggers.BeheadingTrigger;
 import com.aizistral.enigmaticlegacy.triggers.ForbiddenFruitTrigger;
@@ -56,6 +59,9 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.monster.Drowned;
 import net.minecraft.core.BlockPos;
@@ -88,7 +94,9 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.EnchantWithLevelsFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.functions.SetItemDamageFunction;
 import net.minecraft.world.level.storage.loot.functions.SetNbtFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
@@ -599,14 +607,25 @@ public class EnigmaticEventHandler {
 	/**
 	 * Port: the End city part of upstream's {@code LootTableLoadEvent} handler. Fabric calls it
 	 * from {@code LootTableEvents.MODIFY}; {@code addPool} adds the pool to the table.
-	 * Also adds the spellstone pools and the Nether "epic" pool; the other dungeon "epic" pools are not ported yet.
+	 * Also adds the spellstone, "epic", literature (Revelation Tome), library and underwater ruin pools.
 	 */
 	public static void onLootTablesLoaded(ResourceLocation id, Consumer<LootPool> addPool) {
 		if (!OmniconfigHandler.customDungeonLootEnabled.getValue())
 			return;
 
+		LootPool overworldLiterature = !OmniconfigHandler.isItemEnabled(EnigmaticItems.TATTERED_TOME) ? null :
+			SuperpositionHandler.constructLootPool("overworldLiterature", -7F, 2F,
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.TATTERED_TOME, 100).apply(LootFunctionRevelation.of(UniformGenerator.between(1, 3), UniformGenerator.between(50, 500))));
+
+		LootPool netherLiterature = !OmniconfigHandler.isItemEnabled(EnigmaticItems.WITHERED_TOME) ? null :
+			SuperpositionHandler.constructLootPool("netherLiterature", -7F, 2F,
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.WITHERED_TOME, 100).apply(LootFunctionRevelation.of(UniformGenerator.between(1, 3), UniformGenerator.between(100, 700))));
+
+		LootPool endLiterature = !OmniconfigHandler.isItemEnabled(EnigmaticItems.CORRUPTED_TOME) ? null :
+			SuperpositionHandler.constructLootPool("endLiterature", -7F, 2F,
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.CORRUPTED_TOME, 100).apply(LootFunctionRevelation.of(UniformGenerator.between(1, 4), UniformGenerator.between(200, 1000))));
+
 		if (id.equals(BuiltInLootTables.END_CITY_TREASURE)) {
-			// Port: upstream also adds Lore Inscriber (weight 10); it is not ported yet, so it is left out.
 			LootPool epic = SuperpositionHandler.constructLootPool("epic", 1F, 2F,
 					LootItem.lootTableItem(Items.ENDER_PEARL).setWeight(40).apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 5))),
 					LootItem.lootTableItem(Items.ENDER_EYE).setWeight(20).apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 2))),
@@ -616,6 +635,7 @@ public class EnigmaticEventHandler {
 					LootItem.lootTableItem(Items.ENCHANTING_TABLE).setWeight(10),
 					LootItem.lootTableItem(Items.CAKE).setWeight(15),
 					LootItem.lootTableItem(Items.END_CRYSTAL).setWeight(7),
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.LORE_INSCRIBER, 10),
 					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.RECALL_POTION, 15),
 					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.MENDING_MIXTURE, 40),
 					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.ASTRAL_DUST, 85, 1F, 4F),
@@ -623,7 +643,10 @@ public class EnigmaticEventHandler {
 					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.EXTRADIMENSIONAL_EYE, 20));
 
 			addPool.accept(epic);
-			// Port: upstream's second End pool (Corrupted Tome with a revelation function) is not ported.
+
+			if (endLiterature != null) {
+				addPool.accept(endLiterature);
+			}
 		}
 
 		LootPool spellstones = null;
@@ -672,7 +695,10 @@ public class EnigmaticEventHandler {
 				addPool.accept(scroll);
 			}
 
-			// Port: upstream's "netherLiterature" pool (Withered Tome) is not ported.
+			if (netherLiterature != null) {
+				addPool.accept(netherLiterature);
+			}
+
 			spellstones = SuperpositionHandler.constructLootPool("spellstones", -24F, 1F,
 					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.BLAZING_CORE, 100));
 		} else if (SuperpositionHandler.getWaterDungeons().contains(id)) {
@@ -686,6 +712,70 @@ public class EnigmaticEventHandler {
 
 		if (spellstones != null) {
 			addPool.accept(spellstones);
+		}
+
+		// Port: upstream also has a Desert Pyramid branch (Insignia pool and End literature), but it
+		// sits after the overworld branch in an else-if chain and the pyramid is an overworld dungeon,
+		// so it never runs upstream. It is left out here.
+		if (SuperpositionHandler.getOverworldDungeons().contains(id)) {
+			LootPool epic = SuperpositionHandler.constructLootPool("epic", 1F, 2F,
+					SuperpositionHandler.itemEntryBuilderED(Items.IRON_PICKAXE, 10, 20F, 30F, 1.0F, 0.8F),
+					SuperpositionHandler.itemEntryBuilderED(Items.IRON_AXE, 10, 20F, 30F, 1.0F, 0.8F),
+					SuperpositionHandler.itemEntryBuilderED(Items.IRON_SWORD, 10, 20F, 30F, 1.0F, 0.8F),
+					SuperpositionHandler.itemEntryBuilderED(Items.IRON_SHOVEL, 10, 20F, 30F, 1.0F, 0.8F),
+					SuperpositionHandler.itemEntryBuilderED(Items.BOW, 10, 20F, 30F, 1.0F, 0.8F),
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.IRON_RING, 20),
+					LootItem.lootTableItem(EnigmaticItems.COMMON_POTION).setWeight(20).apply(SetNbtFunction.setTag(PotionHelper.createAdvancedPotion(EnigmaticItems.COMMON_POTION, EnigmaticPotions.HASTE).getTag())),
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.MAGNET_RING, 8),
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.UNHOLY_GRAIL, 1),
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.LORE_INSCRIBER, 5),
+					SuperpositionHandler.getWaterDungeons().contains(id) || id.equals(BuiltInLootTables.PILLAGER_OUTPOST) ? null : SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.EARTH_HEART, 7),
+					LootItem.lootTableItem(Items.CLOCK).setWeight(10),
+					LootItem.lootTableItem(Items.COMPASS).setWeight(10),
+					LootItem.lootTableItem(Items.EMERALD).setWeight(20).apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 4F))),
+					LootItem.lootTableItem(Items.SLIME_BALL).setWeight(20).apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 10F))),
+					LootItem.lootTableItem(Items.LEATHER).setWeight(35).apply(SetItemCountFunction.setCount(UniformGenerator.between(3.0F, 8F))),
+					LootItem.lootTableItem(Items.PUMPKIN_PIE).setWeight(25).apply(SetItemCountFunction.setCount(UniformGenerator.between(4.0F, 16F))));
+
+			addPool.accept(epic);
+
+			if (overworldLiterature != null && !id.equals(BuiltInLootTables.SHIPWRECK_SUPPLY)) {
+				addPool.accept(overworldLiterature);
+			}
+		}
+
+		if (SuperpositionHandler.getLibraries().contains(id)) {
+			LootPool special = SuperpositionHandler.constructLootPool("el_special", 2F, 3F,
+					LootItem.lootTableItem(EnigmaticItems.THICC_SCROLL).setWeight(20).apply(SetItemCountFunction.setCount(UniformGenerator.between(2F, 6F))),
+					LootItem.lootTableItem(EnigmaticItems.LORE_FRAGMENT).setWeight(10).apply(SetItemCountFunction.setCount(UniformGenerator.between(1F, 2F))));
+
+			addPool.accept(special);
+
+			if (OmniconfigHandler.isItemEnabled(EnigmaticItems.TATTERED_TOME)) {
+				addPool.accept(SuperpositionHandler.constructLootPool("literature", -4F, 3F,
+						SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.TATTERED_TOME, 100).apply(LootFunctionRevelation.of(UniformGenerator.between(1, 3), UniformGenerator.between(50, 500)))));
+			}
+		}
+
+		if (id.equals(BuiltInLootTables.UNDERWATER_RUIN_BIG) || id.equals(BuiltInLootTables.UNDERWATER_RUIN_SMALL)) {
+			LootPool special = SuperpositionHandler.constructLootPool("el_special", -5F, 1F,
+					LootItem.lootTableItem(Items.TRIDENT)
+					.apply(SetItemDamageFunction.setDamage(UniformGenerator.between(0.5F, 1.0F)))
+					.apply(EnchantWithLevelsFunction.enchantWithLevels(UniformGenerator.between(15F, 40F)).allowTreasure()));
+
+			addPool.accept(special);
+		}
+	}
+
+	/**
+	 * Port: the arthropod part of upstream's {@code EntityJoinLevelEvent} handler. Fabric calls it
+	 * from {@code ServerEntityEvents.ENTITY_LOAD}.
+	 */
+	public static void onEntityLoad(Entity entity) {
+		if (entity instanceof PathfinderMob mob && mob.getMobType() == MobType.ARTHROPOD) {
+			((AccessorMob) mob).enigmaticlegacy$getGoalSelector().addGoal(3, new AvoidEntityGoal<>(mob, Player.class,
+					(targetEntity) -> targetEntity instanceof Player && SuperpositionHandler.hasAntiInsectAcknowledgement((Player) targetEntity),
+					6, 1, 1.3, EntitySelector.NO_CREATIVE_OR_SPECTATOR::test));
 		}
 	}
 

@@ -171,11 +171,12 @@ Sections are added here as each Minecraft version / loader is ported.
   upstream's `LootTableLoadEvent` handler, called on Fabric from `LootTableEvents.MODIFY`.
   It adds upstream's "epic" pool (1-2 rolls, same weights and counts) with Potion of Recall,
   Mending Mixture, Astral Dust and Extradimensional Eye. Differences from upstream:
-  - Lore Inscriber is left out of the pool (not ported yet). Etherium Ore (weight 60, 1-2) is in.
-  - The second End city pool (Corrupted Tome) is not ported.
+  - Etherium Ore (weight 60, 1-2) is in. Lore Inscriber and the second End city pool
+    (Corrupted Tome) came with later batches.
   - Vanilla 1.20.1 loot pools have no name, so `SuperpositionHandler.constructLootPool`
     ignores its `poolName` parameter.
-  - The other dungeon pools and the lore fragments are not injected yet.
+  - The other dungeon pools came with later batches (spellstones, nether, The Acknowledgment and
+    Revelation Tomes).
 - `SuperpositionHandler`: added `constructLootPool` and `createOptionalLootEntry` (both
   overloads), close to upstream.
 - Dev only, port-only: `DevSelfCheck` also checks that the End city table gets one pool.
@@ -321,7 +322,7 @@ Sections are added here as each Minecraft version / loader is ported.
     mixin instead of `RenderGuiOverlayEvent.Pre`; lava fog uses a `FogRenderer.setupFog` TAIL
     mixin instead of `ViewportEvent.RenderFog` (the Molten Heart effect branch comes later).
   - Loot: the spellstone pool is added to nether dungeon chests
-    (`SuperpositionHandler.getNetherDungeons`); upstream's nether "epic" pool is not ported yet.
+    (`SuperpositionHandler.getNetherDungeons`); upstream's nether "epic" pool came later.
 - Scroll of Postmortal Recall (`EscapeScroll`, entity `PermanentItemEntity`):
   - Drops: Forge's `captureDrops` is emulated. Port-only `MixinEntity` and `MixinServerPlayer`
     wrap `Level.addFreshEntity` in `Entity.spawnAtLocation` and `ServerPlayer.drop` while
@@ -384,7 +385,8 @@ Sections are added here as each Minecraft version / loader is ported.
     on the food-bar `blit` calls in `Gui.renderPlayerHealth` (only the shank background is
     redrawn). Food is held at 20 with no saturation in the player tick.
   - Not ported yet: the Cursed Scroll heal boost in `onHeal`, Eldritch Pan's `cannotHunger` check, the Forbidden Fruit bastion loot, the
-    Bottle of Ichor special loot and its `LootedIchorBottle` flag (its dungeon pool entries came with the spellstones batch), and the Common Haste dungeon loot.
+    Bottle of Ichor special loot and its `LootedIchorBottle` flag (its dungeon pool entries came with the spellstones batch). The Common Haste dungeon loot
+    came with the Revelation Tomes.
 - Spellstones and scrolls batch (Angel's Blessing, Heart of the Golem, Will of the Ocean, Eye of
   the Nebula, Pearl of the Void, The Cube; Gift of the Heaven, Fabulous Scroll, Scroll of a
   Thousand Curses, Scroll of Avarice, Cosmic Scroll):
@@ -456,7 +458,7 @@ Sections are added here as each Minecraft version / loader is ported.
     where Forge fires that event.
   - Nether fortress and bastion chest loot: upstream's "epic" pool (golden tools, Void Stone,
     Forbidden Fruit in bastions, and others) and the Bastion Treasure "darkest_scroll" pool are
-    ported. Upstream's "netherLiterature" pool (Withered Tome) is not ported yet.
+    ported. Upstream's "netherLiterature" pool (Withered Tome) came with the Revelation Tomes.
   - `SuperpositionHandler`: `itemEntryBuilderED` and `getBastionChests` added, same as upstream.
 - The Architect's Inkwell (Lore Inscriber):
   - New port registry `EnigmaticMenus` registers `lore_inscriber_container` as a vanilla
@@ -487,3 +489,23 @@ Sections are added here as each Minecraft version / loader is ported.
   - Not ported yet: the permadeath screen and "fractured world" flag at 10 lost crystals
     (`PacketPermadeath`, `EnigmaticTransience`), Soul Compass updates, and the Cursed Ring
     check in soul-loss mode 0 (treated as "no ring" for now).
+- The Acknowledgment and the Revelation Tomes (Tattered, Withered, Corrupted):
+  - `TheAcknowledgment`: vanilla `getEnchantmentValue()` and `getDefaultAttributeModifiers(slot)`
+    instead of Forge's stack-aware overloads. Forge's `isBookEnchantable` and
+    `canApplyAtEnchantingTable` become port-only mixins: `MixinEnchantment` (`canEnchant`, used by
+    the anvil) and `MixinEnchantmentHelper` (`getAvailableEnchantmentResults`, the enchanting
+    table) allow Bane of Arthropods. The `allowAllEnchantments` branch is not hooked; no item
+    in the mod sets it.
+  - Arthropods ignore and avoid Acknowledgment holders: port-only `MixinMob` cancels
+    `setTarget` (upstream: `LivingChangeTargetEvent`), and the avoid goal is added from Fabric's
+    `ServerEntityEvents.ENTITY_LOAD` (upstream: `EntityJoinLevelEvent`) through a port-only
+    `AccessorMob` (Forge's access transformer makes `goalSelector` public).
+  - `RevelationTome`: the 400-tick burn time is a Fabric `FuelRegistry` entry; the burnt
+    advancement trigger fires from a port-only `MixinAbstractFurnaceBlockEntity` on
+    `getBurnDuration` (upstream: `FurnaceFuelBurnTimeEvent`). The toast moved to the client-only
+    `RevelationTomeClient` (upstream: `ClientProxy`). The tooltip checks for a null client player.
+  - Loot: the literature pools (End, nether, overworld, libraries), the overworld "epic" pool
+    (with Common Haste potion and Lore Inscriber), the library "el_special" pool and the
+    underwater ruin trident are ported with upstream's weights. Upstream's Desert Pyramid branch
+    is left out: it follows the overworld branch in an else-if chain and never runs.
+  - Dev only: `DevSelfCheck` now expects 6 loot pools and checks the new mixins.

@@ -28,6 +28,8 @@ import com.aizistral.enigmaticlegacy.items.Infinimeal;
 import com.aizistral.enigmaticlegacy.items.IronRing;
 import com.aizistral.enigmaticlegacy.items.LoreFragment;
 import com.aizistral.enigmaticlegacy.items.LoreInscriber;
+import com.aizistral.enigmaticlegacy.items.RevelationTome;
+import com.aizistral.enigmaticlegacy.items.TheAcknowledgment;
 import com.aizistral.enigmaticlegacy.items.SoulCrystal;
 import com.aizistral.enigmaticlegacy.items.StorageCrystal;
 import com.aizistral.enigmaticlegacy.items.MagnetRing;
@@ -136,6 +138,22 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ConfigurableItem
 	@ObjectHolder(value = MODID + ":soul_crystal", registryName = "item")
 	public static SoulCrystal SOUL_CRYSTAL;
+
+	@ConfigurableItem("The Acknowledgment")
+	@ObjectHolder(value = MODID + ":the_acknowledgment", registryName = "item")
+	public static TheAcknowledgment THE_ACKNOWLEDGMENT;
+
+	@ConfigurableItem("Tattered Tome")
+	@ObjectHolder(value = MODID + ":tattered_tome", registryName = "item")
+	public static RevelationTome TATTERED_TOME;
+
+	@ConfigurableItem("Withered Tome")
+	@ObjectHolder(value = MODID + ":withered_tome", registryName = "item")
+	public static RevelationTome WITHERED_TOME;
+
+	@ConfigurableItem("Corrupted Tome")
+	@ObjectHolder(value = MODID + ":corrupted_tome", registryName = "item")
+	public static RevelationTome CORRUPTED_TOME;
 
 	@ConfigurableItem("Mending Mixture")
 	@ObjectHolder(value = MODID + ":mending_mixture", registryName = "item")
@@ -472,6 +490,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("lore_inscriber", LoreInscriber::new);
 		this.register("storage_crystal", StorageCrystal::new);
 		this.register("soul_crystal", SoulCrystal::new);
+		this.register("the_acknowledgment", TheAcknowledgment::new);
+		this.register("tattered_tome", () -> new RevelationTome(Rarity.UNCOMMON, RevelationTome.TomeType.OVERWORLD));
+		this.register("withered_tome", () -> new RevelationTome(Rarity.UNCOMMON, RevelationTome.TomeType.NETHER));
+		this.register("corrupted_tome", () -> new RevelationTome(Rarity.RARE, RevelationTome.TomeType.END));
 	}
 
 	/** Port: forces class loading, which registers the items. */

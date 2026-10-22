@@ -79,7 +79,9 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import com.aizistral.enigmaticlegacy.items.GolemHeart;
+import com.aizistral.enigmaticlegacy.items.TheAcknowledgment;
 import java.util.Map.Entry;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
@@ -281,6 +283,45 @@ public class SuperpositionHandler {
 		builder.apply(EnchantWithLevelsFunction.enchantWithLevels(UniformGenerator.between(enchantLevelMin, enchantLevelMax)).allowTreasure());
 
 		return builder;
+	}
+
+	public static List<ResourceLocation> getLibraries() {
+		List<ResourceLocation> lootChestList = new ArrayList<ResourceLocation>();
+		lootChestList.add(BuiltInLootTables.STRONGHOLD_LIBRARY);
+		lootChestList.add(BuiltInLootTables.SHIPWRECK_MAP);
+
+		return lootChestList;
+	}
+
+	public static List<ResourceLocation> getOverworldDungeons() {
+		List<ResourceLocation> lootChestList = new ArrayList<ResourceLocation>();
+		lootChestList.add(BuiltInLootTables.SIMPLE_DUNGEON);
+		lootChestList.add(BuiltInLootTables.ABANDONED_MINESHAFT);
+		lootChestList.add(BuiltInLootTables.STRONGHOLD_CROSSING);
+		lootChestList.add(BuiltInLootTables.STRONGHOLD_CORRIDOR);
+		lootChestList.add(BuiltInLootTables.DESERT_PYRAMID);
+		lootChestList.add(BuiltInLootTables.JUNGLE_TEMPLE);
+		lootChestList.add(BuiltInLootTables.IGLOO_CHEST);
+		lootChestList.add(BuiltInLootTables.WOODLAND_MANSION);
+		lootChestList.add(BuiltInLootTables.UNDERWATER_RUIN_SMALL);
+		lootChestList.add(BuiltInLootTables.UNDERWATER_RUIN_BIG);
+		lootChestList.add(BuiltInLootTables.SHIPWRECK_SUPPLY);
+		lootChestList.add(BuiltInLootTables.PILLAGER_OUTPOST);
+
+		return lootChestList;
+	}
+
+	public static boolean hasAntiInsectAcknowledgement(Player player) {
+		List<ItemStack> heldItems = Lists.newArrayList(player.getMainHandItem(), player.getOffhandItem());
+
+		for (ItemStack held : heldItems) {
+			if (held != null && held.getItem() instanceof TheAcknowledgment) {
+				if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.BANE_OF_ARTHROPODS, held) > 0)
+					return true;
+			}
+		}
+
+		return false;
 	}
 
 	public static List<ResourceLocation> getBastionChests() {

@@ -136,7 +136,10 @@ public final class DevSelfCheck {
 		problems += checkBrewing();
 		problems += checkMixinApplied("net.minecraft.world.entity.LivingEntity", "onHurt", "onExperienceDrop", "startDropCapture", "onDrops", "onHeal");
 		problems += checkMixinApplied("net.minecraft.world.entity.Entity", "captureDrop");
-		problems += checkMixinApplied("net.minecraft.world.item.enchantment.EnchantmentHelper", "addAccessoryLooting");
+		problems += checkMixinApplied("net.minecraft.world.item.enchantment.EnchantmentHelper", "addAccessoryLooting", "addAcknowledgmentBane");
+		problems += checkMixinApplied("net.minecraft.world.item.enchantment.Enchantment", "acknowledgmentBane");
+		problems += checkMixinApplied("net.minecraft.world.entity.Mob", "ignoreAcknowledgmentHolder", "enigmaticlegacy$getGoalSelector");
+		problems += checkMixinApplied("net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity", "onTomeBurnt");
 		problems += checkMixinApplied("net.minecraft.world.entity.player.Player", "addAttributes", "onBreakSpeed");
 		problems += checkMixinApplied("net.minecraft.world.level.storage.loot.functions.ApplyBonusCount", "addAccessoryFortune");
 		problems += checkMixinApplied("net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition", "addAccessoryFortune");
@@ -208,19 +211,20 @@ public final class DevSelfCheck {
 
 	/**
 	 * Builds the End city and simple dungeon pools the way LootTableEvents.MODIFY would, so a broken entry shows
-	 * up without loading a world: the End city gets the epic pool plus the ender spellstone pool,
-	 * the simple dungeon the earthen spellstone pool. It does not check that pools reach the chest.
+	 * up without loading a world: the End city gets the epic, End literature and ender spellstone
+	 * pools, the simple dungeon the earthen spellstone, overworld epic and overworld literature
+	 * pools. It does not check that pools reach the chest.
 	 */
 	private static int checkLootPools() {
 		try {
 			List<LootPool> pools = new ArrayList<>();
 			EnigmaticEventHandler.onLootTablesLoaded(BuiltInLootTables.END_CITY_TREASURE, pools::add);
 			EnigmaticEventHandler.onLootTablesLoaded(BuiltInLootTables.SIMPLE_DUNGEON, pools::add);
-			if (pools.size() == 3) {
-				LOGGER.info("[devcheck] loot ok (3 pools: end city epic + spellstones, simple dungeon spellstones)");
+			if (pools.size() == 6) {
+				LOGGER.info("[devcheck] loot ok (6 pools: end city epic + literature + spellstones, simple dungeon spellstones + epic + literature)");
 				return 0;
 			}
-			LOGGER.error("[devcheck] loot wrong: {} pool(s) built, expected 3", pools.size());
+			LOGGER.error("[devcheck] loot wrong: {} pool(s) built, expected 6", pools.size());
 		} catch (Throwable ex) {
 			LOGGER.error("[devcheck] loot check failed", ex);
 		}
