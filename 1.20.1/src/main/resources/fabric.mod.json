@@ -24,6 +24,9 @@
 		],
 		"client": [
 			"com.aizistral.enigmaticlegacy.fabric.EnigmaticLegacyFabricClient"
+		],
+		"cardinal-components-entity": [
+			"com.aizistral.enigmaticlegacy.fabric.platform.EnigmaticComponents"
 		]
 	},
 	"depends": {
@@ -32,6 +35,13 @@
 		"java": ">=17",
 		"fabric-api": "*",
 		"trinkets": ">=3.7.0",
-		"patchouli": "*"
+		"patchouli": "*",
+		"cardinal-components-base": "*",
+		"cardinal-components-entity": "*"
+	},
+	"custom": {
+		"cardinal-components": [
+			"enigmaticlegacy:playtime_counter"
+		]
 	}
 }

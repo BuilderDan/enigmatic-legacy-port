@@ -8,7 +8,7 @@ commit `a0294f1` (mod version 2.30.1, Forge 1.20.1).
 
 ## All versions
 
-- (none yet; no upstream code has been ported)
+- None shared yet; each version's code changes are listed under its own section below.
 
 ## Per version
 
@@ -41,3 +41,22 @@ Sections are added here as each Minecraft version / loader is ported.
   ported it only checks that the item exists, so every recipe is enabled.
 - Not copied (to be ported in code): `data/forge/` and the Forge global loot modifier
   under `data/enigmaticlegacy/loot_modifiers/`.
+- Code abstraction layer (port-only, package `platform/`): `Services` loads loader backends
+  through `ServiceLoader`. `IAccessoryItem` and `AccessorySlots` stand in for the Curios API,
+  `NetworkPlatform` and `PacketContext` for Forge `SimpleChannel` and `NetworkEvent.Context`,
+  and `PlayerDataPlatform` for Forge capabilities. Fabric backends are in `fabric/platform/`
+  (Trinkets, Fabric API networking, Cardinal Components). Each packet class gets its own
+  channel, `enigmaticlegacy:<class name>`.
+- New common class `EnigmaticLegacy` holds `MODID` and `LOGGER`. Upstream keeps them in the
+  Forge `@Mod` class.
+- `IPlaytimeCounter` / `PlayerPlaytimeCounter`: no longer Forge capabilities. The counter
+  is a Cardinal Components player component, `enigmaticlegacy:playtime_counter`.
+  - It is copied on every respawn, including returning from the End. Upstream copies it
+    only on death.
+  - The two custom stats are now registered in code (`registerStats()`).
+- `PacketSyncPlayTime`: uses `PacketContext`; `@OnlyIn` removed.
+- Trinkets has no looting or "recently hit" info when it decides drop rules, so accessory
+  drop rules get looting 0 and recently-hit false. Upstream's extra drop rules (Curios
+  `onCurioDrops`) go through `AccessoryDrops` and Trinkets' drop callback.
+- Accessory `onEquip`/`onUnequip` get an empty stack as the previous/new stack; Trinkets
+  does not pass it. Upstream gets the real stack from Curios.

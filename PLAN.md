@@ -88,6 +88,8 @@ decided otherwise.
    2. Copy upstream content: registries, assets, data, lang (CHANGES.md notes every edit).
       Assets, data and Trinkets slots done 2026-10-21 (`tools/sync_resources.py`).
    3. Common abstraction layer (slots, network, player data, platform hooks).
+      Done 2026-10-21 (compiles; untested in game): `platform/` interfaces with Fabric
+      backends in `fabric/platform/` (Trinkets, Fabric networking, Cardinal Components).
    4. Port game logic and the event handler; port mixins and access widener.
    5. Config (Omniconfig Fabric backend), guide book, client rendering.
    6. Playtest every item in the dev client (checklist in `docs/playtest-1.20.1.md`).
