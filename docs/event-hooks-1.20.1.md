@@ -12,7 +12,7 @@ the first rows unblock the most items.
 |---|---|---|
 | LivingHurtEvent (4x, changes amount) | Mixin: `LivingEntity.actuallyHurt` `@ModifyVariable` on `amount` at HEAD (Forge fires it there, before armor) (done for Monster Charm; verify in game) | Monster Charm, Berserk Emblem, Angel's Blessing, Golem Heart, most curses |
 | LivingDeathEvent (4x) | `ServerLivingEntityEvents.ALLOW_DEATH` (cancel) + `AFTER_DEATH` | Escape Scroll, Ring of the Seven Curses, Soul Crystal |
-| LivingDropsEvent (2x) | Mixin: `LivingEntity.dropAllDeathLoot`, collect the drops into a list (Forge's capture) and fire the event | Escape Scroll (postmortal possessions), Soul Crystal, Avarice Scroll |
+| LivingDropsEvent (2x) | Mixin: `LivingEntity.dropAllDeathLoot` HEAD/RETURN with `Entity.spawnAtLocation` RETURN recording the drops (done for Axe of Executioner; verify in game). Observe-only: drops still spawn, so handlers can add drops but not remove or cancel them; Escape Scroll/Soul Crystal will need a cancelable variant | Escape Scroll (postmortal possessions), Soul Crystal, Avarice Scroll |
 | PlayerEvent.Clone / PlayerRespawnEvent | `ServerPlayerEvents.COPY_FROM` / `AFTER_RESPAWN` | Escape Scroll, Soul Crystal, keep-inventory items |
 | LivingExperienceDropEvent | Mixin: `LivingEntity.dropExperience`, `@ModifyArg` on `ExperienceOrb.award` amount (done; verify) | Monster Charm (double XP), Avarice Scroll |
 | LootingLevelEvent | Mixin: `EnchantmentHelper.getMobLooting` RETURN; add `getLootingLevel` to the accessory API (done; verify) | Monster Charm, Avarice Scroll |

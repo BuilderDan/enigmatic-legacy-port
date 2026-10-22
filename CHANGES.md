@@ -86,7 +86,7 @@ Sections are added here as each Minecraft version / loader is ported.
   Fragment, Heart of the Earth, Twisted Heart, Exquisite Ring, Nefarious Essence, Nefarious
   Ingot, Unholy Stone, Darkest Scroll, Tome of Hungering Knowledge, Heart of the Cosmos,
   Heart of the Abyss, Soul Dust, Emblem of Monster Slayer, Scroll of Ageless Wisdom, Ring of
-  Ender, Essence of Raging Life, Astral Potato, Charm of Treasure Hunter),
+  Ender, Essence of Raging Life, Astral Potato, Charm of Treasure Hunter, Axe of Executioner),
   registered in upstream order.
 - Creative tabs: built with `FabricItemGroup`; contents come from `ICreativeTabMember` in
   `displayItems` instead of Forge's `BuildCreativeModeTabContentsEvent`. Temporary: the main
@@ -259,3 +259,18 @@ Sections are added here as each Minecraft version / loader is ported.
   - `EnigmaticEventHandler.isApplyingNightVision` is kept as a static flag, as upstream.
 - Dev only, port-only: `DevSelfCheck` also checks the new mixins and that players get the
   block reach attribute.
+- Axe of Executioner (`ForbiddenAxe`, `triggers/BeheadingTrigger`):
+  - `api/materials/EnigmaticMaterials` holds only the `FORBIDDEN_AXE` tier for now; Forge's
+    `TierSortingRegistry` entries for the higher tiers come with the Etherium tools.
+    `items/generic/ItemBaseTool` holds only `getDefaultProperties()` for now.
+  - Tooltip: the Curios looting bonus becomes `Services.ACCESSORIES.getLootingBonus` (Trinkets).
+  - Beheading: Forge's `LivingDropsEvent` becomes port-only `MixinLivingEntity`
+    (`dropAllDeathLoot` HEAD/RETURN) plus `MixinEntity` (records `spawnAtLocation` results
+    through the port-only `objects/DropCapture` interface), calling
+    `EnigmaticEventHandler.onLivingDrops`. Unlike Forge, the drops still spawn normally, so the
+    handler only adds drops. The looting level passed in is `EnchantmentHelper.getMobLooting`
+    of the killer (which includes accessory looting).
+  - `SuperpositionHandler.ifDroplistContainsItem` is a private helper in the handler for now.
+  - `BeheadingTrigger` is registered with `CriteriaTriggers.register` in the Fabric entry
+    point; `javax.annotation.Nonnull` becomes `org.jetbrains.annotations.NotNull`.
+- Dev only, port-only: `DevSelfCheck` also checks the drop-capture mixins.

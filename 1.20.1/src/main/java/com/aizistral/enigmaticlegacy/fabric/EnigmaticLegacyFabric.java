@@ -22,12 +22,14 @@ import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticRecipes;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticSounds;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticTabs;
+import com.aizistral.enigmaticlegacy.triggers.BeheadingTrigger;
 import com.aizistral.omniconfig.packets.PacketSyncOptions;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.advancements.CriteriaTriggers;
 
 /**
  * Fabric entry point. Enigmatic Legacy is created and owned by Aizistral;
@@ -52,6 +54,7 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		EnabledCondition.register();
 		PlayerPlaytimeCounter.registerStats();
 		registerPackets();
+		CriteriaTriggers.register(BeheadingTrigger.INSTANCE);
 
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
 				OmniconfigSync.onPlayerLoggedIn(handler.getPlayer()));

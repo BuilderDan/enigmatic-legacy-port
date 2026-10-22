@@ -10,6 +10,7 @@
 		"MixinBrewingStandBlockEntity",
 		"MixinBrewingStandPotionSlot",
 		"MixinEnchantmentHelper",
+		"MixinEntity",
 		"MixinLivingEntity",
 		"MixinPiglinAi",
 		"MixinPlayer",

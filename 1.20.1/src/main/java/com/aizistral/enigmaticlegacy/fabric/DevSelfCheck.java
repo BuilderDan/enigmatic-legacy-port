@@ -130,7 +130,8 @@ public final class DevSelfCheck {
 		problems += checkPiglinMixin();
 		problems += checkLootPools();
 		problems += checkBrewing();
-		problems += checkMixinApplied("net.minecraft.world.entity.LivingEntity", "onHurt", "onExperienceDrop");
+		problems += checkMixinApplied("net.minecraft.world.entity.LivingEntity", "onHurt", "onExperienceDrop", "startDropCapture", "onDrops");
+		problems += checkMixinApplied("net.minecraft.world.entity.Entity", "onSpawnAtLocation");
 		problems += checkMixinApplied("net.minecraft.world.item.enchantment.EnchantmentHelper", "addAccessoryLooting");
 		problems += checkMixinApplied("net.minecraft.world.entity.player.Player", "addAttributes", "onBreakSpeed");
 		problems += checkMixinApplied("net.minecraft.world.level.storage.loot.functions.ApplyBonusCount", "addAccessoryFortune");

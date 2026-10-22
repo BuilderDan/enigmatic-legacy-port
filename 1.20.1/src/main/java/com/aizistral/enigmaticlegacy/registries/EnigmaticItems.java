@@ -26,6 +26,7 @@ import com.aizistral.enigmaticlegacy.items.MagnetRing;
 import com.aizistral.enigmaticlegacy.items.MendingMixture;
 import com.aizistral.enigmaticlegacy.items.MiningCharm;
 import com.aizistral.enigmaticlegacy.items.MonsterCharm;
+import com.aizistral.enigmaticlegacy.items.ForbiddenAxe;
 import com.aizistral.enigmaticlegacy.items.RecallPotion;
 import com.aizistral.enigmaticlegacy.items.SuperMagnetRing;
 import com.aizistral.enigmaticlegacy.items.SoulDust;
@@ -129,6 +130,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ObjectHolder(value = MODID + ":recall_potion", registryName = "item")
 	public static RecallPotion RECALL_POTION;
 
+	@ConfigurableItem("Axe of Executioner")
+	@ObjectHolder(value = MODID + ":forbidden_axe", registryName = "item")
+	public static ForbiddenAxe FORBIDDEN_AXE;
+
 	@ConfigurableItem("Ring of Dislocation")
 	@ObjectHolder(value = MODID + ":super_magnet_ring", registryName = "item")
 	public static SuperMagnetRing SUPER_MAGNET_RING;
@@ -176,6 +181,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("magnet_ring", MagnetRing::new);
 		this.register("extradimensional_eye", ExtradimensionalEye::new);
 		this.register("recall_potion", RecallPotion::new);
+		this.register("forbidden_axe", ForbiddenAxe::new);
 		this.register("super_magnet_ring", SuperMagnetRing::new);
 		this.register("ender_ring", EnderRing::new);
 		this.register("mending_mixture", MendingMixture::new);

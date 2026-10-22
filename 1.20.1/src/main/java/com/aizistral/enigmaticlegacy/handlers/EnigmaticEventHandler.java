@@ -1,24 +1,36 @@
 package com.aizistral.enigmaticlegacy.handlers;
 
+import java.util.Collection;
 import java.util.function.Consumer;
 
 import com.aizistral.enigmaticlegacy.config.OmniconfigHandler;
 import com.aizistral.enigmaticlegacy.helpers.ItemNBTHelper;
+import com.aizistral.enigmaticlegacy.items.ForbiddenAxe;
 import com.aizistral.enigmaticlegacy.items.MiningCharm;
+import com.aizistral.enigmaticlegacy.objects.Perhaps;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
 import com.aizistral.enigmaticlegacy.platform.Services;
 import com.aizistral.enigmaticlegacy.platform.network.TargetPoint;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
+import com.aizistral.enigmaticlegacy.triggers.BeheadingTrigger;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.monster.Skeleton;
+import net.minecraft.world.entity.monster.WitherSkeleton;
+import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -146,6 +158,70 @@ public class EnigmaticEventHandler {
 			return level + Services.ACCESSORIES.getFortuneBonus(entity, context);
 
 		return level;
+	}
+
+	/**
+	 * Upstream onLivingDrops, Axe of Executioner part. Called by MixinLivingEntity after
+	 * dropAllDeathLoot. The drops have already spawned, so this can only add more.
+	 */
+	public static void onLivingDrops(LivingEntity entity, DamageSource source, Collection<ItemEntity> drops,
+			int lootingLevel, boolean recentlyHit) {
+		if (!recentlyHit || !(source.getEntity() instanceof Player player)
+				|| player.getMainHandItem().getItem() != EnigmaticItems.FORBIDDEN_AXE)
+			return;
+
+		if (entity.getClass() == Skeleton.class) {
+			beheadIfLucky(entity, player, drops, lootingLevel, Items.SKELETON_SKULL);
+		} else if (entity.getClass() == WitherSkeleton.class) {
+			if (!ifDroplistContainsItem(drops, Items.WITHER_SKELETON_SKULL) && theySeeMeRollin(lootingLevel)) {
+				addDrop(entity, drops, new ItemStack(Items.WITHER_SKELETON_SKULL));
+			}
+
+			if (ifDroplistContainsItem(drops, Items.WITHER_SKELETON_SKULL) && player instanceof ServerPlayer serverPlayer) {
+				BeheadingTrigger.INSTANCE.trigger(serverPlayer);
+			}
+		} else if (entity.getClass() == Zombie.class) {
+			beheadIfLucky(entity, player, drops, lootingLevel, Items.ZOMBIE_HEAD);
+		} else if (entity.getClass() == Creeper.class) {
+			beheadIfLucky(entity, player, drops, lootingLevel, Items.CREEPER_HEAD);
+		} else if (entity.getClass() == EnderDragon.class) {
+			beheadIfLucky(entity, player, drops, lootingLevel, Items.DRAGON_HEAD);
+		}
+	}
+
+	private static void beheadIfLucky(LivingEntity entity, Player player, Collection<ItemEntity> drops,
+			int lootingLevel, Item head) {
+		if (!ifDroplistContainsItem(drops, head) && theySeeMeRollin(lootingLevel)) {
+			addDrop(entity, drops, new ItemStack(head));
+
+			if (player instanceof ServerPlayer serverPlayer) {
+				BeheadingTrigger.INSTANCE.trigger(serverPlayer);
+			}
+		}
+	}
+
+	/** Upstream addDrop; spawned directly, since Forge would spawn the event's drop list later. */
+	private static void addDrop(LivingEntity entity, Collection<ItemEntity> drops, ItemStack stack) {
+		ItemEntity drop = new ItemEntity(entity.level(), entity.getX(), entity.getY(), entity.getZ(), stack);
+		drop.setPickUpDelay(10);
+		entity.level().addFreshEntity(drop);
+		drops.add(drop);
+	}
+
+	/** Upstream SuperpositionHandler.ifDroplistContainsItem. */
+	private static boolean ifDroplistContainsItem(Collection<ItemEntity> drops, Item item) {
+		for (ItemEntity drop : drops) {
+			if (drop.getItem().getItem() == item)
+				return true;
+		}
+
+		return false;
+	}
+
+	public static boolean theySeeMeRollin(int lootingLevel) {
+		int chance = ForbiddenAxe.beheadingBase.getValue().asPercentage()
+				+ ForbiddenAxe.beheadingBonus.getValue().asPercentage() * lootingLevel;
+		return new Perhaps(Math.min(chance, 100)).roll();
 	}
 
 }

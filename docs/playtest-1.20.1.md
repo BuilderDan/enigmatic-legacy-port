@@ -27,6 +27,7 @@ name, model and tooltip. Results go to the log with a `[devcheck]` prefix. With
 | 2026-10-22 | 27 | 27 | 0 | Added Ring of Ender; I keybind and server packet registered. |
 | 2026-10-22 | 29 | 29 | 0 | Added Essence of Raging Life (infinimeal) and Astral Potato. |
 | 2026-10-22 | 30 | 30 | 0 | Added Charm of Treasure Hunter (mining_charm); 6 new mixin targets and the block reach attribute checked. |
+| 2026-10-22 | 31 | 31 | 0 | Added Axe of Executioner (forbidden_axe); drop-capture mixins on `Entity` and `LivingEntity` checked. |
 
 ## Manual checklist
 
@@ -64,6 +65,7 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 | Essence of Raging Life (infinimeal) | - | - | - | - (never consumed; grows crops, cactus, sugar cane, vines, nether wart, chorus; works from a dispenser) | - |
 | Astral Potato (astral_potato) | - | - | - | - (eat: food 8, small random teleport with chorus sound) | - |
 | Charm of Treasure Hunter (mining_charm) | - | - | - | - (charm slot; night vision below Y and toggle; faster mining; +Fortune on ores, gravel, leaves; +block reach for breaking and placing, also on a server) | - |
+| Axe of Executioner (forbidden_axe) | - | - | - | - (10% + 5%/looting head drop from skeleton, wither skeleton, zombie, creeper, dragon when killed with it; tooltip chance includes Trinkets looting; no head duplicated if one already dropped; beheading advancement; cannot harvest blocks) | - |
 
 Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).
