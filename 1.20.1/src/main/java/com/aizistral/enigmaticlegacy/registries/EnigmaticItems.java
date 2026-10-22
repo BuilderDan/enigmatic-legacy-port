@@ -58,6 +58,8 @@ import com.aizistral.enigmaticlegacy.items.CursedScroll;
 import com.aizistral.enigmaticlegacy.items.AvariceScroll;
 import com.aizistral.enigmaticlegacy.items.TheCube;
 import com.aizistral.enigmaticlegacy.items.CosmicScroll;
+import com.aizistral.enigmaticlegacy.items.MegaSponge;
+import com.aizistral.enigmaticlegacy.items.LootGenerator;
 import com.aizistral.etherium.items.EnderRod;
 import com.aizistral.etherium.items.EtheriumIngot;
 import com.aizistral.etherium.items.EtheriumNugget;
@@ -89,6 +91,13 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 
 	@ObjectHolder(value = MODID + ":enigmatic_amulet", registryName = "item")
 	public static EnigmaticAmulet ENIGMATIC_AMULET;
+
+	@ConfigurableItem("Megasponge")
+	@ObjectHolder(value = MODID + ":mega_sponge", registryName = "item")
+	public static MegaSponge MEGA_SPONGE;
+
+	@ObjectHolder(value = MODID + ":loot_generator", registryName = "item")
+	public static LootGenerator LOOT_GENERATOR;
 
 	@ConfigurableItem("Mending Mixture")
 	@ObjectHolder(value = MODID + ":mending_mixture", registryName = "item")
@@ -367,6 +376,8 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("avarice_scroll", AvariceScroll::new);
 		this.register("the_cube", TheCube::new);
 		this.register("cosmic_scroll", CosmicScroll::new);
+		this.register("mega_sponge", MegaSponge::new);
+		this.register("loot_generator", LootGenerator::new);
 	}
 
 	/** Port: forces class loading, which registers the items. */
