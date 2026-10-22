@@ -1,5 +1,6 @@
 package com.aizistral.enigmaticlegacy.handlers;
 
+import com.aizistral.enigmaticlegacy.packets.server.PacketEnderRingKey;
 import com.aizistral.enigmaticlegacy.packets.server.PacketXPScrollKey;
 import com.aizistral.enigmaticlegacy.platform.Services;
 
@@ -12,15 +13,19 @@ import net.minecraft.client.Minecraft;
  */
 
 // Port: the loader registers the key mappings and calls onKeyInput at the start of each client tick
-// (upstream: RegisterKeyMappingsEvent and TickEvent.ClientTickEvent). Only the Scroll of Ageless
-// Wisdom key is ported so far; the Ender Ring (I) and spellstone (K) keys and the Angel's Blessing
-// double jump return with their items.
+// (upstream: RegisterKeyMappingsEvent and TickEvent.ClientTickEvent). The spellstone (K) key and
+// the Angel's Blessing double jump return with their items.
 public class EnigmaticKeybindHandler {
+	public KeyMapping enderRingKey;
 	public KeyMapping xpScrollKey;
 
 	public void onKeyInput(Minecraft minecraft) {
 		if (!minecraft.isWindowActive() || minecraft.player == null)
 			return;
+
+		if (this.enderRingKey.consumeClick()) {
+			Services.NETWORK.sendToServer(new PacketEnderRingKey(true));
+		}
 
 		if (this.xpScrollKey.consumeClick()) {
 			Services.NETWORK.sendToServer(new PacketXPScrollKey(true));

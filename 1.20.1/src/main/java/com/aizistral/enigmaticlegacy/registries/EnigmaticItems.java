@@ -10,6 +10,7 @@ import com.aizistral.enigmaticlegacy.items.AbyssalHeart;
 import com.aizistral.enigmaticlegacy.items.AstralDust;
 import com.aizistral.enigmaticlegacy.items.CosmicHeart;
 import com.aizistral.enigmaticlegacy.items.EnchantmentTransposer;
+import com.aizistral.enigmaticlegacy.items.EnderRing;
 import com.aizistral.enigmaticlegacy.items.CursedStone;
 import com.aizistral.enigmaticlegacy.items.DarkestScroll;
 import com.aizistral.enigmaticlegacy.items.EarthHeart;
@@ -145,6 +146,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ObjectHolder(value = MODID + ":monster_charm", registryName = "item")
 	public static MonsterCharm MONSTER_CHARM;
 
+	@ConfigurableItem("Ring of Ender")
+	@ObjectHolder(value = MODID + ":ender_ring", registryName = "item")
+	public static EnderRing ENDER_RING;
+
 	@ConfigurableItem("Soul Dust")
 	@ObjectHolder(value = MODID + ":soul_dust", registryName = "item")
 	public static Item SOUL_DUST;
@@ -157,6 +162,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("extradimensional_eye", ExtradimensionalEye::new);
 		this.register("recall_potion", RecallPotion::new);
 		this.register("super_magnet_ring", SuperMagnetRing::new);
+		this.register("ender_ring", EnderRing::new);
 		this.register("mending_mixture", MendingMixture::new);
 		this.register("thicc_scroll", ThiccScroll::new);
 		this.register("iron_ring", IronRing::new);

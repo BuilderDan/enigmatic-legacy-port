@@ -85,7 +85,8 @@ Sections are added here as each Minecraft version / loader is ported.
   Ring, Extradimensional Eye, Potion of Recall, Etherium Ingot, Etherium Nugget, Etherium Scraps, Ender Rod, Astral Dust, Lore
   Fragment, Heart of the Earth, Twisted Heart, Exquisite Ring, Nefarious Essence, Nefarious
   Ingot, Unholy Stone, Darkest Scroll, Tome of Hungering Knowledge, Heart of the Cosmos,
-  Heart of the Abyss, Soul Dust, Emblem of Monster Slayer, Scroll of Ageless Wisdom),
+  Heart of the Abyss, Soul Dust, Emblem of Monster Slayer, Scroll of Ageless Wisdom, Ring of
+  Ender),
   registered in upstream order.
 - Creative tabs: built with `FabricItemGroup`; contents come from `ICreativeTabMember` in
   `displayItems` instead of Forge's `BuildCreativeModeTabContentsEvent`. Temporary: the main
@@ -221,10 +222,17 @@ Sections are added here as each Minecraft version / loader is ported.
   - `EnigmaticSounds` registers all upstream sounds; the `Quote.getByID(0)` class-load in its
     init is skipped.
   - Keybinds: `KeyBindingHelper` + `ClientTickEvents.START_CLIENT_TICK` replace
-    `RegisterKeyMappingsEvent` and the Forge client tick. Only the scroll key (J) exists so far;
-    the Ender Ring (I), spellstone (K) keys and the Angel's Blessing double jump come with
-    their items.
+    `RegisterKeyMappingsEvent` and the Forge client tick. The scroll (J) and Ender Ring (I) keys
+    exist so far; the spellstone (K) key and the Angel's Blessing double jump come with their
+    items.
   - `SuperpositionHandler.getCurioStack` uses the accessory service (Trinkets on Fabric).
+- Ring of Ender (`EnderRing`, `packets/server/PacketEnderRingKey`):
+  - The I key opens the ender chest through vanilla `ServerPlayer.openMenu` instead of
+    upstream's hand-built open (manual container id, open-screen packet, Forge
+    `PlayerContainerEvent.Open`). Same menu, title and open/close sounds.
+  - The key does not accept the Ring of the Seven Curses yet (not ported).
+  - The inventory-screen ender chest button (`EnderChestInventoryButton`) is not ported yet;
+    its client config options are kept.
 - `IAccessoryItem.getLootingLevel` / `AccessorySlots`: the `target` parameter is now
   `@Nullable`.
 - Dev only, port-only: `DevSelfCheck` also checks that the `LivingEntity` and

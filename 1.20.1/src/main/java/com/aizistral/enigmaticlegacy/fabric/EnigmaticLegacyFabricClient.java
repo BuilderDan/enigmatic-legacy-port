@@ -29,6 +29,7 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 
 	private static void registerKeybinds() {
 		// Port: upstream EnigmaticLegacy.registerKeybinds (RegisterKeyMappingsEvent).
+		KEYBIND_HANDLER.enderRingKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.enderRing", GLFW.GLFW_KEY_I, "key.categories.enigmaticLegacy"));
 		KEYBIND_HANDLER.xpScrollKey = KeyBindingHelper.registerKeyBinding(new KeyMapping("key.xpScroll", GLFW.GLFW_KEY_J, "key.categories.enigmaticLegacy"));
 		ClientTickEvents.START_CLIENT_TICK.register(KEYBIND_HANDLER::onKeyInput);
 	}
