@@ -16,7 +16,7 @@ the first rows unblock the most items.
 | PlayerEvent.Clone / PlayerRespawnEvent | `ServerPlayerEvents.COPY_FROM` (done for persistent data) / `AFTER_RESPAWN` | Escape Scroll, Soul Crystal, keep-inventory items |
 | LivingExperienceDropEvent | Mixin: `LivingEntity.dropExperience`, `@ModifyArg` on `ExperienceOrb.award` amount (done; verify) | Monster Charm (double XP), Avarice Scroll |
 | LootingLevelEvent | Mixin: `EnchantmentHelper.getMobLooting` RETURN; add `getLootingLevel` to the accessory API (done; verify) | Monster Charm, Avarice Scroll |
-| LivingDamageEvent | Mixin: `LivingEntity.actuallyHurt` after armor/absorption (`@ModifyVariable` at `setHealth`) | Cursed Ring (verify which items) |
+| LivingDamageEvent | Mixin: `@WrapOperation` on `CombatTracker.recordDamage` in `actuallyHurt` of both `LivingEntity` and `Player` (Player overrides it); calls `onLivingDamage` | Cursed Ring (verify which items); done for Enigmatic Amulet (BLACK lifesteal) |
 | LivingAttackEvent | `ServerLivingEntityEvents.ALLOW_DAMAGE` (already used; spellstone immunities done) | Angel's Blessing, Ocean Stone (Blazing Core done) |
 | LivingTickEvent | Mixin: `LivingEntity.tick` TAIL (players: `ServerTickEvents` loop is cheaper) | Ocean Stone, Eye of Nebula, Heaven Scroll |
 | LivingHealEvent | Mixin: `LivingEntity.heal` `@ModifyVariable` on amount | Cursed Ring, Forbidden Fruit |
@@ -24,7 +24,7 @@ the first rows unblock the most items.
 | LivingChangeTargetEvent | Mixin: `Mob.setTarget` HEAD (cancellable) | Ring of the Seven Curses (neutral mobs) |
 | PlayerEvent.BreakSpeed / HarvestCheck | Mixin: `Player.getDestroySpeed` RETURN / `Player.hasCorrectToolForDrops` | Mining Charm, Etherium tools |
 | AttackEntityEvent | `AttackEntityCallback` | Forbidden Axe, Berserk Emblem |
-| ProjectileImpactEvent | Mixin: `Projectile.onHit` HEAD | Angel's Blessing (deflect) |
+| ProjectileImpactEvent | Mixin: `@WrapWithCondition` on `onHit` in `tick` of `AbstractArrow`, `AbstractHurtingProjectile` and `ThrowableProjectile`; calls `onProjectileImpact` (true cancels) | Angel's Blessing (deflect); done for Enigmatic Amulet (VIOLET deflection) |
 | EntityTeleportEvent.EnderPearl / EnderEntity | Mixin: `ThrownEnderpearl.onHit` / `EnderMan.teleport` | Eye of Nebula, curses |
 | MobEffectEvent.Applicable | Mixin: `LivingEntity.canBeAffected` HEAD, cancellable (done for Heart of Creation) | Ocean Stone |
 | MobSpawnEvent.FinalizeSpawn | Mixin: `Mob.finalizeSpawn` TAIL | curses (stronger mobs) |
@@ -36,7 +36,7 @@ the first rows unblock the most items.
 | AdvancementEvent | Mixin: `PlayerAdvancements.award` RETURN | The Acknowledgment |
 | RegisterCommandsEvent | `CommandRegistrationCallback` | commands |
 | ServerStartedEvent | `ServerLifecycleEvents.SERVER_STARTED` | world data |
-| PlayerLoggedInEvent | `ServerPlayConnectionEvents.JOIN` | config sync |
+| PlayerLoggedInEvent | `ServerPlayConnectionEvents.JOIN` | config sync; done for Enigmatic Amulet (first-join gift, `onPlayerJoin`) |
 | PlayerChangedDimensionEvent | `ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD` | Extradimensional Eye (verify) |
 | EntityJoinLevelEvent | `ServerEntityEvents.ENTITY_LOAD` | misc |
 | Client: ItemTooltipEvent | `ItemTooltipCallback` | tooltips on vanilla items |

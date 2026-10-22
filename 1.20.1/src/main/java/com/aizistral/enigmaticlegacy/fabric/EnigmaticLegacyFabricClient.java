@@ -6,7 +6,11 @@ import com.aizistral.enigmaticlegacy.fabric.platform.client.FabricClientNetwork;
 import com.aizistral.enigmaticlegacy.client.renderers.PermanentItemRenderer;
 import com.aizistral.enigmaticlegacy.client.renderers.UltimateWitherSkullRenderer;
 import com.aizistral.enigmaticlegacy.handlers.EnigmaticKeybindHandler;
+import com.aizistral.enigmaticlegacy.EnigmaticLegacy;
+import com.aizistral.enigmaticlegacy.helpers.ItemNBTHelper;
+import com.aizistral.enigmaticlegacy.items.EnigmaticAmulet;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticEntities;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 
 import org.lwjgl.glfw.GLFW;
 
@@ -16,6 +20,8 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.resources.ResourceLocation;
 
 /**
  * Fabric client entry point (unofficial port, see CHANGES.md).
@@ -33,7 +39,14 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 		});
 		ClientTickEvents.END_CLIENT_TICK.register(BlazingCoreClient::onClientTick);
 		registerKeybinds();
+		registerItemProperties();
 		DevSelfCheck.register();
+	}
+
+	private static void registerItemProperties() {
+		// Port: upstream EnigmaticAmulet.registerVariants (FMLClientSetupEvent).
+		ItemProperties.register(EnigmaticItems.ENIGMATIC_AMULET, new ResourceLocation(EnigmaticLegacy.MODID, "enigmatic_amulet_color"),
+				(stack, world, entity, seed) -> ItemNBTHelper.getFloat(stack, EnigmaticAmulet.amuletColorTag, 0F));
 	}
 
 	private static void registerKeybinds() {

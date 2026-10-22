@@ -4,6 +4,9 @@
 	"package": "com.aizistral.enigmaticlegacy.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
+		"AccessorAbstractArrow",
+		"MixinAbstractArrow",
+		"MixinAbstractHurtingProjectile",
 		"MixinApplyBonusCount",
 		"MixinBindingCurseEnchantment",
 		"MixinBonusLevelTableCondition",
@@ -17,7 +20,8 @@
 		"MixinPotionBrewing",
 		"MixinServerGamePacketListenerImpl",
 		"MixinServerPlayer",
-		"MixinServerPlayerGameMode"
+		"MixinServerPlayerGameMode",
+		"MixinThrowableProjectile"
 	],
 	"client": [
 		"MixinFogRenderer",

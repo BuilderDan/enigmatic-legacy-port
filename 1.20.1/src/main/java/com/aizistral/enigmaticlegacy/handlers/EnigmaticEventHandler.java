@@ -10,13 +10,17 @@ import com.google.common.collect.Multimap;
 import com.aizistral.enigmaticlegacy.config.OmniconfigHandler;
 import com.aizistral.enigmaticlegacy.entities.PermanentItemEntity;
 import com.aizistral.enigmaticlegacy.helpers.ItemNBTHelper;
+import com.aizistral.enigmaticlegacy.items.EnigmaticAmulet;
+import com.aizistral.enigmaticlegacy.items.EnigmaticAmulet.AmuletColor;
 import com.aizistral.enigmaticlegacy.items.ForbiddenAxe;
 import com.aizistral.enigmaticlegacy.items.generic.ItemSpellstoneCurio;
 import com.aizistral.enigmaticlegacy.items.MiningCharm;
 import com.aizistral.enigmaticlegacy.items.BlazingCore;
 import com.aizistral.enigmaticlegacy.objects.DimensionalPosition;
 import com.aizistral.enigmaticlegacy.objects.FireImmunityData;
+import com.aizistral.enigmaticlegacy.mixin.AccessorAbstractArrow;
 import com.aizistral.enigmaticlegacy.objects.Perhaps;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketForceArrowRotations;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncFireImmunity;
@@ -24,6 +28,7 @@ import com.aizistral.enigmaticlegacy.packets.clients.PacketWitherParticles;
 import com.aizistral.enigmaticlegacy.platform.Services;
 import com.aizistral.enigmaticlegacy.platform.network.TargetPoint;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticSounds;
 import com.aizistral.enigmaticlegacy.triggers.BeheadingTrigger;
 
 import net.minecraft.resources.ResourceLocation;
@@ -41,6 +46,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -49,6 +55,10 @@ import net.minecraft.world.entity.monster.Skeleton;
 import net.minecraft.world.entity.monster.WitherSkeleton;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.ThrownTrident;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -61,6 +71,8 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 
 /**
  * Port: upstream's handler is one big Forge event subscriber. Here it holds only the
@@ -73,6 +85,7 @@ public class EnigmaticEventHandler {
 	public static boolean isApplyingNightVision = false;
 
 	public static final Multimap<Player, Item> POSTMORTAL_POSESSIONS = ArrayListMultimap.create();
+	public static final String NBT_KEY_ENIGMATICGIFT = "enigmaticlegacy.firstjoin";
 
 	/**
 	 * Port: was part of the Forge {@code LivingAttackEvent} handler. Fabric calls it from
@@ -112,6 +125,11 @@ public class EnigmaticEventHandler {
 		}
 
 		if (entity instanceof Player player) {
+			if (source.is(DamageTypes.FALL)) {
+				if (EnigmaticItems.ENIGMATIC_AMULET.hasColor(player, AmuletColor.MAGENTA) && amount <= 2.0f)
+					return false;
+			}
+
 			List<ItemStack> advancedCurios = SuperpositionHandler.getAdvancedCurios(player);
 			if (advancedCurios.size() > 0) {
 				for (ItemStack advancedCurioStack : advancedCurios) {
@@ -150,8 +168,8 @@ public class EnigmaticEventHandler {
 	/**
 	 * Port: the player-target part of upstream's {@code LivingHurtEvent} handler. Fabric calls
 	 * it from {@code MixinPlayer} at the head of {@code Player.actuallyHurt}, where Forge fires
-	 * the event. Only the Blazing Core's terms are ported; the Golem Heart, Eye of Nebula and
-	 * Ocean Stone terms follow with those items.
+	 * the event. Only the Blazing Core and Enigmatic Amulet terms are ported; the Golem Heart,
+	 * Eye of Nebula and Ocean Stone terms follow with those items.
 	 *
 	 * @return the new damage amount.
 	 */
@@ -175,6 +193,12 @@ public class EnigmaticEventHandler {
 					amount *= advancedCurio.resistanceList.get(type).get();
 					break;
 				}
+			}
+		}
+
+		if (source.is(DamageTypes.FALL)) {
+			if (EnigmaticItems.ENIGMATIC_AMULET.hasColor(player, AmuletColor.MAGENTA)) {
+				amount -= 2.0f;
 			}
 		}
 
@@ -252,6 +276,7 @@ public class EnigmaticEventHandler {
 	 * side). Fabric calls it for each player from {@code ServerTickEvents.END_SERVER_TICK}.
 	 */
 	public static void onPlayerTick(ServerPlayer player) {
+		// TODO: Unwitnessed Amulet -> Enigmatic Amulet conversion when the Unwitnessed Amulet is ported.
 		if (SuperpositionHandler.hasSpellstoneCooldown(player)) {
 			SuperpositionHandler.tickSpellstoneCooldown(player, 1);
 		}
@@ -280,10 +305,18 @@ public class EnigmaticEventHandler {
 	 * Port: was upstream's {@code onConfirmedDeath} ({@code LivingDeathEvent}, LOWEST). Called by
 	 * MixinServerPlayer at the head of {@code ServerPlayer.die}, where totems and ALLOW_DEATH
 	 * have already had their chance, so the death is final. Upstream's canceled-event branch is
-	 * not needed. The Enigmatic Amulet and cursed-item parts follow with those items.
+	 * not needed. The Ascension Amulet and cursed-item parts follow with those items.
 	 */
 	public static void onConfirmedDeath(ServerPlayer player, DamageSource source) {
 		SuperpositionHandler.setPersistentBoolean(player, "DeathFromEntity", source.getEntity() instanceof LivingEntity);
+
+		// TODO: Ascension Amulet branch (else-if) when that item is ported.
+		// TODO: the POSTMORTAL_POSESSIONS amulet entry is read by upstream's drops handler to summon
+		// the Extradimensional Vessel (storage crystal, saved XP); not ported yet, so the amulet
+		// currently drops like any other item.
+		if (SuperpositionHandler.hasCurio(player, EnigmaticItems.ENIGMATIC_AMULET) || SuperpositionHandler.hasItem(player, EnigmaticItems.ENIGMATIC_AMULET)) {
+			POSTMORTAL_POSESSIONS.put(player, EnigmaticItems.ENIGMATIC_AMULET);
+		}
 
 		if (SuperpositionHandler.hasCurio(player, EnigmaticItems.ESCAPE_SCROLL)) {
 			POSTMORTAL_POSESSIONS.put(player, EnigmaticItems.ESCAPE_SCROLL);
@@ -295,6 +328,129 @@ public class EnigmaticEventHandler {
 
 			tomeStack.shrink(1);
 		}
+	}
+
+	/**
+	 * Port: was upstream's {@code LivingDamageEvent} handler. Fabric calls it from MixinLivingEntity
+	 * and MixinPlayer in {@code actuallyHurt}, right before the combat tracker records the damage,
+	 * which is where Forge fires the event. Only the Enigmatic Amulet's lifesteal is ported.
+	 */
+	public static void onLivingDamage(LivingEntity entity, DamageSource source, float amount) {
+		// TODO: LAST_HEALTH tracking when the item that reads it is ported.
+
+		if (source.getDirectEntity() instanceof Player player && !player.level().isClientSide) {
+			float lifesteal = 0;
+
+			if (EnigmaticItems.ENIGMATIC_AMULET.hasColor(player, AmuletColor.BLACK)) {
+				lifesteal += amount * 0.1F;
+			}
+
+			// TODO: Eldritch Amulet, Pact of Infinite Avarice, Eldritch Pan and Growing Bloodlust terms.
+
+			if (lifesteal > 0) {
+				player.heal(lifesteal);
+			}
+		}
+	}
+
+	/**
+	 * Port: was upstream's {@code ProjectileImpactEvent} handler. Fabric calls it from the
+	 * projectile mixins (MixinAbstractArrow, MixinAbstractHurtingProjectile and
+	 * MixinThrowableProjectile) in place of the {@code onHit} call in {@code tick}.
+	 *
+	 * @return true to cancel the impact (upstream: {@code event.setCanceled(true)}).
+	 */
+	public static boolean onProjectileImpact(Projectile arrow, HitResult hit) {
+		if (hit instanceof EntityHitResult result && result.getEntity() instanceof Player player) {
+			if (!player.level().isClientSide) {
+				if (arrow.getOwner() == player) {
+					for (String tag : arrow.getTags()) {
+						if (tag.startsWith("AB_DEFLECTED")) {
+							try {
+								int time = Integer.parseInt(tag.split(":")[1]);
+								if (arrow.tickCount - time < 10)
+									// If we cancel the event here it gets stuck in the infinite loop
+									return false;
+							} catch (Exception ex) {
+								ex.printStackTrace();
+							}
+						}
+					}
+				}
+
+				boolean trigger = false;
+				double chance = 0.0D;
+
+				// TODO: Angel's Blessing and The Cube terms when those items are ported.
+
+				if (EnigmaticItems.ENIGMATIC_AMULET.hasColor(player, AmuletColor.VIOLET)) {
+					trigger = true;
+					chance += 0.15;
+				}
+
+				if (trigger && Math.random() <= chance) {
+					arrow.setDeltaMovement(arrow.getDeltaMovement().scale(-1.0D));
+					arrow.yRotO = arrow.getYRot() + 180.0F;
+					arrow.setYRot(arrow.getYRot() + 180.0F);
+
+					if (arrow instanceof AbstractArrow absar) {
+						if (!(absar instanceof ThrownTrident)) {
+							absar.setOwner(player);
+						}
+
+						((AccessorAbstractArrow) absar).enigmaticlegacy$resetPiercedEntities();
+						absar.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
+						absar.setPierceLevel((byte) 0);
+					} else if (arrow instanceof AbstractHurtingProjectile hurting) {
+						hurting.setOwner(player);
+
+						hurting.xPower = -hurting.xPower;
+						hurting.yPower = -hurting.yPower;
+						hurting.zPower = -hurting.zPower;
+					}
+
+					arrow.getTags().removeIf(tag -> tag.startsWith("AB_DEFLECTED"));
+					arrow.addTag("AB_DEFLECTED:" + arrow.tickCount);
+
+					Services.NETWORK.sendToNear(new TargetPoint(player.getX(), player.getY(), player.getZ(), 64.0D, player.level().dimension()),
+							new PacketForceArrowRotations(arrow.getId(), arrow.getYRot(), arrow.getXRot(), arrow.getDeltaMovement().x, arrow.getDeltaMovement().y, arrow.getDeltaMovement().z, arrow.getX(), arrow.getY(), arrow.getZ()));
+					player.level().playSound(null, player.blockPosition(), EnigmaticSounds.DEFLECT, SoundSource.PLAYERS, 1.0F, 0.95F + (float) (Math.random() * 0.1D));
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Port: the first-join gift part of upstream's {@code PlayerLoggedInEvent} handler. Fabric
+	 * calls it from {@code ServerPlayConnectionEvents.JOIN}.
+	 */
+	public static void onPlayerJoin(ServerPlayer player) {
+		if (OmniconfigHandler.isItemEnabled(EnigmaticItems.ENIGMATIC_AMULET))
+			if (SuperpositionHandler.getPersistentTag(player, NBT_KEY_ENIGMATICGIFT, null) == null) {
+				ItemStack amuletStack = new ItemStack(EnigmaticItems.ENIGMATIC_AMULET);
+				EnigmaticItems.ENIGMATIC_AMULET.setInscription(amuletStack, player.getGameProfile().getName());
+				EnigmaticItems.ENIGMATIC_AMULET.setProperlyGranted(amuletStack);
+
+				if (!EnigmaticAmulet.seededColorGen.getValue()) {
+					EnigmaticItems.ENIGMATIC_AMULET.setPseudoRandomColor(amuletStack);
+				} else {
+					EnigmaticItems.ENIGMATIC_AMULET.setSeededColor(amuletStack);
+				}
+
+				if (player.getInventory().getItem(8).isEmpty()) {
+					player.getInventory().setItem(8, amuletStack);
+				} else {
+					if (!player.getInventory().add(amuletStack)) {
+						ItemEntity dropAmulet = new ItemEntity(player.level(), player.getX(), player.getY(), player.getZ(), amuletStack);
+						player.level().addFreshEntity(dropAmulet);
+					}
+				}
+
+				SuperpositionHandler.setPersistentBoolean(player, NBT_KEY_ENIGMATICGIFT, true);
+			}
 	}
 
 	/**
@@ -337,9 +493,8 @@ public class EnigmaticEventHandler {
 	/**
 	 * Port: was the Forge {@code PlayerEvent.BreakSpeed} handler (miningStuff). Fabric calls it from
 	 * {@code MixinPlayer} at the end of {@code Player.getDestroySpeed}, where Forge fires the event.
-	 * Only the Charm of Treasure Hunter's boost and the Heart of Creation's airborne term are ported
-	 * so far; the Cursed Scroll, Enigmatic Amulet, Cube, flight scrolls and Ocean Stone terms follow
-	 * with those items.
+	 * Only the Charm of Treasure Hunter, Enigmatic Amulet and Heart of Creation terms are ported so
+	 * far; the Cursed Scroll, Cube, flight scrolls and Ocean Stone terms follow with those items.
 	 *
 	 * @return the new break speed.
 	 */
@@ -349,6 +504,10 @@ public class EnigmaticEventHandler {
 		float miningBoost = 1.0F;
 		if (SuperpositionHandler.hasCurio(player, EnigmaticItems.MINING_CHARM)) {
 			miningBoost += MiningCharm.breakSpeedBonus.getValue().asModifier();
+		}
+
+		if (EnigmaticItems.ENIGMATIC_AMULET.hasColor(player, AmuletColor.GREEN)) {
+			miningBoost += 0.25F;
 		}
 
 		if (!player.onGround())

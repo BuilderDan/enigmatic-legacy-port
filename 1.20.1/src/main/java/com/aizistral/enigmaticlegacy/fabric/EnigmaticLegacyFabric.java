@@ -11,6 +11,7 @@ import com.aizistral.enigmaticlegacy.handlers.EnigmaticEventHandler;
 import com.aizistral.enigmaticlegacy.fabric.platform.TrinketsAccessorySlots;
 import com.aizistral.enigmaticlegacy.objects.EnabledCondition;
 import com.aizistral.enigmaticlegacy.objects.PersistentData;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketForceArrowRotations;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketHandleItemPickup;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
@@ -70,8 +71,10 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		registerPackets();
 		CriteriaTriggers.register(BeheadingTrigger.INSTANCE);
 
-		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
-				OmniconfigSync.onPlayerLoggedIn(handler.getPlayer()));
+		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+			OmniconfigSync.onPlayerLoggedIn(handler.getPlayer());
+			EnigmaticEventHandler.onPlayerJoin(handler.getPlayer());
+		});
 		ServerLivingEntityEvents.ALLOW_DAMAGE.register(EnigmaticEventHandler::onLivingAttack);
 		ServerLivingEntityEvents.ALLOW_DEATH.register(EnigmaticEventHandler::onLivingDeath);
 		// Forge keeps the PlayerPersisted compound across respawns; copy ours over too.
@@ -110,5 +113,7 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 				PacketWitherParticles::decode, PacketWitherParticles::handle);
 		network.register(PacketSpellstoneKey.class, PacketDirection.TO_SERVER, PacketSpellstoneKey::encode,
 				PacketSpellstoneKey::decode, PacketSpellstoneKey::handle);
+		network.register(PacketForceArrowRotations.class, PacketDirection.TO_CLIENT, PacketForceArrowRotations::encode,
+				PacketForceArrowRotations::decode, PacketForceArrowRotations::handle);
 	}
 }

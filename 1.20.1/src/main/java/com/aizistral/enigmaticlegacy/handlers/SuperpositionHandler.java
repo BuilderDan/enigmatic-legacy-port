@@ -56,6 +56,7 @@ import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -171,6 +172,19 @@ public class SuperpositionHandler {
 		}
 
 		return accessibilityGeneratorMap;
+	}
+
+	public static boolean hasItem(Player player, Item item) {
+		// Port: Forge widens Inventory.compartments; Fabric uses the three public lists it holds.
+		Inventory inventory = player.getInventory();
+		for (List<ItemStack> list : List.of(inventory.items, inventory.armor, inventory.offhand)) {
+			for (ItemStack itemstack : list) {
+				if (!itemstack.isEmpty() && itemstack.is(item))
+					return true;
+			}
+		}
+
+		return false;
 	}
 
 	public static boolean hasCurio(LivingEntity entity, Item curio) {

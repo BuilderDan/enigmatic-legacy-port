@@ -7,8 +7,10 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -16,7 +18,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.aizistral.enigmaticlegacy.handlers.EnigmaticEventHandler;
 import com.aizistral.enigmaticlegacy.items.MonsterCharm;
 import com.aizistral.enigmaticlegacy.objects.DropCapture;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticAttributes;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
+import net.minecraft.world.damagesource.CombatTracker;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,8 +31,9 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.entity.player.Player;
 
 /**
- * Port-only. Stands in for the Forge events LivingHurtEvent, LivingExperienceDropEvent and
- * LivingDropsEvent (see docs/event-hooks-1.20.1.md). Each handler keeps upstream's logic in the item class.
+ * Port-only. Stands in for the Forge events LivingHurtEvent, LivingDamageEvent,
+ * LivingExperienceDropEvent and LivingDropsEvent, and for Forge's ENTITY_GRAVITY and SWIM_SPEED
+ * attributes (see docs/event-hooks-1.20.1.md). Each handler keeps upstream's logic in the item class.
  */
 @Mixin(LivingEntity.class)
 public abstract class MixinLivingEntity {
@@ -42,6 +49,35 @@ public abstract class MixinLivingEntity {
 	private float enigmaticlegacy$onHurt(float amount, DamageSource source) {
 		LivingEntity self = (LivingEntity) (Object) this;
 		return MonsterCharm.modifyHurtAmount(self, source, amount);
+	}
+
+	/**
+	 * Forge fires LivingDamageEvent in actuallyHurt after armor and absorption, right before the
+	 * combat tracker records the final damage. Player has its own copy in MixinPlayer.
+	 */
+	@WrapOperation(method = "actuallyHurt", at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/world/damagesource/CombatTracker;recordDamage(Lnet/minecraft/world/damagesource/DamageSource;F)V"))
+	private void enigmaticlegacy$onDamage(CombatTracker tracker, DamageSource source, float amount, Operation<Void> original) {
+		EnigmaticEventHandler.onLivingDamage((LivingEntity) (Object) this, source, amount);
+		original.call(tracker, source, amount);
+	}
+
+	/**
+	 * Forge reads gravity from its ENTITY_GRAVITY attribute (base 0.08, slow falling as a -0.07
+	 * modifier). Here the vanilla constants are scaled by our GRAVITY multiplier, which gives the
+	 * same result.
+	 */
+	@ModifyConstant(method = "travel", constant = { @Constant(doubleValue = 0.08), @Constant(doubleValue = 0.01) })
+	private double enigmaticlegacy$scaleGravity(double gravity) {
+		return gravity * EnigmaticAttributes.getMultiplier((LivingEntity) (Object) this, EnigmaticAttributes.GRAVITY);
+	}
+
+	/** Forge scales the water moveRelative speed by its SWIM_SPEED attribute. */
+	@ModifyArg(method = "travel", at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/world/entity/LivingEntity;moveRelative(FLnet/minecraft/world/phys/Vec3;)V", ordinal = 0),
+			index = 0)
+	private float enigmaticlegacy$scaleSwimSpeed(float speed) {
+		return speed * (float) EnigmaticAttributes.getMultiplier((LivingEntity) (Object) this, EnigmaticAttributes.SWIM_SPEED);
 	}
 
 	/** Forge fires MobEffectEvent.Applicable at the head of canBeAffected; DENY returns false. */

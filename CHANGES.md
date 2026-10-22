@@ -338,3 +338,25 @@ Sections are added here as each Minecraft version / loader is ported.
     into its handler. `PermanentItemRenderer` and `PermanentItemPickupParticle` drop `@OnlyIn`.
     The empty `IPermanentCrystal` interface is copied for the renderer.
   - `EscapeScroll` drops `@OnlyIn` on its tooltip; `javax` `Nullable` becomes `org.jetbrains`.
+- Enigmatic Amulet (`EnigmaticAmulet`):
+  - Attributes: Forge's `ENTITY_GRAVITY` and `SWIM_SPEED` become port-only
+    `EnigmaticAttributes.GRAVITY` and `SWIM_SPEED`, added to players in `MixinPlayer.createAttributes`
+    and applied in `LivingEntity.travel` (gravity constants 0.08/0.01 and the water
+    `moveRelative` speed).
+  - Events: Forge's `LivingDamageEvent` becomes a `CombatTracker.recordDamage` `@WrapOperation` in
+    `actuallyHurt` of `LivingEntity` and `Player` (`onLivingDamage`, BLACK lifesteal);
+    `ProjectileImpactEvent` becomes a `@WrapWithCondition` on `onHit` in the `tick` of
+    `AbstractArrow`, `AbstractHurtingProjectile` and `ThrowableProjectile` (`onProjectileImpact`,
+    VIOLET deflection), with `AccessorAbstractArrow` replacing `AccessorAbstractArrowEntity`;
+    the first-join gift runs on `ServerPlayConnectionEvents.JOIN` (`onPlayerJoin`). Only the
+    amulet's terms of these upstream handlers are ported (Angel's Blessing and The Cube
+    deflection, Ascension Amulet, Unwitnessed Amulet conversion and the Extradimensional Vessel
+    with saved XP come with their items; until then the amulet drops like any other item on
+    death, and its vessel tooltip and configs have no effect). Fishing hooks, llama spit,
+    shulker bullets and firework rockets are not hooked yet, so they are never deflected.
+  - `SuperpositionHandler.hasItem` reads `Inventory.items`, `armor` and `offhand`, because
+    `compartments` is private on Fabric.
+  - `PacketForceArrowRotations` (to client) is registered with `Services.NETWORK`. The color item
+    property is registered in `EnigmaticLegacyFabricClient`; the world seed comes from
+    `Services.PLATFORM.getServer()`; the Curios attribute-tooltip override is dropped and
+    `curios.modifiers.charm` is added to the port's lang file.

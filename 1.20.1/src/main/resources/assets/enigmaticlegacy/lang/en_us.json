@@ -1,5 +1,7 @@
 {
 	"attribute.name.enigmaticlegacy.block_reach": "Block Reach",
+	"attribute.name.enigmaticlegacy.gravity": "Gravity",
+	"attribute.name.enigmaticlegacy.swim_speed": "Swim Speed",
 	"item.enigmaticlegacy.enigmatic_amulet": "Enigmatic Amulet",
 	"item.enigmaticlegacy.enigmatic_item": "Heart of Creation",
 	"item.enigmaticlegacy.magnet_ring": "Magnetic Ring",
@@ -237,6 +239,7 @@
 	"curios.identifier.charm": "Charm",
 	"curios.modifiers.spellstone": "When equipped as Spellstone:",
 	"curios.modifiers.scroll": "When equipped as Arcane Scroll:",
+	"curios.modifiers.charm": "When equipped as Charm:",
 	"tooltip.enigmaticlegacy.enabled": "§6Enabled",
 	"tooltip.enigmaticlegacy.disabled": "§6Disabled",
 	"generic.reachDistance": "Reach Distance",
