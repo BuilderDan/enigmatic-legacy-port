@@ -61,12 +61,20 @@ import com.aizistral.enigmaticlegacy.items.CosmicScroll;
 import com.aizistral.enigmaticlegacy.items.MegaSponge;
 import com.aizistral.enigmaticlegacy.items.LootGenerator;
 import com.aizistral.etherium.items.EnderRod;
+import com.aizistral.etherium.items.EtheriumArmor;
+import com.aizistral.etherium.items.EtheriumAxe;
 import com.aizistral.etherium.items.EtheriumIngot;
 import com.aizistral.etherium.items.EtheriumNugget;
+import com.aizistral.etherium.items.EtheriumOre;
+import com.aizistral.etherium.items.EtheriumPickaxe;
 import com.aizistral.etherium.items.EtheriumScraps;
+import com.aizistral.etherium.items.EtheriumScythe;
+import com.aizistral.etherium.items.EtheriumShovel;
+import com.aizistral.etherium.items.EtheriumSword;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 
 /**
@@ -111,6 +119,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ObjectHolder(value = MODID + ":iron_ring", registryName = "item")
 	public static IronRing IRON_RING;
 
+	@ConfigurableItem("Etherium Ore")
+	@ObjectHolder(value = MODID + ":etherium_ore", registryName = "item")
+	public static EtheriumOre ETHERIUM_ORE;
+
 	@ConfigurableItem("Etherium Ingot")
 	@ObjectHolder(value = MODID + ":etherium_ingot", registryName = "item")
 	public static EtheriumIngot ETHERIUM_INGOT;
@@ -122,6 +134,42 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ConfigurableItem("Etherium Scraps")
 	@ObjectHolder(value = MODID + ":etherium_scraps", registryName = "item")
 	public static EtheriumScraps ETHERIUM_SCRAPS;
+
+	@ConfigurableItem("Etherium Armor")
+	@ObjectHolder(value = MODID + ":etherium_helmet", registryName = "item")
+	public static EtheriumArmor ETHERIUM_HELMET;
+
+	@ConfigurableItem("Etherium Armor")
+	@ObjectHolder(value = MODID + ":etherium_chestplate", registryName = "item")
+	public static EtheriumArmor ETHERIUM_CHESTPLATE;
+
+	@ConfigurableItem("Etherium Armor")
+	@ObjectHolder(value = MODID + ":etherium_leggings", registryName = "item")
+	public static EtheriumArmor ETHERIUM_LEGGINGS;
+
+	@ConfigurableItem("Etherium Armor")
+	@ObjectHolder(value = MODID + ":etherium_boots", registryName = "item")
+	public static EtheriumArmor ETHERIUM_BOOTS;
+
+	@ConfigurableItem("Etherium Pickaxe")
+	@ObjectHolder(value = MODID + ":etherium_pickaxe", registryName = "item")
+	public static EtheriumPickaxe ETHERIUM_PICKAXE;
+
+	@ConfigurableItem("Etherium Waraxe")
+	@ObjectHolder(value = MODID + ":etherium_axe", registryName = "item")
+	public static EtheriumAxe ETHERIUM_AXE;
+
+	@ConfigurableItem("Etherium Shovel")
+	@ObjectHolder(value = MODID + ":etherium_shovel", registryName = "item")
+	public static EtheriumShovel ETHERIUM_SHOVEL;
+
+	@ConfigurableItem("Etherium Broadsword")
+	@ObjectHolder(value = MODID + ":etherium_sword", registryName = "item")
+	public static EtheriumSword ETHERIUM_SWORD;
+
+	@ConfigurableItem("Etherium Scythe")
+	@ObjectHolder(value = MODID + ":etherium_scythe", registryName = "item")
+	public static EtheriumScythe ETHERIUM_SCYTHE;
 
 	@ConfigurableItem("Ender Rod")
 	@ObjectHolder(value = MODID + ":ender_rod", registryName = "item")
@@ -344,9 +392,19 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("mending_mixture", MendingMixture::new);
 		this.register("thicc_scroll", ThiccScroll::new);
 		this.register("iron_ring", IronRing::new);
+		this.register("etherium_ore", EtheriumOre::new);
 		this.register("etherium_ingot", EtheriumIngot::new);
 		this.register("etherium_nugget", EtheriumNugget::new);
 		this.register("etherium_scraps", EtheriumScraps::new);
+		this.register("etherium_pickaxe", EtheriumPickaxe::new);
+		this.register("etherium_axe", EtheriumAxe::new);
+		this.register("etherium_shovel", EtheriumShovel::new);
+		this.register("etherium_sword", EtheriumSword::new);
+		this.register("etherium_scythe", EtheriumScythe::new);
+		this.register("etherium_helmet", () -> new EtheriumArmor(ArmorItem.Type.HELMET));
+		this.register("etherium_chestplate", () -> new EtheriumArmor(ArmorItem.Type.CHESTPLATE));
+		this.register("etherium_leggings", () -> new EtheriumArmor(ArmorItem.Type.LEGGINGS));
+		this.register("etherium_boots", () -> new EtheriumArmor(ArmorItem.Type.BOOTS));
 		this.register("ender_rod", EnderRod::new);
 		this.register("astral_dust", AstralDust::new);
 		this.register("lore_fragment", LoreFragment::new);

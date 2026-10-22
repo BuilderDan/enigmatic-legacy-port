@@ -13,19 +13,24 @@ import com.aizistral.enigmaticlegacy.items.EnigmaticAmulet;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticEntities;
 import com.aizistral.enigmaticlegacy.helpers.PotionHelper;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
+import com.aizistral.etherium.client.ShieldAuraLayer;
 
 import org.lwjgl.glfw.GLFW;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 
@@ -47,6 +52,7 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 		ClientTickEvents.END_CLIENT_TICK.register(PacketCosmicRevive::onClientTick);
 		registerKeybinds();
 		registerItemProperties();
+		registerRenderers();
 		DevSelfCheck.register();
 	}
 
@@ -54,6 +60,23 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 		// Port: upstream EnigmaticAmulet.registerVariants (FMLClientSetupEvent).
 		ItemProperties.register(EnigmaticItems.ENIGMATIC_AMULET, new ResourceLocation(EnigmaticLegacy.MODID, "enigmatic_amulet_color"),
 				(stack, world, entity, seed) -> ItemNBTHelper.getFloat(stack, EnigmaticAmulet.amuletColorTag, 0F));
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static void registerRenderers() {
+		// Port: upstream adds ShieldAuraLayer to the player skin renderers in EntityRenderersEvent.AddLayers.
+		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
+			if (entityType == EntityType.PLAYER) {
+				registrationHelper.register(new ShieldAuraLayer((LivingEntityRenderer) entityRenderer, context.getModelSet()));
+			}
+		});
+
+		// Port: Etherium Armor textures are fully transparent upstream, so the armor is invisible.
+		// A no-op renderer gives the same result and skips the vanilla texture lookup, which
+		// cannot parse the namespaced material name "enigmaticlegacy:etherium".
+		ArmorRenderer.register((matrices, vertexConsumers, stack, entity, slot, light, model) -> {},
+				EnigmaticItems.ETHERIUM_HELMET, EnigmaticItems.ETHERIUM_CHESTPLATE,
+				EnigmaticItems.ETHERIUM_LEGGINGS, EnigmaticItems.ETHERIUM_BOOTS);
 	}
 
 	private static void registerKeybinds() {

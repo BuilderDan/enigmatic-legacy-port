@@ -87,7 +87,8 @@ Sections are added here as each Minecraft version / loader is ported.
   Ingot, Unholy Stone, Darkest Scroll, Tome of Hungering Knowledge, Heart of the Cosmos,
   Heart of the Abyss, Soul Dust, Emblem of Monster Slayer, Scroll of Ageless Wisdom, Ring of
   Ender, Essence of Raging Life, Astral Potato, Charm of Treasure Hunter, Axe of Executioner, Heart of
-  Creation, Blazing Core, Scroll of Postmortal Recall), registered in upstream order.
+  Creation, Blazing Core, Scroll of Postmortal Recall, Etherium Ore and the Etherium tools and
+  armor), registered in upstream order.
 - Creative tabs: built with `FabricItemGroup`; contents come from `ICreativeTabMember` in
   `displayItems` instead of Forge's `BuildCreativeModeTabContentsEvent`. Temporary: the main
   tab icon is Blank Scroll until the Enigmatic Amulet is ported; the potions tab returns with
@@ -170,7 +171,7 @@ Sections are added here as each Minecraft version / loader is ported.
   upstream's `LootTableLoadEvent` handler, called on Fabric from `LootTableEvents.MODIFY`.
   It adds upstream's "epic" pool (1-2 rolls, same weights and counts) with Potion of Recall,
   Mending Mixture, Astral Dust and Extradimensional Eye. Differences from upstream:
-  - Lore Inscriber and Etherium Ore are left out of the pool (not ported yet).
+  - Lore Inscriber is left out of the pool (not ported yet). Etherium Ore (weight 60, 1-2) is in.
   - The second End city pool (Corrupted Tome) is not ported.
   - Vanilla 1.20.1 loot pools have no name, so `SuperpositionHandler.constructLootPool`
     ignores its `poolName` parameter.
@@ -261,7 +262,7 @@ Sections are added here as each Minecraft version / loader is ported.
   block reach attribute.
 - Axe of Executioner (`ForbiddenAxe`, `triggers/BeheadingTrigger`):
   - `api/materials/EnigmaticMaterials` holds only the `FORBIDDEN_AXE` tier for now; Forge's
-    `TierSortingRegistry` entries for the higher tiers come with the Etherium tools.
+    `TierSortingRegistry` entries are dropped (see the Etherium batch).
     `items/generic/ItemBaseTool` holds only `getDefaultProperties()` for now.
   - Tooltip: the Curios looting bonus becomes `Services.ACCESSORIES.getLootingBonus` (Trinkets).
   - Beheading: Forge's `LivingDropsEvent` becomes port-only `MixinLivingEntity`
@@ -417,3 +418,26 @@ Sections are added here as each Minecraft version / loader is ported.
     Curses is ported, as for every cursed-only item.
   - Not ported yet: Pearl of the Void's Animal Guidebook check (Tomes batch), and the Ring of
     Seven Curses part of `getCurseAmount`.
+- Etherium batch (Etherium Ore, Pickaxe, Waraxe, Shovel, Broadsword, Scythe, Armor):
+  - `EnigmaticMaterials.ETHERIUM` (level 5) is not registered with Forge's
+    `TierSortingRegistry`. Vanilla 1.20.1 compares tiers by `getLevel()`, so no registry is
+    needed. The Creation tier (6) comes with its item.
+  - `EtheriumConfigHandler` is a static singleton (`instance()`) instead of an instance made in
+    the mod constructor; `EnigmaticMaterials` and `EnigmaticArmorMaterials` read it lazily.
+  - Tools: Forge's `ToolActions`/`canPerformAction` overrides are dropped (vanilla item classes
+    already give the strip/flatten/till actions). Harvest checks use vanilla
+    `isCorrectToolForDrops(BlockState)`.
+  - `AOEMiningHelper`: the AOE methods take the tool and a damage consumer directly;
+    `attemptBreakNeighbors` (unused upstream) is dropped. Block XP is dropped by vanilla
+    `Block.dropResources` instead of Forge's `getExpDrop`.
+  - Etherium Armor shield: upstream's `EtheriumEventHandler` subscribes to Forge's
+    `LivingHurtEvent`/`LivingAttackEvent`. The port calls its static methods from
+    `EnigmaticEventHandler.onLivingAttack` (projectile deflection) and at the end of
+    `onLivingHurt` (knockback and damage reduction). The standalone End city loot pool is
+    dropped (`isStandalone()` is always false inside Enigmatic Legacy). The unused cooldown
+    map field is dropped.
+  - Armor rendering: upstream's armor textures are fully transparent, so the armor is
+    invisible. The port registers a no-op Fabric `ArmorRenderer` for the four pieces, which
+    gives the same result and avoids vanilla's texture lookup on the namespaced material name.
+  - `ShieldAuraLayer` is added to player renderers through Fabric's
+    `LivingEntityFeatureRendererRegistrationCallback` instead of `EntityRenderersEvent.AddLayers`.

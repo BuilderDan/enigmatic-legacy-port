@@ -44,6 +44,7 @@ import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticSounds;
 import com.aizistral.enigmaticlegacy.triggers.BeheadingTrigger;
 import com.aizistral.enigmaticlegacy.triggers.ForbiddenFruitTrigger;
+import com.aizistral.etherium.core.EtheriumEventHandler;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -114,6 +115,10 @@ public class EnigmaticEventHandler {
 	 * @return false to cancel the attack (upstream: {@code event.setCanceled(true)}).
 	 */
 	public static boolean onLivingAttack(LivingEntity entity, DamageSource source, float amount) {
+		// Port: upstream EtheriumEventHandler.onEntityAttacked is a separate Forge subscriber.
+		if (!EtheriumEventHandler.onEntityAttacked(entity, source))
+			return false;
+
 		if (source.getDirectEntity() instanceof Player && source.is(DamageTypes.PLAYER_ATTACK)) {
 			Player player = (Player) source.getDirectEntity();
 
@@ -584,8 +589,7 @@ public class EnigmaticEventHandler {
 			return;
 
 		if (id.equals(BuiltInLootTables.END_CITY_TREASURE)) {
-			// Port: upstream also adds Lore Inscriber (weight 10) and Etherium Ore (weight 60,
-			// 1-2); neither is ported yet, so they are left out.
+			// Port: upstream also adds Lore Inscriber (weight 10); it is not ported yet, so it is left out.
 			LootPool epic = SuperpositionHandler.constructLootPool("epic", 1F, 2F,
 					LootItem.lootTableItem(Items.ENDER_PEARL).setWeight(40).apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 5))),
 					LootItem.lootTableItem(Items.ENDER_EYE).setWeight(20).apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 2))),
@@ -598,6 +602,7 @@ public class EnigmaticEventHandler {
 					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.RECALL_POTION, 15),
 					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.MENDING_MIXTURE, 40),
 					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.ASTRAL_DUST, 85, 1F, 4F),
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.ETHERIUM_ORE, 60, 1F, 2F),
 					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.EXTRADIMENSIONAL_EYE, 20));
 
 			addPool.accept(epic);
@@ -732,6 +737,9 @@ public class EnigmaticEventHandler {
 				return 0;
 			}
 		}
+
+		// Port: upstream EtheriumEventHandler.onEntityHurt is a separate Forge subscriber.
+		amount = EtheriumEventHandler.onEntityHurt(victim, source, amount);
 
 		return amount;
 	}
