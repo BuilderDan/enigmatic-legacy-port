@@ -15,5 +15,6 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 		EnigmaticLegacyFabric.LOGGER.info("Enigmatic Legacy (Fabric port) client initializing");
 		FabricClientNetwork.registerReceivers();
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> OmniconfigSync.onClientLoggedOut());
+		DevSelfCheck.register();
 	}
 }

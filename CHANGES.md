@@ -96,3 +96,9 @@ Sections are added here as each Minecraft version / loader is ported.
 - Temporary: `SuperpositionHandler.isTheCursedOne` always returns false until the Cursed Ring
   is ported (cursed-only tooltips and Twisted Heart/Soul Dust curse checks are inactive).
 - `SuperpositionHandler.isExplosion` uses the vanilla `DamageTypeTags.IS_EXPLOSION` tag.
+- Dev only, port-only: `fabric/DevSelfCheck`, a client smoke test that runs only when the
+  `enigmaticlegacy.devcheck` system property is set (Gradle `-Pdevcheck=true|exit`). It is
+  inactive in normal play.
+- Resources: the upstream folder `textures/item/3d/alt textures/` is renamed to
+  `alt_textures/` by `tools/sync_resources.py`. A space is not valid in a resource path,
+  and nothing references these textures.

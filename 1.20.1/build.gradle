@@ -81,6 +81,10 @@ tasks.withType(JavaExec).configureEach {
 // Only these keys are forced; other options set in game are kept.
 def devOptions = file('run/options.txt')
 tasks.named('runClient') {
+	// Port: -Pdevcheck=true (or =exit) turns on the DevSelfCheck smoke test.
+	if (project.hasProperty('devcheck')) {
+		systemProperty 'enigmaticlegacy.devcheck', project.property('devcheck')
+	}
 	doFirst {
 		def forced = ['soundCategory_music': '0.0', 'narrator': '0', 'onboardAccessibility': 'false']
 		def lines = devOptions.exists() ? devOptions.readLines('UTF-8') : []

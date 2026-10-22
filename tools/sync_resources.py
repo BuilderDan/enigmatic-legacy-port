@@ -9,6 +9,7 @@ converting Forge-only data for Fabric. Every conversion here is listed in CHANGE
   (slot mapping in SLOT_MAP; slot definitions are hand-written, not generated here)
 - recipe "conditions" (Forge) -> "fabric:load_conditions" (Fabric API)
 - data/forge/** and Forge global loot modifier JSON are skipped (ported in code)
+- folder names with spaces (invalid resource paths) get underscores
 
 Re-running overwrites copied files but never deletes extra files in the target.
 """
@@ -62,7 +63,7 @@ def main(version: str) -> None:
             rel = src.relative_to(SRC)
             if skipped(rel):
                 continue
-            dst = dst_root / rel
+            dst = dst_root / Path(*(part.replace(" ", "_") for part in rel.parts))
             dst.parent.mkdir(parents=True, exist_ok=True)
             if rel.is_relative_to(Path("data/enigmaticlegacy/recipes")) and src.suffix == ".json":
                 text = src.read_text(encoding="utf-8")
