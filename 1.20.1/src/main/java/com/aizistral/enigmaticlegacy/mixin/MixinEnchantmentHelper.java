@@ -8,9 +8,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.aizistral.enigmaticlegacy.handlers.EnigmaticEventHandler;
 import com.aizistral.enigmaticlegacy.items.TheAcknowledgment;
 import com.aizistral.enigmaticlegacy.platform.Services;
 
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -25,6 +27,9 @@ import net.minecraft.world.item.enchantment.Enchantments;
  * <p>
  * Also stands in for TheAcknowledgment's Forge canApplyAtEnchantingTable override: the
  * enchanting table may offer Bane of Arthropods for it.
+ * <p>
+ * Also adds the Ring of the Seven Curses enchanting bonus that MixinEnchantmentMenu works out
+ * (Forge's EnchantmentLevelSetEvent, which fires right after getEnchantmentCost).
  */
 @Mixin(EnchantmentHelper.class)
 public abstract class MixinEnchantmentHelper {
@@ -34,6 +39,14 @@ public abstract class MixinEnchantmentHelper {
 		int bonus = Services.ACCESSORIES.getLootingBonus(entity, null, null, base);
 		if (bonus != 0) {
 			info.setReturnValue(base + bonus);
+		}
+	}
+
+	@Inject(method = "getEnchantmentCost", at = @At("RETURN"), cancellable = true)
+	private static void enigmaticlegacy$addEnchantingBonus(RandomSource random, int slot, int power, ItemStack stack, CallbackInfoReturnable<Integer> info) {
+		Integer bonus = EnigmaticEventHandler.ENCHANTING_BONUS.get();
+		if (bonus != null && bonus != 0) {
+			info.setReturnValue(info.getReturnValueI() + bonus);
 		}
 	}
 

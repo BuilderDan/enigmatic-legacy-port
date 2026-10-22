@@ -509,3 +509,28 @@ Sections are added here as each Minecraft version / loader is ported.
     underwater ruin trident are ported with upstream's weights. Upstream's Desert Pyramid branch
     is left out: it follows the overworld branch in an else-if chain and never runs.
   - Dev only: `DevSelfCheck` now expects 6 loot pools and checks the new mixins.
+- Relic of Testing and Ring of the Seven Curses (`CursedRing`):
+  - `RelicOfTesting`: the TransientPlayerData (narrator unlock) reset is left out until that
+    system is ported. Mob goals are reached through `AccessorMob`.
+  - `CursedRing`: Curios slot context and drop rule go through the accessory service (Trinkets).
+    Enderman teleporting and piglin anger use `AccessorEnderMan` and `AccessorPiglinAi`. The Animal Guidebook checks are left out until
+    that item is ported.
+  - Forge's `isBookEnchantable` (no Curse of Vanishing from books) is port-only
+    `MixinEnchantment.canEnchant`, so an anvil drops only that enchantment instead of refusing
+    the whole book.
+  - The enchanting table bonus (Forge's EnchantmentLevelSetEvent) is port-only
+    `MixinEnchantmentMenu` (works out the bonus around `slotsChanged`) plus a
+    `MixinEnchantmentHelper.getEnchantmentCost` inject.
+  - Knockback debuff: port-only `@ModifyVariable` at the head of `LivingEntity.knockback`, where
+    Forge fires LivingKnockBackEvent. Experience bonus: `EnigmaticEventHandler.onExperienceDrop`,
+    which also applies the Monster Charm bonus. Insomnia uses `AccessorPlayer` for the sleep
+    counter.
+  - Auto-equip runs in the player tick (upstream: PlayerTickEvent inventory loop), main inventory
+    only.
+  - Special drops are split out of `onLivingDrops` into `addCursedRingDrops`. Left out until
+    their items are ported: the Guardian Heart choice from Elder Guardians and the Abyssal Heart
+    drop from the Ender Dragon.
+  - Monster damage debuff: upstream's Twist, Infinitum and Eldritch Pan exemptions are dropped
+    (items not ported). Also not ported yet: Ender Slayer, Unholy Stone lava, the
+    KNOCKBACK_THAT_BASTARD flag, the playtime counter (IPlaytimeCounter), harvest checks and the
+    cursed main menu flag (`setCurrentWorldCursed` is a no-op).

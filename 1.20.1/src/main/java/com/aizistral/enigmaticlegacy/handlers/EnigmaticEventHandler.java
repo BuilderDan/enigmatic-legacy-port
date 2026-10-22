@@ -88,6 +88,39 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.Items;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import com.aizistral.enigmaticlegacy.items.CursedRing;
+import com.aizistral.enigmaticlegacy.items.MonsterCharm;
+import com.aizistral.enigmaticlegacy.mixin.AccessorPlayer;
+import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.boss.wither.WitherBoss;
+import net.minecraft.world.entity.monster.piglin.Piglin;
+import net.minecraft.world.entity.monster.piglin.PiglinBrute;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.monster.Shulker;
+import net.minecraft.world.entity.monster.Stray;
+import net.minecraft.world.entity.monster.Husk;
+import net.minecraft.world.entity.monster.Spider;
+import net.minecraft.world.entity.monster.CaveSpider;
+import net.minecraft.world.entity.monster.Guardian;
+import net.minecraft.world.entity.monster.ElderGuardian;
+import net.minecraft.world.entity.monster.EnderMan;
+import net.minecraft.world.entity.monster.Blaze;
+import net.minecraft.world.entity.monster.ZombifiedPiglin;
+import net.minecraft.world.entity.monster.Witch;
+import net.minecraft.world.entity.monster.Pillager;
+import net.minecraft.world.entity.monster.Vindicator;
+import net.minecraft.world.entity.monster.Evoker;
+import net.minecraft.world.entity.monster.Ghast;
+import net.minecraft.world.entity.monster.Vex;
+import net.minecraft.world.entity.monster.Phantom;
+import net.minecraft.world.entity.monster.Silverfish;
+import net.minecraft.world.entity.monster.Ravager;
+import net.minecraft.world.entity.monster.MagmaCube;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -118,6 +151,10 @@ public class EnigmaticEventHandler {
 
 	public static final Multimap<Player, Item> POSTMORTAL_POSESSIONS = ArrayListMultimap.create();
 	public static final String NBT_KEY_ENIGMATICGIFT = "enigmaticlegacy.firstjoin";
+	public static final String NBT_KEY_CURSEDGIFT = "enigmaticlegacy.cursedgift";
+
+	/** Port-only: Ring of the Seven Curses enchanting bonus for the table in use, see MixinEnchantmentMenu. */
+	public static final ThreadLocal<Integer> ENCHANTING_BONUS = new ThreadLocal<>();
 	public static final Map<Player, Float> LAST_HEALTH = new WeakHashMap<>();
 	public static final Random THEY_SEE_ME_ROLLIN = new Random();
 
@@ -229,6 +266,14 @@ public class EnigmaticEventHandler {
 	public static float onPlayerHurt(Player player, DamageSource source, float amount) {
 		if (player.isInvulnerableTo(source))
 			return amount;
+
+		/*
+		 * Handler for doubling damage on bearers of Ring of the Seven Curses.
+		 */
+
+		if (SuperpositionHandler.hasCurio(player, EnigmaticItems.CURSED_RING)) {
+			amount *= CursedRing.painMultiplier.getValue().asModifier();
+		}
 
 		List<ItemStack> advancedCurios = SuperpositionHandler.getAdvancedCurios(player);
 
@@ -393,6 +438,36 @@ public class EnigmaticEventHandler {
 
 		tickBlazingCoreEffects(player);
 
+		// Port: upstream does this in its PlayerTickEvent inventory loop.
+		if (CursedRing.autoEquip.getValue() && !player.isCreative() && !player.isSpectator()
+				&& !SuperpositionHandler.hasCurio(player, EnigmaticItems.CURSED_RING)) {
+			List<ItemStack> items = player.getInventory().items;
+
+			for (int i = 0; i < items.size(); i++) {
+				ItemStack stack = items.get(i);
+
+				if (stack.is(EnigmaticItems.CURSED_RING) && Services.ACCESSORIES.tryForceEquip(player, stack)) {
+					items.set(i, ItemStack.EMPTY);
+					break;
+				}
+			}
+		}
+
+		// Port: upstream ran these for players in its LivingTickEvent handler.
+		if (!CursedRing.disableInsomnia.getValue())
+			if (player.isSleeping() && SuperpositionHandler.hasCurio(player, EnigmaticItems.CURSED_RING)) {
+				if (player.getSleepTimer() == 5) {
+					player.sendSystemMessage(Component.translatable("message.enigmaticlegacy.cursed_sleep")
+							.withStyle(ChatFormatting.RED));
+				} else if (player.getSleepTimer() > 90) {
+					((AccessorPlayer) player).enigmaticlegacy$setSleepCounter(90);
+				}
+			}
+
+		if (player.isOnFire() && SuperpositionHandler.hasCurio(player, EnigmaticItems.CURSED_RING)) {
+			player.setRemainingFireTicks(player.getRemainingFireTicks()+2);
+		}
+
 		// Port: upstream ran this for players in its LivingTickEvent handler.
 		if (EnigmaticItems.FORBIDDEN_FRUIT.haveConsumedFruit(player)) {
 			FoodData foodStats = player.getFoodData();
@@ -426,6 +501,11 @@ public class EnigmaticEventHandler {
 	 * not needed. The Ascension Amulet and cursed-item parts follow with those items.
 	 */
 	public static void onConfirmedDeath(ServerPlayer player, DamageSource source) {
+		// Port: upstream's onProbableDeath (LivingDeathEvent, HIGHEST).
+		if (SuperpositionHandler.hasCurio(player, EnigmaticItems.CURSED_RING)) {
+			POSTMORTAL_POSESSIONS.put(player, EnigmaticItems.CURSED_RING);
+		}
+
 		SuperpositionHandler.setPersistentBoolean(player, "DeathFromEntity", source.getEntity() instanceof LivingEntity);
 
 		// TODO: Ascension Amulet branch (else-if) when that item is ported.
@@ -588,6 +668,30 @@ public class EnigmaticEventHandler {
 				}
 
 				SuperpositionHandler.setPersistentBoolean(player, NBT_KEY_ENIGMATICGIFT, true);
+			}
+
+		/*
+		 * Another one for Ring of the Seven Curses.
+		 */
+
+		if (OmniconfigHandler.isItemEnabled(EnigmaticItems.CURSED_RING))
+			if (SuperpositionHandler.getPersistentTag(player, NBT_KEY_CURSEDGIFT, null) == null) {
+				ItemStack cursedRingStack = new ItemStack(EnigmaticItems.CURSED_RING);
+
+				if (!CursedRing.ultraHardcore.getValue()) {
+					if (player.getInventory().getItem(7).isEmpty()) {
+						player.getInventory().setItem(7, cursedRingStack);
+					} else {
+						if (!player.getInventory().add(cursedRingStack)) {
+							ItemEntity dropRing = new ItemEntity(player.level(), player.getX(), player.getY(), player.getZ(), cursedRingStack);
+							player.level().addFreshEntity(dropRing);
+						}
+					}
+				} else {
+					Services.ACCESSORIES.tryForceEquip(player, cursedRingStack);
+				}
+
+				SuperpositionHandler.setPersistentBoolean(player, NBT_KEY_CURSEDGIFT, true);
 			}
 	}
 
@@ -832,6 +936,11 @@ public class EnigmaticEventHandler {
 	 */
 	public static float onLivingHurt(LivingEntity victim, DamageSource source, float amount) {
 		if (source.getEntity() instanceof Player attacker) {
+			// Port: upstream's Twist, Infinitum and Eldritch Pan exemptions dropped, those items are not ported.
+			if ((victim instanceof Monster || victim instanceof EnderDragon) && SuperpositionHandler.isTheCursedOne(attacker)) {
+				amount *= CursedRing.monsterDamageDebuff.getValue().asModifierInverted();
+			}
+
 			if (SuperpositionHandler.hasCurio(attacker, EnigmaticItems.CURSED_SCROLL)) {
 				amount += amount * (CursedScroll.damageBoost.getValue().asModifier() * SuperpositionHandler.getCurseAmount(attacker));
 			}
@@ -935,6 +1044,11 @@ public class EnigmaticEventHandler {
 					&& THEY_SEE_ME_ROLLIN.nextInt(100) < AvariceScroll.emeraldChance.getValue()) {
 				addDrop(entity, drops, new ItemStack(Items.EMERALD, 1));
 			}
+
+			// Port: upstream's Abyssal Heart drop from the Ender Dragon is skipped (IAbyssalHeartBearer not ported).
+			if (CursedRing.enableSpecialDrops.getValue()) {
+				addCursedRingDrops(entity, drops);
+			}
 		}
 
 		if (!recentlyHit || !(source.getEntity() instanceof Player player)
@@ -1015,8 +1129,7 @@ public class EnigmaticEventHandler {
 				Services.NETWORK.sendToNear(new TargetPoint(dimPoint.posX, dimPoint.posY, dimPoint.posZ, 128, dimPoint.world.dimension()), new PacketRecallParticles(dimPoint.posX, dimPoint.posY, dimPoint.posZ, 48, false));
 			}
 
-			// Port: TODO Cursed Ring not ported; upstream checks whether the player wore it.
-			boolean hadCursedRing = false;
+			boolean hadCursedRing = POSTMORTAL_POSESSIONS.containsEntry(player, EnigmaticItems.CURSED_RING);
 
 			if (POSTMORTAL_POSESSIONS.containsEntry(player, EnigmaticItems.ENIGMATIC_AMULET) && !drops.isEmpty() && EnigmaticItems.ENIGMATIC_AMULET.isVesselEnabled()) {
 				ItemStack soulCrystal = SuperpositionHandler.canDropSoulCrystal(player, hadCursedRing) ? EnigmaticItems.SOUL_CRYSTAL.createCrystalFrom(player) : null;
@@ -1056,6 +1169,136 @@ public class EnigmaticEventHandler {
 	}
 
 	/** Upstream addDrop. The drop spawns with the rest of the list after the handlers run. */
+	/**
+	 * Ring of the Seven Curses special drops. Port: split out of upstream's onLivingDrops.
+	 */
+	private static void addCursedRingDrops(LivingEntity killed, Collection<ItemEntity> drops) {
+		if (killed.getClass() == Shulker.class) {
+			addDropWithChance(killed, drops, new ItemStack(EnigmaticItems.ASTRAL_DUST, 1), 20);
+		} else if (killed.getClass() == Skeleton.class || killed.getClass() == Stray.class) {
+			addDrop(killed, drops, getRandomSizeStack(Items.ARROW, 3, 15));
+		} else if (killed.getClass() == Zombie.class || killed.getClass() == Husk.class) {
+			addDropWithChance(killed, drops, getRandomSizeStack(Items.SLIME_BALL, 1, 3), 25);
+		} else if (killed.getClass() == Spider.class || killed.getClass() == CaveSpider.class) {
+			addDrop(killed, drops, getRandomSizeStack(Items.STRING, 2, 12));
+		} else if (killed.getClass() == Guardian.class) {
+			addDropWithChance(killed, drops, new ItemStack(Items.NAUTILUS_SHELL, 1), 15);
+			addDrop(killed, drops, getRandomSizeStack(Items.PRISMARINE_CRYSTALS, 2, 5));
+		} else if (killed instanceof ElderGuardian) {
+			addDrop(killed, drops, getRandomSizeStack(Items.PRISMARINE_CRYSTALS, 4, 16));
+			addDrop(killed, drops, getRandomSizeStack(Items.PRISMARINE_SHARD, 7, 28));
+			// Port: upstream's Guardian Heart option dropped, that item is not ported.
+			addOneOf(killed, drops,
+					new ItemStack(Items.HEART_OF_THE_SEA, 1),
+					new ItemStack(Items.ENCHANTED_GOLDEN_APPLE, 1),
+					new ItemStack(Items.ENDER_EYE, 1),
+					EnchantmentHelper.enchantItem(killed.getRandom(), new ItemStack(Items.TRIDENT, 1), 25+THEY_SEE_ME_ROLLIN.nextInt(15), true));
+		} else if (killed.getClass() == EnderMan.class) {
+			addDropWithChance(killed, drops, getRandomSizeStack(Items.ENDER_EYE, 1, 2), 40);
+		} else if (killed.getClass() == Blaze.class) {
+			addDrop(killed, drops, getRandomSizeStack(Items.BLAZE_POWDER, 0, 5));
+		} else if (killed.getClass() == ZombifiedPiglin.class) {
+			addDropWithChance(killed, drops, getRandomSizeStack(Items.GOLD_INGOT, 1, 3), 40);
+			addDropWithChance(killed, drops, getRandomSizeStack(Items.GLOWSTONE_DUST, 1, 7), 30);
+		} else if (killed.getClass() == Witch.class) {
+			addDropWithChance(killed, drops, new ItemStack(Items.GHAST_TEAR, 1), 30);
+			addDropWithChance(killed, drops, getRandomSizeStack(Items.PHANTOM_MEMBRANE, 1, 3), 50);
+		} else if (killed.getClass() == Pillager.class || killed.getClass() == Vindicator.class) {
+			addDrop(killed, drops, getRandomSizeStack(Items.EMERALD, 0, 4));
+		} else if (killed.getClass() == Villager.class) {
+			addDrop(killed, drops, getRandomSizeStack(Items.EMERALD, 2, 6));
+		} else if (killed.getClass() == Creeper.class) {
+			addDrop(killed, drops, getRandomSizeStack(Items.GUNPOWDER, 4, 12));
+		} else if (killed.getClass() == PiglinBrute.class) {
+			addDropWithChance(killed, drops, new ItemStack(Items.NETHERITE_SCRAP, 1), 20);
+		} else if (killed.getClass() == Evoker.class) {
+			addDrop(killed, drops, new ItemStack(Items.TOTEM_OF_UNDYING, 1));
+			addDrop(killed, drops, getRandomSizeStack(Items.EMERALD, 5, 20));
+			addDropWithChance(killed, drops, new ItemStack(Items.ENCHANTED_GOLDEN_APPLE, 1), 10);
+			addDropWithChance(killed, drops, getRandomSizeStack(Items.ENDER_PEARL, 1, 3), 30);
+			addDropWithChance(killed, drops, getRandomSizeStack(Items.BLAZE_ROD, 2, 4), 30);
+			addDropWithChance(killed, drops, getRandomSizeStack(Items.EXPERIENCE_BOTTLE, 4, 10), 50);
+		} else if (killed.getClass() == WitherSkeleton.class) {
+			addDrop(killed, drops, getRandomSizeStack(Items.BLAZE_POWDER, 0, 3));
+			addDropWithChance(killed, drops, new ItemStack(Items.GHAST_TEAR, 1), 20);
+			addDropWithChance(killed, drops, new ItemStack(Items.NETHERITE_SCRAP, 1), 7);
+		} else if (killed.getClass() == Ghast.class) {
+			addDrop(killed, drops, getRandomSizeStack(Items.PHANTOM_MEMBRANE, 1, 4));
+		} else if (killed.getClass() == Drowned.class) {
+			addDropWithChance(killed, drops, getRandomSizeStack(Items.LAPIS_LAZULI, 1, 3), 30);
+		} else if (killed.getClass() == Vex.class) {
+			addDrop(killed, drops, getRandomSizeStack(Items.GLOWSTONE_DUST, 0, 2));
+			addDropWithChance(killed, drops, new ItemStack(Items.PHANTOM_MEMBRANE, 1), 30);
+		} else if (killed.getClass() == Phantom.class || killed.getClass() == Silverfish.class) {
+			// NO-OP
+		} else if (killed.getClass() == Piglin.class) {
+			addDropWithChance(killed, drops, getRandomSizeStack(Items.GOLD_INGOT, 2, 4), 50);
+		} else if (killed.getClass() == Ravager.class) {
+			addDrop(killed, drops, getRandomSizeStack(Items.EMERALD, 3, 10));
+			addDrop(killed, drops, getRandomSizeStack(Items.LEATHER, 2, 7));
+			addDropWithChance(killed, drops, getRandomSizeStack(Items.DIAMOND, 0, 4), 50);
+		} else if (killed.getClass() == MagmaCube.class) {
+			addDropWithChance(killed, drops, new ItemStack(Items.BLAZE_POWDER, 1), 50);
+		} else if (killed.getClass() == Chicken.class) {
+			addDropWithChance(killed, drops, new ItemStack(Items.EGG, 1), 50);
+		} else if (killed instanceof WitherBoss) {
+			addDrop(killed, drops, getRandomSizeStack(EnigmaticItems.EVIL_ESSENCE, 1, 4));
+		}
+	}
+
+	private static void addDropWithChance(LivingEntity entity, Collection<ItemEntity> drops, ItemStack stack, int chance) {
+		if (THEY_SEE_ME_ROLLIN.nextInt(100) < chance) {
+			addDrop(entity, drops, stack);
+		}
+	}
+
+	private static void addOneOf(LivingEntity entity, Collection<ItemEntity> drops, ItemStack... itemStacks) {
+		int chosenStack = THEY_SEE_ME_ROLLIN.nextInt(itemStacks.length);
+		addDrop(entity, drops, itemStacks[chosenStack]);
+	}
+
+	private static ItemStack getRandomSizeStack(Item item, int minAmount, int maxAmount) {
+		return new ItemStack(item, minAmount + THEY_SEE_ME_ROLLIN.nextInt(maxAmount - minAmount + 1));
+	}
+
+	/**
+	 * Port: upstream's LivingKnockBackEvent handler, Cursed Ring part. Called from
+	 * MixinLivingEntity at the head of knockback, where Forge fires the event.
+	 */
+	public static double onLivingKnockback(LivingEntity entity, double strength) {
+		if (entity instanceof Player && SuperpositionHandler.hasCurio(entity, EnigmaticItems.CURSED_RING)) {
+			strength *= CursedRing.knockbackDebuff.getValue().asModifier();
+		}
+
+		return strength;
+	}
+
+	/**
+	 * Port: upstream's LivingExperienceDropEvent handlers. The Monster Charm and Cursed Ring
+	 * bonuses both come from the original amount, as in upstream.
+	 */
+	public static int onExperienceDrop(LivingEntity entity, Player player, int experience) {
+		int dropped = MonsterCharm.modifyExperience(entity, player, experience);
+
+		if (player != null && SuperpositionHandler.hasCurio(player, EnigmaticItems.CURSED_RING)) {
+			dropped += (int) (experience * CursedRing.experienceBonus.getValue().asMultiplier());
+		}
+
+		return dropped;
+	}
+
+	/** Port: upstream's EnchantmentLevelSetEvent handler, as the bonus a table at this spot gets. */
+	public static int getEnchantingBonus(Level level, BlockPos where) {
+		int radius = 16;
+		List<Player> players = level.getEntitiesOfClass(Player.class, new AABB(where.offset(-radius, -radius, -radius), where.offset(radius, radius, radius)));
+
+		for (Player player : players)
+			if (SuperpositionHandler.isTheCursedOne(player))
+				return CursedRing.enchantingBonus.getValue();
+
+		return 0;
+	}
+
 	private static void addDrop(LivingEntity entity, Collection<ItemEntity> drops, ItemStack stack) {
 		ItemEntity drop = new ItemEntity(entity.level(), entity.getX(), entity.getY(), entity.getZ(), stack);
 		drop.setPickUpDelay(10);

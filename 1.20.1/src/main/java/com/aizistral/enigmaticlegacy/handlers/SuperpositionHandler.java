@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import com.aizistral.enigmaticlegacy.api.items.ISpellstone;
 import com.aizistral.enigmaticlegacy.items.generic.ItemSpellstoneCurio;
+import com.aizistral.enigmaticlegacy.items.CursedRing;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 import java.util.List;
 import java.util.Optional;
@@ -415,9 +416,24 @@ public class SuperpositionHandler {
 	}
 
 	public static boolean isTheCursedOne(Player player) {
-		// Port: always false until CursedRing is ported; then
-		// Services.ACCESSORIES.isEquipped(player, EnigmaticItems.CURSED_RING).
-		return false;
+		return Services.ACCESSORIES.isEquipped(player, EnigmaticItems.CURSED_RING);
+	}
+
+	public static boolean isTheWorthyOne(Player player) {
+		if (isTheCursedOne(player)) {
+			return getSufferingFraction(player) >= CursedRing.superCursedTime.getValue();
+		} else
+			return false;
+	}
+
+	public static boolean canUnequipBoundRelics(Player player) {
+		return player.isCreative() || EnigmaticLegacy.SOUL_OF_THE_ARCHITECT.equals(player.getUUID());
+	}
+
+	// Port: upstream writes the cursed flag to EnigmaticTransience (the main menu's cursed
+	// splash). That file and its title screen hook are not ported, so this is a no-op for now.
+	public static void setCurrentWorldCursed(boolean cursed) {
+		// TODO port EnigmaticTransience
 	}
 
 	public static double getSufferingFraction(@Nullable Player player) {
@@ -987,8 +1003,6 @@ public class SuperpositionHandler {
 		return SuperpositionHandler.validTeleport(entity, x, y, z, world, radius);
 	}
 
-	// Port: the Ring of Seven Curses (CURSED_RING) is not ported yet, so its +7 and its
-	// count-once rule are left out of both getCurseAmount methods until it is.
 	public static int getCurseAmount(ItemStack stack) {
 		Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
 		int totalCurses = 0;
@@ -999,15 +1013,26 @@ public class SuperpositionHandler {
 			}
 		}
 
+		if (stack.getItem() == EnigmaticItems.CURSED_RING) {
+			totalCurses+=7;
+		}
+
 		return totalCurses;
 	}
 
 	public static int getCurseAmount(Player player) {
 		int count = 0;
+		boolean ringCounted = false;
 
 		for (ItemStack theStack : getFullEquipment(player)) {
 			if (theStack != null) {
-				count += getCurseAmount(theStack);
+				if (theStack.getItem() != EnigmaticItems.CURSED_RING || !ringCounted) {
+					count += getCurseAmount(theStack);
+
+					if (theStack.getItem() == EnigmaticItems.CURSED_RING) {
+						ringCounted = true;
+					}
+				}
 			}
 		}
 
@@ -1113,6 +1138,10 @@ public class SuperpositionHandler {
 		}
 
 		return false;
+	}
+
+	public static void obscureTooltip(List<Component> tooltip) {
+		tooltip.replaceAll(component -> Component.literal(obscureString(component.getString())).withStyle(component.getStyle()));
 	}
 
 	public static String obscureString(String string) {

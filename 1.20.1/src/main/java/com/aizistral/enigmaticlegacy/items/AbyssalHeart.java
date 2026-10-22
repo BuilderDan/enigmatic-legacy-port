@@ -22,8 +22,7 @@ public class AbyssalHeart extends ItemBase implements IEldritch {
 	@Override
 	public void appendHoverText(ItemStack stack, Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		if (Screen.hasShiftDown()) {
-			// Port: upstream calls ItemLoreHelper.indicateWorthyOnesOnly(list) here. It needs
-			// CursedRing.superCursedTime, so it returns with the Cursed Ring.
+			ItemLoreHelper.indicateWorthyOnesOnly(list);
 		} else {
 			//if (SuperpositionHandler.isTheWorthyOne(Minecraft.getInstance().player)) {
 			list.add(Component.translatable("tooltip.enigmaticlegacy.abyssalHeart1"));

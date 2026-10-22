@@ -11,6 +11,7 @@ import com.aizistral.enigmaticlegacy.items.AbyssalHeart;
 import com.aizistral.enigmaticlegacy.items.AstralDust;
 import com.aizistral.enigmaticlegacy.items.AstralPotato;
 import com.aizistral.enigmaticlegacy.items.BlazingCore;
+import com.aizistral.enigmaticlegacy.items.CursedRing;
 import com.aizistral.enigmaticlegacy.items.EnigmaticAmulet;
 import com.aizistral.enigmaticlegacy.items.EscapeScroll;
 import com.aizistral.enigmaticlegacy.items.CosmicHeart;
@@ -38,6 +39,7 @@ import com.aizistral.enigmaticlegacy.items.MiningCharm;
 import com.aizistral.enigmaticlegacy.items.MonsterCharm;
 import com.aizistral.enigmaticlegacy.items.ForbiddenAxe;
 import com.aizistral.enigmaticlegacy.items.RecallPotion;
+import com.aizistral.enigmaticlegacy.items.RelicOfTesting;
 import com.aizistral.enigmaticlegacy.items.TwistedPotion;
 import com.aizistral.enigmaticlegacy.items.UnholyGrail;
 import com.aizistral.enigmaticlegacy.items.ForbiddenFruit;
@@ -155,6 +157,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ObjectHolder(value = MODID + ":corrupted_tome", registryName = "item")
 	public static RevelationTome CORRUPTED_TOME;
 
+	@ConfigurableItem("Ring of the Seven Curses")
+	@ObjectHolder(value = MODID + ":cursed_ring", registryName = "item")
+	public static CursedRing CURSED_RING;
+
 	@ConfigurableItem("Mending Mixture")
 	@ObjectHolder(value = MODID + ":mending_mixture", registryName = "item")
 	public static MendingMixture MENDING_MIXTURE;
@@ -270,6 +276,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ConfigurableItem("Extradimensional Eye")
 	@ObjectHolder(value = MODID + ":extradimensional_eye", registryName = "item")
 	public static ExtradimensionalEye EXTRADIMENSIONAL_EYE;
+
+	@ConfigurableItem
+	@ObjectHolder(value = MODID + ":relic_of_testing", registryName = "item")
+	public static RelicOfTesting RELIC_OF_TESTING;
 
 	@ConfigurableItem("Potion of Recall")
 	@ObjectHolder(value = MODID + ":recall_potion", registryName = "item")
@@ -418,6 +428,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("xp_scroll", XPScroll::new);
 		this.register("magnet_ring", MagnetRing::new);
 		this.register("extradimensional_eye", ExtradimensionalEye::new);
+		this.register("relic_of_testing", RelicOfTesting::new);
 		this.register("recall_potion", RecallPotion::new);
 		this.register("twisted_potion", TwistedPotion::new);
 		this.register("unholy_grail", UnholyGrail::new);
@@ -494,6 +505,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("tattered_tome", () -> new RevelationTome(Rarity.UNCOMMON, RevelationTome.TomeType.OVERWORLD));
 		this.register("withered_tome", () -> new RevelationTome(Rarity.UNCOMMON, RevelationTome.TomeType.NETHER));
 		this.register("corrupted_tome", () -> new RevelationTome(Rarity.RARE, RevelationTome.TomeType.END));
+		this.register("cursed_ring", CursedRing::new);
 	}
 
 	/** Port: forces class loading, which registers the items. */

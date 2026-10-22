@@ -98,7 +98,13 @@ public abstract class MixinLivingEntity {
 			index = 2)
 	private int enigmaticlegacy$onExperienceDrop(int experience) {
 		LivingEntity self = (LivingEntity) (Object) this;
-		return MonsterCharm.modifyExperience(self, this.lastHurtByPlayer, experience);
+		return EnigmaticEventHandler.onExperienceDrop(self, this.lastHurtByPlayer, experience);
+	}
+
+	/** Forge's LivingKnockBackEvent fires at the head of knockback and may change the strength. */
+	@ModifyVariable(method = "knockback", at = @At("HEAD"), argsOnly = true, ordinal = 0)
+	private double enigmaticlegacy$cursedKnockback(double strength) {
+		return EnigmaticEventHandler.onLivingKnockback((LivingEntity) (Object) this, strength);
 	}
 
 	/**

@@ -1,5 +1,15 @@
 package com.aizistral.enigmaticlegacy.fabric;
 
+import java.util.List;
+import org.jetbrains.annotations.Nullable;
+import com.aizistral.enigmaticlegacy.api.items.ICursed;
+import com.aizistral.enigmaticlegacy.handlers.SuperpositionHandler;
+import com.aizistral.enigmaticlegacy.items.CursedRing;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+
 import com.aizistral.enigmaticlegacy.client.BlazingCoreClient;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketCosmicRevive;
 import com.aizistral.enigmaticlegacy.config.OmniconfigSync;
@@ -102,5 +112,30 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 		// Port: Fabric tooltip callback instead of ItemTooltipEvent (Architect's Favor lines).
 		ItemTooltipCallback.EVENT.register((stack, context, lines) ->
 				EnigmaticItems.COSMIC_SCROLL.onTooltip(stack, Minecraft.getInstance().player, lines));
+		// Port: upstream EnigmaticEventHandler.onTooltip (cursed item concealment), same callback.
+		ItemTooltipCallback.EVENT.register((stack, context, lines) ->
+				concealCursedTooltip(stack, Minecraft.getInstance().player, lines));
+	}
+
+	private static void concealCursedTooltip(ItemStack stack, @Nullable Player player, List<Component> tooltip) {
+		if (player != null && !player.isCreative()) {
+			if (stack.is(EnigmaticItems.CURSED_RING)) {
+				if (CursedRing.concealAbilities.getValue() && !SuperpositionHandler.isTheCursedOne(player)) {
+					SuperpositionHandler.obscureTooltip(tooltip);
+				}
+			} else if (stack.getItem() instanceof ICursed) {
+				if (!SuperpositionHandler.isTheCursedOne(player)) {
+					tooltip.replaceAll(component -> {
+						if (component.getContents() instanceof TranslatableContents loc) {
+							if (loc.getKey().startsWith("tooltip.enigmaticlegacy.cursedOnesOnly"))
+								return component;
+						}
+
+						return Component.literal(SuperpositionHandler.obscureString(component.getString()))
+								.withStyle(component.getStyle());
+					});
+				}
+			}
+		}
 	}
 }
