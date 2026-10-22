@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy;
 
+import java.util.UUID;
+
 import com.aizistral.enigmaticlegacy.objects.LoggerWrapper;
 
 /**
@@ -9,4 +11,5 @@ import com.aizistral.enigmaticlegacy.objects.LoggerWrapper;
 public class EnigmaticLegacy {
 	public static final String MODID = "enigmaticlegacy";
 	public static final LoggerWrapper LOGGER = new LoggerWrapper("Enigmatic Legacy");
+	public static final UUID SOUL_OF_THE_ARCHITECT = UUID.fromString("bfa45411-874a-4ee0-b3bd-00c716059d95");
 }

@@ -84,7 +84,8 @@ Sections are added here as each Minecraft version / loader is ported.
 - `EnigmaticItems` holds only the ported items (so far: Mending Mixture, Blank Scroll, Iron
   Ring, Etherium Ingot, Etherium Nugget, Etherium Scraps, Ender Rod, Astral Dust, Lore
   Fragment, Heart of the Earth, Twisted Heart, Nefarious Essence, Nefarious Ingot, Unholy
-  Stone, Darkest Scroll, Soul Dust), registered in upstream order.
+  Stone, Darkest Scroll, Tome of Hungering Knowledge, Heart of the Cosmos, Soul Dust),
+  registered in upstream order.
 - Creative tabs: built with `FabricItemGroup`; contents come from `ICreativeTabMember` in
   `displayItems` instead of Forge's `BuildCreativeModeTabContentsEvent`. Temporary: the main
   tab icon is Blank Scroll until the Enigmatic Amulet is ported; the potions tab returns with
@@ -128,6 +129,21 @@ Sections are added here as each Minecraft version / loader is ported.
 - Magnetic Ring and Dislocation Ring: upstream skipped items whose Forge entity
   persistent data held `PreventRemoteMovement` (a cross-mod convention). Fabric entities
   have no such data map, so that check is dropped and those items are pulled too.
-- Not yet ported: the recipe serializers (`EnigmaticRecipes`, e.g.
-  `enigmaticlegacy:mending_mixture_repair`). Until they are, recipes of those types fail
-  to load, so Mending Mixture cannot repair items yet.
+- `EnigmaticRecipes`: 6 of the 8 recipe serializers are ported (mending_mixture_repair,
+  enchantment_transposing, bind_to_player, shapeless_no_return_craft,
+  crafting_shaped_cursed, crafting_shaped_blessed), registered into vanilla's
+  `RECIPE_SERIALIZER` registry. Not yet ported: `void_stone_combine` (needs the Void Stone)
+  and `crafting_shaped_hidden` (needs the Enigmatic Amulet, Ascension Amulet and Cosmic
+  Scroll); recipes of those two types do not load until then.
+- `BlessedShapedRecipe` and `CursedShapedRecipe`: Forge's `getRecipeWidth()` /
+  `getRecipeHeight()` replaced by vanilla's `getWidth()` / `getHeight()` (same values).
+- `shapeless_no_return_craft`: upstream registers `ShapelessNoReturnRecipe.Serializer`,
+  which only inherits vanilla's shapeless serializer, so loaded recipes are plain shapeless
+  recipes. Kept as upstream does (a faithful quirk, not a port change).
+- `DevotedBelieversHandler`: reads its file from the platform game directory
+  (`Services.PLATFORM.getGameDir()`) instead of Forge's `FMLPaths.GAMEDIR`.
+- `EnigmaticLegacy.SOUL_OF_THE_ARCHITECT` and `SuperpositionHandler.isTheBlessedOne`:
+  copied unchanged from upstream (needed by the blessed recipes and the Tome).
+- Dev only, port-only: `DevSelfCheck` also parses every bundled recipe JSON (with load
+  conditions) and reports parse failures; recipes that name not-yet-ported content are
+  reported as pending.

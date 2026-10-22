@@ -7,6 +7,8 @@ import com.aizistral.enigmaticlegacy.api.generic.ConfigurableItem;
 import com.aizistral.enigmaticlegacy.api.generic.ModRegistry;
 import com.aizistral.enigmaticlegacy.api.generic.ObjectHolder;
 import com.aizistral.enigmaticlegacy.items.AstralDust;
+import com.aizistral.enigmaticlegacy.items.CosmicHeart;
+import com.aizistral.enigmaticlegacy.items.EnchantmentTransposer;
 import com.aizistral.enigmaticlegacy.items.CursedStone;
 import com.aizistral.enigmaticlegacy.items.DarkestScroll;
 import com.aizistral.enigmaticlegacy.items.EarthHeart;
@@ -105,6 +107,14 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ObjectHolder(value = MODID + ":super_magnet_ring", registryName = "item")
 	public static SuperMagnetRing SUPER_MAGNET_RING;
 
+	@ConfigurableItem("Tome of Hungering Knowledge")
+	@ObjectHolder(value = MODID + ":enchantment_transposer", registryName = "item")
+	public static EnchantmentTransposer ENCHANTMENT_TRANSPOSER;
+
+	@ConfigurableItem("Heart of the Cosmos")
+	@ObjectHolder(value = MODID + ":cosmic_heart", registryName = "item")
+	public static CosmicHeart COSMIC_HEART;
+
 	@ConfigurableItem("Soul Dust")
 	@ObjectHolder(value = MODID + ":soul_dust", registryName = "item")
 	public static Item SOUL_DUST;
@@ -129,6 +139,8 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("twisted_heart", TwistedHeart::new);
 		this.register("cursed_stone", CursedStone::new);
 		this.register("darkest_scroll", DarkestScroll::new);
+		this.register("enchantment_transposer", EnchantmentTransposer::new);
+		this.register("cosmic_heart", CosmicHeart::new);
 		this.register("soul_dust", SoulDust::new);
 	}
 

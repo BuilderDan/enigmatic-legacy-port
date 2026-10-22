@@ -13,6 +13,7 @@ import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncPlayTime;
 import com.aizistral.enigmaticlegacy.platform.Services;
 import com.aizistral.enigmaticlegacy.platform.network.PacketDirection;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticRecipes;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticTabs;
 import com.aizistral.omniconfig.packets.PacketSyncOptions;
 
@@ -33,6 +34,7 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		FabricPlatformHelper.init();
 		OmniconfigHandler.initialize();
 		EnigmaticItems.init();
+		EnigmaticRecipes.init();
 		EnigmaticTabs.init();
 		TrinketsAccessorySlots.init();
 		EnabledCondition.register();

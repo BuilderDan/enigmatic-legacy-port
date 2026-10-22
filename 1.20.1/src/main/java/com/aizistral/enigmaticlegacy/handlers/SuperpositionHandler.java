@@ -142,6 +142,13 @@ public class SuperpositionHandler {
 		return Services.ACCESSORIES.isEquipped(entity, curio);
 	}
 
+	public static boolean isTheBlessedOne(Player player) {
+		if (EnigmaticLegacy.SOUL_OF_THE_ARCHITECT.equals(player.getUUID()))
+			return true;
+		else
+			return DevotedBelieversHandler.isDevotedBeliever(player);
+	}
+
 	public static boolean isTheCursedOne(Player player) {
 		// Port: always false until CursedRing is ported; then
 		// Services.ACCESSORIES.isEquipped(player, EnigmaticItems.CURSED_RING).

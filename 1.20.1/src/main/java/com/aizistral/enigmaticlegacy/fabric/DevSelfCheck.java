@@ -1,6 +1,13 @@
 package com.aizistral.enigmaticlegacy.fabric;
 
+import java.io.Reader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Stream;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import com.aizistral.enigmaticlegacy.EnigmaticLegacy;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticTabs;
@@ -9,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.resources.model.BakedModel;
@@ -16,10 +25,12 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.crafting.RecipeManager;
 
 /**
  * Port-only, dev runs only. Enabled with {@code -Denigmaticlegacy.devcheck=true} (or
@@ -104,6 +115,57 @@ public final class DevSelfCheck {
 			}
 		}
 
+		problems += checkRecipes();
 		LOGGER.info("[devcheck] Done: {} problem(s)", problems);
+	}
+
+	/**
+	 * Parses every bundled recipe JSON the way the server would (load conditions first),
+	 * so serializer and ingredient errors show up without loading a world.
+	 */
+	private static int checkRecipes() {
+		int problems = 0, parsed = 0, skipped = 0, pending = 0;
+		Path dir = FabricLoader.getInstance().getModContainer(EnigmaticLegacy.MODID).orElseThrow()
+				.findPath("data/" + EnigmaticLegacy.MODID + "/recipes").orElse(null);
+		if (dir == null) {
+			LOGGER.error("[devcheck] recipe folder not found");
+			return 1;
+		}
+		try (Stream<Path> files = Files.walk(dir)) {
+			for (Path file : (Iterable<Path>) files.filter(f -> f.toString().endsWith(".json")).sorted()::iterator) {
+				String name = dir.relativize(file).toString().replace('\\', '/');
+				ResourceLocation id = new ResourceLocation(EnigmaticLegacy.MODID, name.substring(0, name.length() - 5));
+				try (Reader reader = Files.newBufferedReader(file)) {
+					JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
+					if (!ResourceConditions.objectMatchesConditions(json)) {
+						skipped++;
+						continue;
+					}
+					RecipeManager.fromJson(id, json);
+					parsed++;
+					String type = json.get("type").getAsString();
+					if (type.startsWith(EnigmaticLegacy.MODID + ":")) {
+						LOGGER.info("[devcheck] recipe {} ok ({})", id, type);
+					}
+				} catch (Exception ex) {
+					String msg = String.valueOf(ex.getMessage());
+					// Recipes that name our own not-yet-ported items or serializers are expected to
+					// fail until those are ported; anything else is a real problem.
+					if (msg.contains("item '" + EnigmaticLegacy.MODID + ":") || msg.contains("type '" + EnigmaticLegacy.MODID + ":")) {
+						pending++;
+						LOGGER.info("[devcheck] recipe {} pending: {}", id, msg);
+						continue;
+					}
+					problems++;
+					LOGGER.error("[devcheck] recipe {} failed: {}", id, ex.toString());
+				}
+			}
+		} catch (Exception ex) {
+			LOGGER.error("[devcheck] recipe scan failed", ex);
+			return problems + 1;
+		}
+		LOGGER.info("[devcheck] recipes: {} parsed, {} skipped by conditions, {} pending (unported content), {} failed",
+				parsed, skipped, pending, problems);
+		return problems;
 	}
 }
