@@ -164,8 +164,18 @@ Sections are added here as each Minecraft version / loader is ported.
   piece as plain static methods that each loader wires to its own events. So far it has
   the Extradimensional Eye part of the `LivingAttackEvent` handler, called on Fabric from
   `ServerLivingEntityEvents.ALLOW_DAMAGE` (returning false instead of cancelling the event).
-- Extradimensional Eye: not yet added to End city loot. Upstream injects it into End city
-  chests through `LootTableLoadEvent`, which is not ported yet.
+- Loot injection (`EnigmaticEventHandler.onLootTablesLoaded`): the End city part of
+  upstream's `LootTableLoadEvent` handler, called on Fabric from `LootTableEvents.MODIFY`.
+  It adds upstream's "epic" pool (1-2 rolls, same weights and counts) with Potion of Recall,
+  Mending Mixture, Astral Dust and Extradimensional Eye. Differences from upstream:
+  - Lore Inscriber and Etherium Ore are left out of the pool (not ported yet).
+  - The second End city pool (Corrupted Tome) is not ported.
+  - Vanilla 1.20.1 loot pools have no name, so `SuperpositionHandler.constructLootPool`
+    ignores its `poolName` parameter.
+  - The other dungeon pools and the lore fragments are not injected yet.
+- `SuperpositionHandler`: added `constructLootPool` and `createOptionalLootEntry` (both
+  overloads), close to upstream.
+- Dev only, port-only: `DevSelfCheck` also checks that the End city table gets one pool.
 - `PacketPortalParticles` and `PacketRecallParticles`: use `PacketContext`; `@OnlyIn` removed.
 - `SuperpositionHandler`: added `getParticleMultiplier`, copied unchanged from upstream
   (client only; `@OnlyIn` removed).
@@ -178,8 +188,7 @@ Sections are added here as each Minecraft version / loader is ported.
   `ServerPlayer.teleportTo(level, ...)`, which also keeps the position, before the same
   spawn-point teleport. `getWorld` uses the platform server instead of `ServerLifecycleHooks`.
 - Potion of Recall: the brewing recipe (Awkward Potion + Eye of Ender) is not added yet.
-  Upstream uses Forge's `BrewingRecipeRegistry`; 1.20.1 Fabric needs a mixin for it. Also
-  not yet in End city loot (`LootTableLoadEvent` not ported).
+  Upstream uses Forge's `BrewingRecipeRegistry`; 1.20.1 Fabric needs a mixin for it.
 - `javax.annotation.Nullable` (from Forge's classpath) is replaced by
   `org.jetbrains.annotations.Nullable` where ported files used it.
 - Emblem of Monster Slayer (`MonsterCharm`): upstream's Forge event cases are port-only

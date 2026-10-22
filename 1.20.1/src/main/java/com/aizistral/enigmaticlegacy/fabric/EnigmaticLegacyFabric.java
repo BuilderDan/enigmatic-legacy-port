@@ -22,6 +22,7 @@ import com.aizistral.omniconfig.packets.PacketSyncOptions;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 
 /**
@@ -48,6 +49,8 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
 				OmniconfigSync.onPlayerLoggedIn(handler.getPlayer()));
 		ServerLivingEntityEvents.ALLOW_DAMAGE.register(EnigmaticEventHandler::onLivingAttack);
+		LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) ->
+				EnigmaticEventHandler.onLootTablesLoaded(id, tableBuilder::pool));
 	}
 
 	private static void registerPackets() {

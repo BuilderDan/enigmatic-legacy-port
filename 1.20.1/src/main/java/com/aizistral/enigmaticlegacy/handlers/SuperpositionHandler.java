@@ -19,6 +19,7 @@ import com.aizistral.enigmaticlegacy.api.capabilities.IPlaytimeCounter;
 import com.aizistral.enigmaticlegacy.api.generic.ConfigurableItem;
 import com.aizistral.enigmaticlegacy.api.generic.SubscribeConfig;
 import com.aizistral.enigmaticlegacy.config.ConfigHolders;
+import com.aizistral.enigmaticlegacy.config.OmniconfigHandler;
 import com.aizistral.enigmaticlegacy.helpers.AdvancedSpawnLocationHelper;
 import com.aizistral.enigmaticlegacy.objects.Vector3;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
@@ -46,6 +47,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
+import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -154,6 +161,51 @@ public class SuperpositionHandler {
 	public static boolean hasCurio(LivingEntity entity, Item curio) {
 		// Port: Curios lookup replaced by the accessory service (Trinkets on Fabric).
 		return Services.ACCESSORIES.isEquipped(entity, curio);
+	}
+
+	/**
+	 * Builds standart loot pool with any amount of ItemLootEntries.
+	 */
+
+	public static LootPool constructLootPool(String poolName, float minRolls, float maxRolls, @Nullable LootPoolEntryContainer.Builder<?>... entries) {
+		// Port: vanilla LootPool.Builder has no name (Forge adds it), so poolName is unused.
+		LootPool.Builder poolBuilder = LootPool.lootPool();
+		poolBuilder.setRolls(UniformGenerator.between(minRolls, maxRolls));
+
+		for (LootPoolEntryContainer.Builder<?> entry : entries) {
+			if (entry != null) {
+				poolBuilder.add(entry);
+			}
+		}
+
+		return poolBuilder.build();
+	}
+
+	/**
+	 * Creates LootItem builder for an item. If item is disabled in config,
+	 * returns null instead. Count-sensitive version, allows you to specifiy min-max
+	 * amounts of items generated per entry.
+	 */
+
+	@Nullable
+	public static LootPoolSingletonContainer.Builder<?> createOptionalLootEntry(Item item, int weight, float minCount, float maxCount) {
+		if (!OmniconfigHandler.isItemEnabled(item))
+			return null;
+
+		return LootItem.lootTableItem(item).setWeight(weight).apply(SetItemCountFunction.setCount(UniformGenerator.between(minCount, maxCount)));
+	}
+
+	/**
+	 * Creates LootItem builder for an item. If item is disabled in config,
+	 * returns null instead.
+	 */
+
+	@Nullable
+	public static LootPoolSingletonContainer.Builder<?> createOptionalLootEntry(Item item, int weight) {
+		if (!OmniconfigHandler.isItemEnabled(item))
+			return null;
+
+		return LootItem.lootTableItem(item).setWeight(weight);
 	}
 
 	public static boolean isTheBlessedOne(Player player) {

@@ -4,6 +4,7 @@ import java.io.Reader;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -11,6 +12,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import com.aizistral.enigmaticlegacy.EnigmaticLegacy;
+import com.aizistral.enigmaticlegacy.handlers.EnigmaticEventHandler;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticTabs;
 
@@ -35,6 +37,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.level.storage.loot.LootPool;
 
 /**
  * Port-only, dev runs only. Enabled with {@code -Denigmaticlegacy.devcheck=true} (or
@@ -121,6 +125,7 @@ public final class DevSelfCheck {
 
 		problems += checkRecipes();
 		problems += checkPiglinMixin();
+		problems += checkLootPools();
 		problems += checkMixinApplied("net.minecraft.world.entity.LivingEntity", "onHurt", "onExperienceDrop");
 		problems += checkMixinApplied("net.minecraft.world.item.enchantment.EnchantmentHelper", "addAccessoryLooting");
 		LOGGER.info("[devcheck] Done: {} problem(s)", problems);
@@ -143,6 +148,26 @@ public final class DevSelfCheck {
 			LOGGER.error("[devcheck] piglin mixin wrong: golden_ring={}, dirt={}", ring, dirt);
 		} catch (Throwable ex) {
 			LOGGER.error("[devcheck] piglin mixin check failed", ex);
+		}
+		return 1;
+	}
+
+	/**
+	 * Builds the End city pool the way LootTableEvents.MODIFY would, so a broken entry shows
+	 * up without loading a world. It does not check that the pool reaches the chest.
+	 */
+	private static int checkLootPools() {
+		try {
+			List<LootPool> pools = new ArrayList<>();
+			EnigmaticEventHandler.onLootTablesLoaded(BuiltInLootTables.END_CITY_TREASURE, pools::add);
+			EnigmaticEventHandler.onLootTablesLoaded(BuiltInLootTables.SIMPLE_DUNGEON, pools::add);
+			if (pools.size() == 1) {
+				LOGGER.info("[devcheck] loot ok (1 pool for end_city_treasure)");
+				return 0;
+			}
+			LOGGER.error("[devcheck] loot wrong: {} pool(s) built, expected 1", pools.size());
+		} catch (Throwable ex) {
+			LOGGER.error("[devcheck] loot check failed", ex);
 		}
 		return 1;
 	}

@@ -28,7 +28,7 @@ the first rows unblock the most items.
 | EntityTeleportEvent.EnderPearl / EnderEntity | Mixin: `ThrownEnderpearl.onHit` / `EnderMan.teleport` | Eye of Nebula, curses |
 | MobEffectEvent.Applicable | Mixin: `LivingEntity.canBeAffected` RETURN | Blazing Core, Ocean Stone |
 | MobSpawnEvent.FinalizeSpawn | Mixin: `Mob.finalizeSpawn` TAIL | curses (stronger mobs) |
-| LootTableLoadEvent | `LootTableEvents.MODIFY` | Potion of Recall (End city), lore fragments, all loot injection |
+| LootTableLoadEvent | `LootTableEvents.MODIFY` (End city done; verify in a chest) | Potion of Recall (End city), lore fragments, all loot injection |
 | AnvilUpdateEvent | Mixin: `AnvilMenu.createResult` HEAD | Tome of Hungering Knowledge (upstream uses it; verify) |
 | EnchantmentLevelSetEvent | Mixin: `EnchantmentMenu.slotsChanged` | Enchanter's Pearl |
 | ItemCraftedEvent | Mixin: `ResultSlot.checkTakeAchievements` | Unholy Grail/curse checks (verify) |

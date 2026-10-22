@@ -1,5 +1,8 @@
 package com.aizistral.enigmaticlegacy.handlers;
 
+import java.util.function.Consumer;
+
+import com.aizistral.enigmaticlegacy.config.OmniconfigHandler;
 import com.aizistral.enigmaticlegacy.helpers.ItemNBTHelper;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
@@ -7,6 +10,7 @@ import com.aizistral.enigmaticlegacy.platform.Services;
 import com.aizistral.enigmaticlegacy.platform.network.TargetPoint;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
@@ -14,6 +18,12 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
 /**
  * Port: upstream's handler is one big Forge event subscriber. Here it holds only the
@@ -60,6 +70,37 @@ public class EnigmaticEventHandler {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Port: the End city part of upstream's {@code LootTableLoadEvent} handler. Fabric calls it
+	 * from {@code LootTableEvents.MODIFY}; {@code addPool} adds the pool to the table.
+	 * The other dungeon pools are not ported yet.
+	 */
+	public static void onLootTablesLoaded(ResourceLocation id, Consumer<LootPool> addPool) {
+		if (!OmniconfigHandler.customDungeonLootEnabled.getValue())
+			return;
+
+		if (id.equals(BuiltInLootTables.END_CITY_TREASURE)) {
+			// Port: upstream also adds Lore Inscriber (weight 10) and Etherium Ore (weight 60,
+			// 1-2); neither is ported yet, so they are left out.
+			LootPool epic = SuperpositionHandler.constructLootPool("epic", 1F, 2F,
+					LootItem.lootTableItem(Items.ENDER_PEARL).setWeight(40).apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 5))),
+					LootItem.lootTableItem(Items.ENDER_EYE).setWeight(20).apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 2))),
+					LootItem.lootTableItem(Items.GLISTERING_MELON_SLICE).setWeight(30).apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 4))),
+					LootItem.lootTableItem(Items.GOLDEN_CARROT).setWeight(30).apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 4))),
+					LootItem.lootTableItem(Items.PHANTOM_MEMBRANE).setWeight(25).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 7))),
+					LootItem.lootTableItem(Items.ENCHANTING_TABLE).setWeight(10),
+					LootItem.lootTableItem(Items.CAKE).setWeight(15),
+					LootItem.lootTableItem(Items.END_CRYSTAL).setWeight(7),
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.RECALL_POTION, 15),
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.MENDING_MIXTURE, 40),
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.ASTRAL_DUST, 85, 1F, 4F),
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.EXTRADIMENSIONAL_EYE, 20));
+
+			addPool.accept(epic);
+			// Port: upstream's second End pool (Corrupted Tome with a revelation function) is not ported.
+		}
 	}
 
 }
