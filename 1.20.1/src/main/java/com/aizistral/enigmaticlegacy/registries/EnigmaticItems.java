@@ -8,6 +8,7 @@ import com.aizistral.enigmaticlegacy.api.generic.ModRegistry;
 import com.aizistral.enigmaticlegacy.api.generic.ObjectHolder;
 import com.aizistral.enigmaticlegacy.items.AbyssalHeart;
 import com.aizistral.enigmaticlegacy.items.AstralDust;
+import com.aizistral.enigmaticlegacy.items.AstralPotato;
 import com.aizistral.enigmaticlegacy.items.CosmicHeart;
 import com.aizistral.enigmaticlegacy.items.EnchantmentTransposer;
 import com.aizistral.enigmaticlegacy.items.EnderRing;
@@ -18,6 +19,7 @@ import com.aizistral.enigmaticlegacy.items.EvilEssence;
 import com.aizistral.enigmaticlegacy.items.EvilIngot;
 import com.aizistral.enigmaticlegacy.items.ExtradimensionalEye;
 import com.aizistral.enigmaticlegacy.items.GoldenRing;
+import com.aizistral.enigmaticlegacy.items.Infinimeal;
 import com.aizistral.enigmaticlegacy.items.IronRing;
 import com.aizistral.enigmaticlegacy.items.LoreFragment;
 import com.aizistral.enigmaticlegacy.items.MagnetRing;
@@ -150,6 +152,14 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ObjectHolder(value = MODID + ":ender_ring", registryName = "item")
 	public static EnderRing ENDER_RING;
 
+	@ConfigurableItem("Essence of Raging Life")
+	@ObjectHolder(value = MODID + ":infinimeal", registryName = "item")
+	public static Infinimeal INFINIMEAL;
+
+	@ConfigurableItem("Astral Potato")
+	@ObjectHolder(value = MODID + ":astral_potato", registryName = "item")
+	public static AstralPotato ASTRAL_POTATO;
+
 	@ConfigurableItem("Soul Dust")
 	@ObjectHolder(value = MODID + ":soul_dust", registryName = "item")
 	public static Item SOUL_DUST;
@@ -184,6 +194,8 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("abyssal_heart", AbyssalHeart::new);
 		this.register("soul_dust", SoulDust::new);
 		this.register("monster_charm", MonsterCharm::new);
+		this.register("infinimeal", Infinimeal::new);
+		this.register("astral_potato", AstralPotato::new);
 	}
 
 	/** Port: forces class loading, which registers the items. */

@@ -86,7 +86,7 @@ Sections are added here as each Minecraft version / loader is ported.
   Fragment, Heart of the Earth, Twisted Heart, Exquisite Ring, Nefarious Essence, Nefarious
   Ingot, Unholy Stone, Darkest Scroll, Tome of Hungering Knowledge, Heart of the Cosmos,
   Heart of the Abyss, Soul Dust, Emblem of Monster Slayer, Scroll of Ageless Wisdom, Ring of
-  Ender),
+  Ender, Essence of Raging Life, Astral Potato),
   registered in upstream order.
 - Creative tabs: built with `FabricItemGroup`; contents come from `ICreativeTabMember` in
   `displayItems` instead of Forge's `BuildCreativeModeTabContentsEvent`. Temporary: the main
@@ -233,6 +233,12 @@ Sections are added here as each Minecraft version / loader is ported.
   - The key does not accept the Ring of the Seven Curses yet (not ported).
   - The inventory-screen ender chest button (`EnderChestInventoryButton`) is not ported yet;
     its client config options are kept.
+- Essence of Raging Life (`Infinimeal`):
+  - Crop growth uses vanilla `BoneMealItem.growCrop` instead of Forge's `applyBonemeal`, so no
+    Forge `BonemealEvent` fires and dispensers no longer use a fake player.
+  - Vine growth particles call vanilla `BoneMealItem.addGrowthParticles` instead of the
+    client proxy's identical copy.
+- Astral Potato: unchanged (`ItemBaseFood` copied as-is).
 - `IAccessoryItem.getLootingLevel` / `AccessorySlots`: the `target` parameter is now
   `@Nullable`.
 - Dev only, port-only: `DevSelfCheck` also checks that the `LivingEntity` and

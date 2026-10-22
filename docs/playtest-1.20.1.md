@@ -25,6 +25,7 @@ name, model and tooltip. Results go to the log with a `[devcheck]` prefix. With
 | 2026-10-21 | 24 | 24 | 0 | Added Potion of Recall. Recipe pass: 34 parsed, 48 skipped by conditions, 11 pending (unported content), 0 failed. |
 | 2026-10-22 | 26 | 26 | 0 | Added Scroll of Ageless Wisdom; tooltip shows the J keybind. Sound registry loaded. |
 | 2026-10-22 | 27 | 27 | 0 | Added Ring of Ender; I keybind and server packet registered. |
+| 2026-10-22 | 29 | 29 | 0 | Added Essence of Raging Life (infinimeal) and Astral Potato. |
 
 ## Manual checklist
 
@@ -59,6 +60,8 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 | Emblem of Monster Slayer (monster_charm) | - | - | - | - (undead +25%, hostile +10%, +1 looting, double XP from monsters) | - |
 | Scroll of Ageless Wisdom (xp_scroll) | - | - | - | - (use/J toggles mode; absorb, extract, pull orbs in range; write/learn sounds) | - |
 | Ring of Ender (ender_ring) | - | - | - | - (ring slot; I opens ender chest with open/close sounds; does nothing unequipped) | - |
+| Essence of Raging Life (infinimeal) | - | - | - | - (never consumed; grows crops, cactus, sugar cane, vines, nether wart, chorus; works from a dispenser) | - |
+| Astral Potato (astral_potato) | - | - | - | - (eat: food 8, small random teleport with chorus sound) | - |
 
 Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).
