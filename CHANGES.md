@@ -304,3 +304,20 @@ Sections are added here as each Minecraft version / loader is ported.
     `sendToNear` with `TargetPoint` instead of Forge `PacketDistributor.NEAR`.
   - `EnigmaticItem` and `ItemSpellstoneCurio` use the platform `SlotContext` (Trinkets) instead
     of Curios, `BuiltInRegistries` instead of `ForgeRegistries`, and drop `@OnlyIn`.
+- Blazing Core (`BlazingCore`):
+  - The lava immunity timer moves from upstream's `TransientPlayerData` to port-only
+    `objects/FireImmunityData` (server map cleared when the server stops, plus the client
+    copy) and the port-only `PacketSyncFireImmunity`, sent when the timer changes and once
+    for each new server player object (the timer restarts at 0 after respawn or a
+    dimension return instead of carrying over).
+  - Events: lava immunity and the timer run in `onLivingAttack` (`ALLOW_DAMAGE`) and
+    `onPlayerTick`; the faster effect ticking runs in `onPlayerTick` on the server and in
+    `ClientTickEvents.END_CLIENT_TICK` on the client (local player only). Forge's `LivingHurtEvent` for players
+    becomes a `Player.actuallyHurt` HEAD `@ModifyVariable` (`onPlayerHurt`), because Player
+    overrides that method without calling super. Only the Blazing Core's terms of these
+    upstream handlers are ported (other spellstones' hurt branches come with their items).
+  - Client: the heat bar replaces the experience bar through a `Gui.renderExperienceBar` HEAD
+    mixin instead of `RenderGuiOverlayEvent.Pre`; lava fog uses a `FogRenderer.setupFog` TAIL
+    mixin instead of `ViewportEvent.RenderFog` (the Molten Heart effect branch comes later).
+  - Loot: the spellstone pool is added to nether dungeon chests
+    (`SuperpositionHandler.getNetherDungeons`); upstream's nether "epic" pool is not ported yet.

@@ -9,9 +9,13 @@ import com.aizistral.enigmaticlegacy.helpers.ItemNBTHelper;
 import com.aizistral.enigmaticlegacy.items.ForbiddenAxe;
 import com.aizistral.enigmaticlegacy.items.generic.ItemSpellstoneCurio;
 import com.aizistral.enigmaticlegacy.items.MiningCharm;
+import com.aizistral.enigmaticlegacy.items.BlazingCore;
+import com.aizistral.enigmaticlegacy.objects.FireImmunityData;
 import com.aizistral.enigmaticlegacy.objects.Perhaps;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncFireImmunity;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketWitherParticles;
 import com.aizistral.enigmaticlegacy.platform.Services;
 import com.aizistral.enigmaticlegacy.platform.network.TargetPoint;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
@@ -24,6 +28,10 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.monster.Drowned;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -104,9 +112,90 @@ public class EnigmaticEventHandler {
 						return false;
 				}
 			}
+
+			// Port: upstream reads the timer from TransientPlayerData; see FireImmunityData.
+			if (!player.getAbilities().invulnerable && player.getEffect(MobEffects.FIRE_RESISTANCE) == null)
+				if (SuperpositionHandler.hasCurio(player, EnigmaticItems.BLAZING_CORE) && source.is(DamageTypes.LAVA)) {
+					FireImmunityData data = FireImmunityData.get(player);
+					int timer = data.getTimer();
+
+					if (timer < FireImmunityData.TIMER_CAP) {
+						boolean cancel = timer < FireImmunityData.TIMER_CAP - FireImmunityData.FIRE_DIFF;
+
+						if (timer == 0 && !player.level().isClientSide) {
+							player.level().playSound(null, player.blockPosition(), SoundEvents.LAVA_EXTINGUISH, SoundSource.PLAYERS, 1.0F, 0.5F + (player.getRandom().nextFloat() * 0.5F));
+							Services.NETWORK.sendToNear(new TargetPoint(player.getX(), player.getY(), player.getZ(), 32, player.level().dimension()), new PacketWitherParticles(player.getX(), player.getY(0.25D), player.getZ(), 8, false, 1));
+						}
+
+						data.setTimer(timer + 200);
+
+						if (cancel)
+							return false;
+					}
+				}
 		}
 
 		return true;
+	}
+
+	/**
+	 * Port: the player-target part of upstream's {@code LivingHurtEvent} handler. Fabric calls
+	 * it from {@code MixinPlayer} at the head of {@code Player.actuallyHurt}, where Forge fires
+	 * the event. Only the Blazing Core's terms are ported; the Golem Heart, Eye of Nebula and
+	 * Ocean Stone terms follow with those items.
+	 *
+	 * @return the new damage amount.
+	 */
+	public static float onPlayerHurt(Player player, DamageSource source, float amount) {
+		if (player.isInvulnerableTo(source))
+			return amount;
+
+		List<ItemStack> advancedCurios = SuperpositionHandler.getAdvancedCurios(player);
+
+		for (ItemStack advancedCurioStack : advancedCurios) {
+			ItemSpellstoneCurio advancedCurio = (ItemSpellstoneCurio) advancedCurioStack.getItem();
+			Mob trueSource = source.getEntity() instanceof Mob mob ? mob : null;
+
+			if (advancedCurio == EnigmaticItems.BLAZING_CORE && trueSource != null)
+				if (trueSource.getMobType() == MobType.WATER || trueSource instanceof Drowned) {
+					amount *= 2F;
+				}
+
+			for (var type : advancedCurio.resistanceList.keySet()) {
+				if (source.is(type)) {
+					amount *= advancedCurio.resistanceList.get(type).get();
+					break;
+				}
+			}
+		}
+
+		if (!player.level().isClientSide && SuperpositionHandler.hasCurio(player, EnigmaticItems.BLAZING_CORE)) {
+			BlazingCore core = (BlazingCore) EnigmaticItems.BLAZING_CORE;
+
+			if (source.getEntity() instanceof LivingEntity attacker && core.nemesisList.stream().anyMatch(source::is)) {
+				if (!attacker.fireImmune()) {
+					attacker.hurt(attacker.damageSources().source(DamageTypes.ON_FIRE, player), (float) BlazingCore.damageFeedback.getValue());
+					attacker.setSecondsOnFire(BlazingCore.ignitionFeedback.getValue());
+				}
+			}
+		}
+
+		return amount;
+	}
+
+	/**
+	 * Port: the Blazing Core part of upstream's {@code LivingTickEvent} handler: a player wearing
+	 * it ticks its potion effects twice as fast. Called on both sides (server from
+	 * {@link #onPlayerTick}, client from the Fabric client tick).
+	 */
+	public static void tickBlazingCoreEffects(Player player) {
+		if (SuperpositionHandler.hasCurio(player, EnigmaticItems.BLAZING_CORE)) {
+			List<MobEffectInstance> effects = new java.util.ArrayList<>(player.getActiveEffects());
+
+			for (MobEffectInstance effect : effects) {
+				effect.tick(player, () -> {});
+			}
+		}
 	}
 
 	/**
@@ -159,12 +248,22 @@ public class EnigmaticEventHandler {
 		}
 
 		EnigmaticItems.ENIGMATIC_ITEM.handleEnigmaticFlight(player);
+
+		FireImmunityData fireData = FireImmunityData.get(player);
+		fireData.setTimer(fireData.getTimer() - (player.isOnFire() ? 100 : 200));
+
+		if (fireData.pollSync()) {
+			Services.NETWORK.sendToPlayer(player, new PacketSyncFireImmunity(fireData.getTimer(), fireData.getLast()));
+		}
+
+		tickBlazingCoreEffects(player);
 	}
 
 	/** Port-only: drops per-player state kept in static maps when the server stops. */
 	public static void onServerStopped() {
 		EnigmaticItems.ENIGMATIC_ITEM.flightMap.clear();
 		SuperpositionHandler.clearSpellstoneCooldowns();
+		FireImmunityData.clear();
 	}
 
 	/**
@@ -195,6 +294,12 @@ public class EnigmaticEventHandler {
 
 			addPool.accept(epic);
 			// Port: upstream's second End pool (Corrupted Tome with a revelation function) is not ported.
+		} else if (SuperpositionHandler.getNetherDungeons().contains(id)) {
+			// Port: upstream's nether "epic" pool is not ported yet; only the spellstone pool is.
+			LootPool spellstones = SuperpositionHandler.constructLootPool("spellstones", -24F, 1F,
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.BLAZING_CORE, 100));
+
+			addPool.accept(spellstones);
 		}
 	}
 

@@ -12,6 +12,7 @@ import com.aizistral.enigmaticlegacy.fabric.platform.TrinketsAccessorySlots;
 import com.aizistral.enigmaticlegacy.objects.EnabledCondition;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncFireImmunity;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncPlayTime;
 import com.aizistral.enigmaticlegacy.packets.server.PacketEnderRingKey;
 import com.aizistral.enigmaticlegacy.packets.server.PacketXPScrollKey;
@@ -56,6 +57,7 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		EnigmaticEntities.init();
 		// Port: upstream adds this in onLoadComplete.
 		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.ENIGMATIC_ITEM);
+		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.BLAZING_CORE);
 		EnigmaticRecipes.init();
 		EnigmaticRecipes.registerBrewingRecipes();
 		EnigmaticTabs.init();
@@ -83,6 +85,8 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		var network = Services.NETWORK;
 		network.register(PacketSyncPlayTime.class, PacketDirection.TO_CLIENT, PacketSyncPlayTime::encode,
 				PacketSyncPlayTime::decode, PacketSyncPlayTime::handle);
+		network.register(PacketSyncFireImmunity.class, PacketDirection.TO_CLIENT, PacketSyncFireImmunity::encode,
+				PacketSyncFireImmunity::decode, PacketSyncFireImmunity::handle);
 		network.register(PacketSyncOptions.class, PacketDirection.TO_CLIENT, PacketSyncOptions::encode,
 				PacketSyncOptions::decode, PacketSyncOptions::handle);
 		network.register(PacketPortalParticles.class, PacketDirection.TO_CLIENT, PacketPortalParticles::encode,

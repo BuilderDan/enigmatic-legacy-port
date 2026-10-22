@@ -19,6 +19,8 @@
 		"MixinServerPlayerGameMode"
 	],
 	"client": [
+		"MixinFogRenderer",
+		"MixinGui",
 		"MixinMultiPlayerGameMode"
 	],
 	"injectors": {

@@ -39,6 +39,7 @@ import com.google.common.collect.Multimap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.ParticleStatus;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -52,6 +53,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
@@ -225,6 +227,19 @@ public class SuperpositionHandler {
 			return null;
 
 		return LootItem.lootTableItem(item).setWeight(weight);
+	}
+
+	public static List<ResourceLocation> getNetherDungeons() {
+		List<ResourceLocation> netherList = new ArrayList<ResourceLocation>();
+
+		netherList.add(BuiltInLootTables.NETHER_BRIDGE);
+		netherList.add(BuiltInLootTables.BASTION_TREASURE);
+		netherList.add(BuiltInLootTables.BASTION_OTHER);
+		netherList.add(BuiltInLootTables.BASTION_BRIDGE);
+		netherList.add(BuiltInLootTables.BASTION_HOGLIN_STABLE);
+		netherList.add(BuiltInLootTables.RUINED_PORTAL);
+
+		return netherList;
 	}
 
 	public static boolean isTheBlessedOne(Player player) {

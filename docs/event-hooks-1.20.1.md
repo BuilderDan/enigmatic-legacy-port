@@ -10,14 +10,14 @@ the first rows unblock the most items.
 
 | Forge event | Fabric route | Blocks |
 |---|---|---|
-| LivingHurtEvent (4x, changes amount) | Mixin: `LivingEntity.actuallyHurt` `@ModifyVariable` on `amount` at HEAD (Forge fires it there, before armor) (done for Monster Charm; verify in game) | Monster Charm, Berserk Emblem, Angel's Blessing, Golem Heart, most curses |
+| LivingHurtEvent (4x, changes amount) | Mixin: `LivingEntity.actuallyHurt` `@ModifyVariable` on `amount` at HEAD (Forge fires it there, before armor) (done for Monster Charm; players use `Player.actuallyHurt` instead, done for Blazing Core; verify in game) | Monster Charm, Berserk Emblem, Angel's Blessing, Golem Heart, most curses |
 | LivingDeathEvent (4x) | `ServerLivingEntityEvents.ALLOW_DEATH` (cancel; done for Heart of Creation) + `AFTER_DEATH` | Escape Scroll, Ring of the Seven Curses, Soul Crystal |
 | LivingDropsEvent (2x) | Mixin: `LivingEntity.dropAllDeathLoot` HEAD/RETURN with `Entity.spawnAtLocation` RETURN recording the drops (done for Axe of Executioner; verify in game). Observe-only: drops still spawn, so handlers can add drops but not remove or cancel them; Escape Scroll/Soul Crystal will need a cancelable variant | Escape Scroll (postmortal possessions), Soul Crystal, Avarice Scroll |
 | PlayerEvent.Clone / PlayerRespawnEvent | `ServerPlayerEvents.COPY_FROM` / `AFTER_RESPAWN` | Escape Scroll, Soul Crystal, keep-inventory items |
 | LivingExperienceDropEvent | Mixin: `LivingEntity.dropExperience`, `@ModifyArg` on `ExperienceOrb.award` amount (done; verify) | Monster Charm (double XP), Avarice Scroll |
 | LootingLevelEvent | Mixin: `EnchantmentHelper.getMobLooting` RETURN; add `getLootingLevel` to the accessory API (done; verify) | Monster Charm, Avarice Scroll |
 | LivingDamageEvent | Mixin: `LivingEntity.actuallyHurt` after armor/absorption (`@ModifyVariable` at `setHealth`) | Cursed Ring (verify which items) |
-| LivingAttackEvent | `ServerLivingEntityEvents.ALLOW_DAMAGE` (already used; spellstone immunities done) | Angel's Blessing, Ocean Stone, Blazing Core |
+| LivingAttackEvent | `ServerLivingEntityEvents.ALLOW_DAMAGE` (already used; spellstone immunities done) | Angel's Blessing, Ocean Stone (Blazing Core done) |
 | LivingTickEvent | Mixin: `LivingEntity.tick` TAIL (players: `ServerTickEvents` loop is cheaper) | Ocean Stone, Eye of Nebula, Heaven Scroll |
 | LivingHealEvent | Mixin: `LivingEntity.heal` `@ModifyVariable` on amount | Cursed Ring, Forbidden Fruit |
 | LivingKnockBackEvent | Mixin: `LivingEntity.knockback` HEAD | Golem Heart |
@@ -26,13 +26,13 @@ the first rows unblock the most items.
 | AttackEntityEvent | `AttackEntityCallback` | Forbidden Axe, Berserk Emblem |
 | ProjectileImpactEvent | Mixin: `Projectile.onHit` HEAD | Angel's Blessing (deflect) |
 | EntityTeleportEvent.EnderPearl / EnderEntity | Mixin: `ThrownEnderpearl.onHit` / `EnderMan.teleport` | Eye of Nebula, curses |
-| MobEffectEvent.Applicable | Mixin: `LivingEntity.canBeAffected` HEAD, cancellable (done for Heart of Creation) | Blazing Core, Ocean Stone |
+| MobEffectEvent.Applicable | Mixin: `LivingEntity.canBeAffected` HEAD, cancellable (done for Heart of Creation) | Ocean Stone |
 | MobSpawnEvent.FinalizeSpawn | Mixin: `Mob.finalizeSpawn` TAIL | curses (stronger mobs) |
 | LootTableLoadEvent | `LootTableEvents.MODIFY` (End city done; verify in a chest) | Potion of Recall (End city), lore fragments, all loot injection |
 | AnvilUpdateEvent | Mixin: `AnvilMenu.createResult` HEAD | Tome of Hungering Knowledge (upstream uses it; verify) |
 | EnchantmentLevelSetEvent | Mixin: `EnchantmentMenu.slotsChanged` | Enchanter's Pearl |
 | ItemCraftedEvent | Mixin: `ResultSlot.checkTakeAchievements` | Unholy Grail/curse checks (verify) |
-| FurnaceFuelBurnTimeEvent | `FuelRegistry.INSTANCE.add` | Blazing Core? (verify) |
+| FurnaceFuelBurnTimeEvent | `FuelRegistry.INSTANCE.add` | none found yet (Blazing Core does not use it) |
 | AdvancementEvent | Mixin: `PlayerAdvancements.award` RETURN | The Acknowledgment |
 | RegisterCommandsEvent | `CommandRegistrationCallback` | commands |
 | ServerStartedEvent | `ServerLifecycleEvents.SERVER_STARTED` | world data |
@@ -43,6 +43,8 @@ the first rows unblock the most items.
 | Client: TickEvent.ClientTickEvent | `ClientTickEvents.END_CLIENT_TICK` | keybinds |
 | Client: ScreenEvent.Init | `ScreenEvents.AFTER_INIT` | magnet toggle button (TransientPlayerData task) |
 | Client: RenderTooltipEvent.Color | Mixin: `GuiGraphics.renderTooltipInternal` (verify) | colored tooltip borders |
+| Client: RenderGuiOverlayEvent.Pre (experience bar) | Mixin: `Gui.renderExperienceBar` HEAD, cancellable (done for Blazing Core) | Blazing Core heat bar |
+| Client: ViewportEvent.RenderFog | Mixin: `FogRenderer.setupFog` TAIL (done for Blazing Core) | Blazing Core, Molten Heart effect |
 | Client: RenderGuiOverlayEvent.Pre | `HudRenderCallback` (cannot cancel vanilla; mixin if needed) | curse HUD |
 | Client: RenderNameTagEvent, RenderCapeEvent | Mixins in `EntityRenderer` / `CapeLayer` | cosmetic, low priority |
 | Mod-specific: SummonedEntityEvent, EnterBlockEvent, DropRulesEvent, EndPortalActivatedEvent, LivingGetProjectileEvent | Upstream's own events; port with their item | per item |

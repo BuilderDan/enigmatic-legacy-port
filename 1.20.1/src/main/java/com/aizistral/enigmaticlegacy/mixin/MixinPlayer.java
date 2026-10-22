@@ -3,18 +3,22 @@ package com.aizistral.enigmaticlegacy.mixin;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.aizistral.enigmaticlegacy.handlers.EnigmaticEventHandler;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticAttributes;
 
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Port-only. Gives players the port's block reach attribute, and stands in for Forge's
- * {@code PlayerEvent.BreakSpeed}, which Forge fires at the end of getDestroySpeed.
+ * {@code PlayerEvent.BreakSpeed}, which Forge fires at the end of getDestroySpeed, and for the
+ * player part of {@code LivingHurtEvent}, which Forge fires at the head of actuallyHurt (Player
+ * overrides it without calling super, so MixinLivingEntity's hook does not reach players).
  */
 @Mixin(Player.class)
 public abstract class MixinPlayer {
@@ -26,5 +30,10 @@ public abstract class MixinPlayer {
 	@Inject(method = "getDestroySpeed", at = @At("RETURN"), cancellable = true)
 	private void enigmaticlegacy$onBreakSpeed(BlockState state, CallbackInfoReturnable<Float> info) {
 		info.setReturnValue(EnigmaticEventHandler.onBreakSpeed((Player) (Object) this, info.getReturnValueF()));
+	}
+
+	@ModifyVariable(method = "actuallyHurt", at = @At("HEAD"), argsOnly = true)
+	private float enigmaticlegacy$onHurt(float amount, DamageSource source) {
+		return EnigmaticEventHandler.onPlayerHurt((Player) (Object) this, source, amount);
 	}
 }

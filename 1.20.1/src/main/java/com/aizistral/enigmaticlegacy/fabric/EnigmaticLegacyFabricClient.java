@@ -1,5 +1,6 @@
 package com.aizistral.enigmaticlegacy.fabric;
 
+import com.aizistral.enigmaticlegacy.client.BlazingCoreClient;
 import com.aizistral.enigmaticlegacy.config.OmniconfigSync;
 import com.aizistral.enigmaticlegacy.fabric.platform.client.FabricClientNetwork;
 import com.aizistral.enigmaticlegacy.client.renderers.UltimateWitherSkullRenderer;
@@ -25,7 +26,11 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		EnigmaticLegacyFabric.LOGGER.info("Enigmatic Legacy (Fabric port) client initializing");
 		FabricClientNetwork.registerReceivers();
-		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> OmniconfigSync.onClientLoggedOut());
+		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
+			OmniconfigSync.onClientLoggedOut();
+			BlazingCoreClient.onDisconnect();
+		});
+		ClientTickEvents.END_CLIENT_TICK.register(BlazingCoreClient::onClientTick);
 		registerKeybinds();
 		DevSelfCheck.register();
 	}
