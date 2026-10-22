@@ -83,9 +83,9 @@ Sections are added here as each Minecraft version / loader is ported.
   blocks are ported.
 - `EnigmaticItems` holds only the ported items (so far: Mending Mixture, Blank Scroll, Iron
   Ring, Etherium Ingot, Etherium Nugget, Etherium Scraps, Ender Rod, Astral Dust, Lore
-  Fragment, Heart of the Earth, Twisted Heart, Nefarious Essence, Nefarious Ingot, Unholy
-  Stone, Darkest Scroll, Tome of Hungering Knowledge, Heart of the Cosmos, Soul Dust),
-  registered in upstream order.
+  Fragment, Heart of the Earth, Twisted Heart, Exquisite Ring, Nefarious Essence, Nefarious
+  Ingot, Unholy Stone, Darkest Scroll, Tome of Hungering Knowledge, Heart of the Cosmos,
+  Heart of the Abyss, Soul Dust), registered in upstream order.
 - Creative tabs: built with `FabricItemGroup`; contents come from `ICreativeTabMember` in
   `displayItems` instead of Forge's `BuildCreativeModeTabContentsEvent`. Temporary: the main
   tab icon is Blank Scroll until the Enigmatic Amulet is ported; the potions tab returns with
@@ -147,3 +147,16 @@ Sections are added here as each Minecraft version / loader is ported.
 - Dev only, port-only: `DevSelfCheck` also parses every bundled recipe JSON (with load
   conditions) and reports parse failures; recipes that name not-yet-ported content are
   reported as pending.
+- Exquisite Ring (`GoldenRing`): Forge's piglin hooks do not exist on Fabric. The new
+  port-only `mixin/MixinPiglinAi` makes piglins neutral when an equipped accessory's
+  `IAccessoryItem.makesPiglinsNeutral` returns true (`PiglinAi.isWearingGold`), and lets
+  piglins accept the ring as barter currency (`PiglinAi.isBarterCurrency`).
+  `isPiglinCurrency` is now a plain method instead of a Forge override. Upstream's armor-slot
+  overload `makesPiglinsNeutral(ItemStack, LivingEntity)` is dropped, since the ring is never
+  worn as armor.
+- `api/items/IEldritch`: copied unchanged from upstream.
+- Heart of the Abyss (`AbyssalHeart`): the shift tooltip (the worthy-ones indicator) is
+  empty until the Cursed Ring is ported. The Ender Dragon does not drop it yet: upstream's
+  `MixinEnderDragon` is not ported.
+- Dev only, port-only: `DevSelfCheck` also checks that `MixinPiglinAi` applied (piglins
+  take the Exquisite Ring as barter currency).

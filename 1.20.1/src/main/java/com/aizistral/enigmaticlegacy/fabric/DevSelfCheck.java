@@ -1,6 +1,7 @@
 package com.aizistral.enigmaticlegacy.fabric;
 
 import java.io.Reader;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -10,6 +11,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import com.aizistral.enigmaticlegacy.EnigmaticLegacy;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticTabs;
 
 import org.slf4j.Logger;
@@ -27,8 +29,10 @@ import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.crafting.RecipeManager;
 
@@ -116,7 +120,29 @@ public final class DevSelfCheck {
 		}
 
 		problems += checkRecipes();
+		problems += checkPiglinMixin();
 		LOGGER.info("[devcheck] Done: {} problem(s)", problems);
+	}
+
+	/**
+	 * Loads PiglinAi (which applies MixinPiglinAi) and checks that piglins take the Exquisite
+	 * Ring as barter currency. Reflection by Mojang name works only in dev runs, as here.
+	 */
+	private static int checkPiglinMixin() {
+		try {
+			Method method = PiglinAi.class.getDeclaredMethod("isBarterCurrency", ItemStack.class);
+			method.setAccessible(true);
+			boolean ring = (boolean) method.invoke(null, new ItemStack(EnigmaticItems.GOLDEN_RING));
+			boolean dirt = (boolean) method.invoke(null, new ItemStack(Items.DIRT));
+			if (ring && !dirt) {
+				LOGGER.info("[devcheck] piglin mixin ok (golden_ring is barter currency)");
+				return 0;
+			}
+			LOGGER.error("[devcheck] piglin mixin wrong: golden_ring={}, dirt={}", ring, dirt);
+		} catch (Throwable ex) {
+			LOGGER.error("[devcheck] piglin mixin check failed", ex);
+		}
+		return 1;
 	}
 
 	/**

@@ -20,6 +20,7 @@ name, model and tooltip. Results go to the log with a `[devcheck]` prefix. With
 | 2026-10-21 | 16 | 16 | 0 | Added Mending Mixture, Iron Ring and the 4 Etherium materials. Binding-curse mixin applied cleanly. |
 | 2026-10-21 | 18 | 18 | 0 | Added Magnetic Ring and Dislocation Ring. Config keys `MagnetRingRange`=8, `SuperMagnetRingRange`=16 written. |
 | 2026-10-21 | 20 | 20 | 0 | Added Tome of Hungering Knowledge, Heart of the Cosmos and 6 recipe serializers. Recipe pass: 32 parsed, 50 skipped by conditions, 11 pending (unported content), 0 failed. |
+| 2026-10-21 | 22 | 22 | 0 | Added Exquisite Ring (piglin mixin check ok) and Heart of the Abyss. Recipe pass: 33 parsed, 49 skipped by conditions, 11 pending (unported content), 0 failed. |
 
 ## Manual checklist
 
@@ -40,12 +41,14 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 | Lore Fragment | - | - | - | - | - |
 | Heart of the Earth | - | - | - | - | - |
 | Twisted Heart | - | - | - | - | - |
+| Exquisite Ring (golden_ring; ring slot, +1 luck, piglins neutral, barter currency) | - | - | - | - | - |
 | Nefarious Essence | - | - | - | - | - |
 | Nefarious Ingot | - | - | - | - | - |
 | Unholy Stone | - | - | - | - | - |
 | Darkest Scroll | - | - | - | - | - |
 | Tome of Hungering Knowledge | - | - | - | - (enchantment transposing) | - |
 | Heart of the Cosmos | - | - | - | - | - |
+| Heart of the Abyss (abyssal_heart) | - | - | - | - | - |
 | Soul Dust | - | - | - | - | - |
 
 Cursed-only tooltip lines stay inactive until the Cursed Ring is ported

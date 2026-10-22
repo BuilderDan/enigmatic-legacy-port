@@ -6,6 +6,7 @@ import java.util.List;
 import com.aizistral.enigmaticlegacy.api.generic.ConfigurableItem;
 import com.aizistral.enigmaticlegacy.api.generic.ModRegistry;
 import com.aizistral.enigmaticlegacy.api.generic.ObjectHolder;
+import com.aizistral.enigmaticlegacy.items.AbyssalHeart;
 import com.aizistral.enigmaticlegacy.items.AstralDust;
 import com.aizistral.enigmaticlegacy.items.CosmicHeart;
 import com.aizistral.enigmaticlegacy.items.EnchantmentTransposer;
@@ -14,6 +15,7 @@ import com.aizistral.enigmaticlegacy.items.DarkestScroll;
 import com.aizistral.enigmaticlegacy.items.EarthHeart;
 import com.aizistral.enigmaticlegacy.items.EvilEssence;
 import com.aizistral.enigmaticlegacy.items.EvilIngot;
+import com.aizistral.enigmaticlegacy.items.GoldenRing;
 import com.aizistral.enigmaticlegacy.items.IronRing;
 import com.aizistral.enigmaticlegacy.items.LoreFragment;
 import com.aizistral.enigmaticlegacy.items.MagnetRing;
@@ -83,6 +85,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ObjectHolder(value = MODID + ":twisted_heart", registryName = "item")
 	public static TwistedHeart TWISTED_HEART;
 
+	@ConfigurableItem("Exquisite Ring")
+	@ObjectHolder(value = MODID + ":golden_ring", registryName = "item")
+	public static GoldenRing GOLDEN_RING;
+
 	@ConfigurableItem("Nefarious Essence")
 	@ObjectHolder(value = MODID + ":evil_essence", registryName = "item")
 	public static EvilEssence EVIL_ESSENCE;
@@ -115,6 +121,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ObjectHolder(value = MODID + ":cosmic_heart", registryName = "item")
 	public static CosmicHeart COSMIC_HEART;
 
+	@ConfigurableItem("Heart of the Abyss")
+	@ObjectHolder(value = MODID + ":abyssal_heart", registryName = "item")
+	public static AbyssalHeart ABYSSAL_HEART;
+
 	@ConfigurableItem("Soul Dust")
 	@ObjectHolder(value = MODID + ":soul_dust", registryName = "item")
 	public static Item SOUL_DUST;
@@ -137,10 +147,12 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("evil_ingot", EvilIngot::new);
 		this.register("earth_heart", EarthHeart::new);
 		this.register("twisted_heart", TwistedHeart::new);
+		this.register("golden_ring", GoldenRing::new);
 		this.register("cursed_stone", CursedStone::new);
 		this.register("darkest_scroll", DarkestScroll::new);
 		this.register("enchantment_transposer", EnchantmentTransposer::new);
 		this.register("cosmic_heart", CosmicHeart::new);
+		this.register("abyssal_heart", AbyssalHeart::new);
 		this.register("soul_dust", SoulDust::new);
 	}
 
