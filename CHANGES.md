@@ -458,3 +458,11 @@ Sections are added here as each Minecraft version / loader is ported.
     Forbidden Fruit in bastions, and others) and the Bastion Treasure "darkest_scroll" pool are
     ported. Upstream's "netherLiterature" pool (Withered Tome) is not ported yet.
   - `SuperpositionHandler`: `itemEntryBuilderED` and `getBastionChests` added, same as upstream.
+- The Architect's Inkwell (Lore Inscriber):
+  - New port registry `EnigmaticMenus` registers `lore_inscriber_container` as a vanilla
+    `MenuType` (upstream uses Forge's `IForgeMenuType.create`; the menu sends no extra data).
+  - `LoreInscriberScreen` is registered with `MenuScreens.register` in the Fabric client
+    initializer. It sends the text field through `Services.NETWORK` instead of upstream's
+    `EnigmaticLegacy.packetInstance`; `@OnlyIn` removed.
+  - `PacketInkwellField` uses the port's packet context; registered in `EnigmaticLegacyFabric`.
+  - `LoreInscriber`, `LoreInscriberContainer`: javax `@Nullable` -> jetbrains; logic unchanged.

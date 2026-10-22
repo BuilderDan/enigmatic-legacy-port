@@ -94,6 +94,7 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 | Astral Breaker (astral_breaker) | - | - | - | - (mines 3x3 on pickaxe, axe and shovel blocks; sneak mines one block; flame particles on other players' clients; fireproof item) | - |
 | Keystone of the Oblivion (void_stone) | - | - | - | - (use toggles voiding; picked-up items on its list are voided; Ctrl tooltip shows the list; combine recipe adds an item to the list; in Nether fortress/bastion chests, weight 8) | - |
 | Curse Transposer (curse_transposer) | - | - | - | - (craft with an item and a book: moves only curses to the book; enchant-table sound on crafting; Cursed Stone crafting plays the beacon sound) | - |
+| The Architect's Inkwell (lore_inscriber) | - | - | - | - (use opens the inkwell GUI; a Lore Fragment in the left slot gets the typed name or lore commands; taking the result plays the write sound) | - |
 
 Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).

@@ -25,6 +25,7 @@ import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayerSetlook;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketCosmicRevive;
 import com.aizistral.enigmaticlegacy.packets.server.PacketEnderRingKey;
 import com.aizistral.enigmaticlegacy.packets.server.PacketXPScrollKey;
+import com.aizistral.enigmaticlegacy.packets.server.PacketInkwellField;
 import com.aizistral.enigmaticlegacy.platform.Services;
 import com.aizistral.enigmaticlegacy.platform.network.PacketDirection;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticAttributes;
@@ -48,6 +49,7 @@ import net.minecraft.server.level.ServerPlayer;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketWitherParticles;
 import com.aizistral.enigmaticlegacy.packets.server.PacketSpellstoneKey;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticEntities;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticMenus;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -71,6 +73,7 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		EnigmaticAttributes.init();
 		EnigmaticItems.init();
 		EnigmaticEntities.init();
+		EnigmaticMenus.init();
 		// Port: upstream adds this in onLoadComplete.
 		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.ANGEL_BLESSING);
 		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.GOLEM_HEART);
@@ -136,6 +139,8 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 				PacketEnderRingKey::decode, PacketEnderRingKey::handle);
 		network.register(PacketXPScrollKey.class, PacketDirection.TO_SERVER, PacketXPScrollKey::encode,
 				PacketXPScrollKey::decode, PacketXPScrollKey::handle);
+		network.register(PacketInkwellField.class, PacketDirection.TO_SERVER, PacketInkwellField::encode,
+				PacketInkwellField::decode, PacketInkwellField::handle);
 		network.register(PacketWitherParticles.class, PacketDirection.TO_CLIENT, PacketWitherParticles::encode,
 				PacketWitherParticles::decode, PacketWitherParticles::handle);
 		network.register(PacketSpellstoneKey.class, PacketDirection.TO_SERVER, PacketSpellstoneKey::encode,

@@ -27,6 +27,7 @@ import com.aizistral.enigmaticlegacy.items.GoldenRing;
 import com.aizistral.enigmaticlegacy.items.Infinimeal;
 import com.aizistral.enigmaticlegacy.items.IronRing;
 import com.aizistral.enigmaticlegacy.items.LoreFragment;
+import com.aizistral.enigmaticlegacy.items.LoreInscriber;
 import com.aizistral.enigmaticlegacy.items.MagnetRing;
 import com.aizistral.enigmaticlegacy.items.MendingMixture;
 import com.aizistral.enigmaticlegacy.items.MiningCharm;
@@ -121,6 +122,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ConfigurableItem("Tome of Devoured Malignancy")
 	@ObjectHolder(value = MODID + ":curse_transposer", registryName = "item")
 	public static CurseTransposer CURSE_TRANSPOSER;
+
+	@ConfigurableItem("The Architect's Inkwell")
+	@ObjectHolder(value = MODID + ":lore_inscriber", registryName = "item")
+	public static LoreInscriber LORE_INSCRIBER;
 
 	@ConfigurableItem("Mending Mixture")
 	@ObjectHolder(value = MODID + ":mending_mixture", registryName = "item")
@@ -454,6 +459,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("astral_breaker", AstralBreaker::new);
 		this.register("void_stone", OblivionStone::new);
 		this.register("curse_transposer", CurseTransposer::new);
+		this.register("lore_inscriber", LoreInscriber::new);
 	}
 
 	/** Port: forces class loading, which registers the items. */
