@@ -16,17 +16,22 @@ import com.aizistral.enigmaticlegacy.packets.clients.PacketHandleItemPickup;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncFireImmunity;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncForbiddenFruit;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncPlayTime;
 import com.aizistral.enigmaticlegacy.packets.server.PacketEnderRingKey;
 import com.aizistral.enigmaticlegacy.packets.server.PacketXPScrollKey;
 import com.aizistral.enigmaticlegacy.platform.Services;
 import com.aizistral.enigmaticlegacy.platform.network.PacketDirection;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticAttributes;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticEffects;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticPotions;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticRecipes;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticSounds;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticTabs;
 import com.aizistral.enigmaticlegacy.triggers.BeheadingTrigger;
+import com.aizistral.enigmaticlegacy.triggers.ForbiddenFruitTrigger;
+import com.aizistral.enigmaticlegacy.triggers.UseUnholyGrailTrigger;
 import com.aizistral.omniconfig.packets.PacketSyncOptions;
 
 import net.fabricmc.api.ModInitializer;
@@ -55,6 +60,8 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		LOGGER.info("Enigmatic Legacy (Fabric port) initializing");
 		FabricPlatformHelper.init();
 		OmniconfigHandler.initialize();
+		EnigmaticEffects.init();
+		EnigmaticPotions.init();
 		EnigmaticSounds.init();
 		EnigmaticAttributes.init();
 		EnigmaticItems.init();
@@ -70,6 +77,8 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		PlayerPlaytimeCounter.registerStats();
 		registerPackets();
 		CriteriaTriggers.register(BeheadingTrigger.INSTANCE);
+		CriteriaTriggers.register(UseUnholyGrailTrigger.INSTANCE);
+		CriteriaTriggers.register(ForbiddenFruitTrigger.INSTANCE);
 
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			OmniconfigSync.onPlayerLoggedIn(handler.getPlayer());
@@ -97,6 +106,8 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 				PacketSyncPlayTime::decode, PacketSyncPlayTime::handle);
 		network.register(PacketSyncFireImmunity.class, PacketDirection.TO_CLIENT, PacketSyncFireImmunity::encode,
 				PacketSyncFireImmunity::decode, PacketSyncFireImmunity::handle);
+		network.register(PacketSyncForbiddenFruit.class, PacketDirection.TO_CLIENT, PacketSyncForbiddenFruit::encode,
+				PacketSyncForbiddenFruit::decode, PacketSyncForbiddenFruit::handle);
 		network.register(PacketSyncOptions.class, PacketDirection.TO_CLIENT, PacketSyncOptions::encode,
 				PacketSyncOptions::decode, PacketSyncOptions::handle);
 		network.register(PacketPortalParticles.class, PacketDirection.TO_CLIENT, PacketPortalParticles::encode,

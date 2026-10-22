@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.aizistral.enigmaticlegacy.api.generic.ConfigurableItem;
+import com.aizistral.enigmaticlegacy.api.items.IAdvancedPotionItem.PotionType;
 import com.aizistral.enigmaticlegacy.api.generic.ModRegistry;
 import com.aizistral.enigmaticlegacy.api.generic.ObjectHolder;
 import com.aizistral.enigmaticlegacy.items.AbyssalHeart;
@@ -32,6 +33,15 @@ import com.aizistral.enigmaticlegacy.items.MiningCharm;
 import com.aizistral.enigmaticlegacy.items.MonsterCharm;
 import com.aizistral.enigmaticlegacy.items.ForbiddenAxe;
 import com.aizistral.enigmaticlegacy.items.RecallPotion;
+import com.aizistral.enigmaticlegacy.items.TwistedPotion;
+import com.aizistral.enigmaticlegacy.items.UnholyGrail;
+import com.aizistral.enigmaticlegacy.items.ForbiddenFruit;
+import com.aizistral.enigmaticlegacy.items.RedemptionPotion;
+import com.aizistral.enigmaticlegacy.items.AstralFruit;
+import com.aizistral.enigmaticlegacy.items.IchorBottle;
+import com.aizistral.enigmaticlegacy.items.UltimatePotionBase;
+import com.aizistral.enigmaticlegacy.items.UltimatePotionLingering;
+import com.aizistral.enigmaticlegacy.items.UltimatePotionSplash;
 import com.aizistral.enigmaticlegacy.items.SuperMagnetRing;
 import com.aizistral.enigmaticlegacy.items.SoulDust;
 import com.aizistral.enigmaticlegacy.items.ThiccScroll;
@@ -43,6 +53,7 @@ import com.aizistral.etherium.items.EtheriumNugget;
 import com.aizistral.etherium.items.EtheriumScraps;
 
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.Item;
 
 /**
@@ -148,6 +159,54 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ObjectHolder(value = MODID + ":recall_potion", registryName = "item")
 	public static RecallPotion RECALL_POTION;
 
+	@ConfigurableItem("Potion of Twisted Mercy")
+	@ObjectHolder(value = MODID + ":twisted_potion", registryName = "item")
+	public static TwistedPotion TWISTED_POTION;
+
+	@ConfigurableItem("Unholy Grail")
+	@ObjectHolder(value = MODID + ":unholy_grail", registryName = "item")
+	public static UnholyGrail UNHOLY_GRAIL;
+
+	@ConfigurableItem("Forbidden Fruit")
+	@ObjectHolder(value = MODID + ":forbidden_fruit", registryName = "item")
+	public static ForbiddenFruit FORBIDDEN_FRUIT;
+
+	@ConfigurableItem
+	@ObjectHolder(value = MODID + ":redemption_potion", registryName = "item")
+	public static RedemptionPotion REDEMPTION_POTION;
+
+	@ConfigurableItem("Celestial Fruit")
+	@ObjectHolder(value = MODID + ":astral_fruit", registryName = "item")
+	public static AstralFruit ASTRAL_FRUIT;
+
+	@ConfigurableItem("Bottle of Ichor")
+	@ObjectHolder(value = MODID + ":ichor_bottle", registryName = "item")
+	public static IchorBottle ICHOR_BOTTLE;
+
+	@ConfigurableItem("Ultimate Potions")
+	@ObjectHolder(value = MODID + ":ultimate_potion", registryName = "item")
+	public static UltimatePotionBase ULTIMATE_POTION;
+
+	@ConfigurableItem("Ultimate Potions")
+	@ObjectHolder(value = MODID + ":ultimate_potion_splash", registryName = "item")
+	public static UltimatePotionSplash ULTIMATE_POTION_SPLASH;
+
+	@ConfigurableItem("Ultimate Potions")
+	@ObjectHolder(value = MODID + ":ultimate_potion_lingering", registryName = "item")
+	public static UltimatePotionLingering ULTIMATE_POTION_LINGERING;
+
+	@ConfigurableItem("Common Potions")
+	@ObjectHolder(value = MODID + ":common_potion", registryName = "item")
+	public static UltimatePotionBase COMMON_POTION;
+
+	@ConfigurableItem("Common Potions")
+	@ObjectHolder(value = MODID + ":common_potion_splash", registryName = "item")
+	public static UltimatePotionSplash COMMON_POTION_SPLASH;
+
+	@ConfigurableItem("Common Potions")
+	@ObjectHolder(value = MODID + ":common_potion_lingering", registryName = "item")
+	public static UltimatePotionLingering COMMON_POTION_LINGERING;
+
 	@ConfigurableItem("Axe of Executioner")
 	@ObjectHolder(value = MODID + ":forbidden_axe", registryName = "item")
 	public static ForbiddenAxe FORBIDDEN_AXE;
@@ -200,6 +259,18 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("magnet_ring", MagnetRing::new);
 		this.register("extradimensional_eye", ExtradimensionalEye::new);
 		this.register("recall_potion", RecallPotion::new);
+		this.register("twisted_potion", TwistedPotion::new);
+		this.register("unholy_grail", UnholyGrail::new);
+		this.register("forbidden_fruit", ForbiddenFruit::new);
+		this.register("redemption_potion", RedemptionPotion::new);
+		this.register("astral_fruit", AstralFruit::new);
+		this.register("ichor_bottle", IchorBottle::new);
+		this.register("common_potion", () -> new UltimatePotionBase(Rarity.COMMON, PotionType.COMMON));
+		this.register("common_potion_splash", () -> new UltimatePotionSplash(Rarity.COMMON, PotionType.COMMON));
+		this.register("common_potion_lingering", () -> new UltimatePotionLingering(Rarity.COMMON, PotionType.COMMON));
+		this.register("ultimate_potion", () -> new UltimatePotionBase(Rarity.RARE, PotionType.ULTIMATE));
+		this.register("ultimate_potion_splash", () -> new UltimatePotionSplash(Rarity.RARE, PotionType.ULTIMATE));
+		this.register("ultimate_potion_lingering", () -> new UltimatePotionLingering(Rarity.RARE, PotionType.ULTIMATE));
 		this.register("forbidden_axe", ForbiddenAxe::new);
 		this.register("super_magnet_ring", SuperMagnetRing::new);
 		this.register("blazing_core", BlazingCore::new);

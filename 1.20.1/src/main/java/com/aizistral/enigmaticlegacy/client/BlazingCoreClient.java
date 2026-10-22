@@ -5,6 +5,8 @@ import com.aizistral.enigmaticlegacy.handlers.EnigmaticEventHandler;
 import com.aizistral.enigmaticlegacy.handlers.SuperpositionHandler;
 import com.aizistral.enigmaticlegacy.items.BlazingCore;
 import com.aizistral.enigmaticlegacy.objects.FireImmunityData;
+import com.aizistral.enigmaticlegacy.effects.MoltenHeartEffect;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticEffects;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -78,7 +80,10 @@ public class BlazingCoreClient {
 		Minecraft mc = Minecraft.getInstance();
 
 		if (camera.getFluidInCamera() == FogType.LAVA && mc.player != null)
-			if (SuperpositionHandler.hasCurio(mc.player, EnigmaticItems.BLAZING_CORE)) {
+			if (mc.player.hasEffect(EnigmaticEffects.MOLTEN_HEART)) {
+				RenderSystem.setShaderFogStart(0.0F);
+				RenderSystem.setShaderFogEnd((float) MoltenHeartEffect.lavafogDensity.getValue());
+			} else if (SuperpositionHandler.hasCurio(mc.player, EnigmaticItems.BLAZING_CORE)) {
 				RenderSystem.setShaderFogStart(0.0F);
 				RenderSystem.setShaderFogEnd((float) BlazingCore.lavafogDensity.getValue());
 			}

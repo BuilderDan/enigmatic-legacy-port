@@ -360,3 +360,27 @@ Sections are added here as each Minecraft version / loader is ported.
     property is registered in `EnigmaticLegacyFabricClient`; the world seed comes from
     `Services.PLATFORM.getServer()`; the Curios attribute-tooltip override is dropped and
     `curios.modifiers.charm` is added to the port's lang file.
+- Potions batch (Ultimate and Common potions, normal/splash/lingering; Potion of Twisted Mercy,
+  Bottle of Ichor, Unholy Grail, Forbidden Fruit, Redemption Potion, Celestial Fruit):
+  - Effects `blazing_strength`, `molten_heart`, `growing_hunger` and `growing_bloodlust` are
+    registered in the port's `EnigmaticEffects`. `MobEffectInstance.duration` is private on
+    Fabric, so `AccessorMobEffectInstance` replaces Forge's access transformer. The Molten Heart
+    lava fog reuses `BlazingCoreClient`.
+  - Brewing: upstream's Forge `BrewingRecipeRegistry` calls go to the port's own brewing registry
+    (`ComplexBrewingRecipe` added); `PotionUtils` stands in for `PotionHelper.createVanillaPotion`.
+  - `EnigmaticPotionEntity` uses the vanilla spawn packet and entity builder (update interval 10).
+    Fix: upstream's `isLingering` only checked the ultimate lingering potion, so common
+    lingering potions splashed instead of leaving a cloud. Item colors use Fabric's
+    `ColorProviderRegistry` instead of `RegisterColorHandlersEvent`.
+  - `SuperpositionHandler.sendToDimension` and Twisted Potion use vanilla `teleportTo` instead of
+    Forge's `changeDimension` with `RealSmoothTeleporter` (same result: position kept, no portal).
+  - `unlockSpecialSlot` (Celestial Fruit's extra ring slot) goes through `Services.ACCESSORIES`
+    instead of Curios' slot modifier.
+  - Forbidden Fruit: the consumed flag lives in the persistent tag (`ConsumedForbiddenFruit`, kept
+    on respawn) and is synced to the client with `PacketSyncForbiddenFruit` on join and on eating,
+    instead of `TransientPlayerData`. Forge's `LivingHealEvent` becomes a server-side
+    `@ModifyVariable` on `LivingEntity.heal`; the hunger-bar texture swap is a `@WrapOperation`
+    on the food-bar `blit` calls in `Gui.renderPlayerHealth` (only the shank background is
+    redrawn). Food is held at 20 with no saturation in the player tick.
+  - Not ported yet: the Cursed Scroll heal boost in `onHeal`, Eldritch Pan's `cannotHunger` check, the Forbidden Fruit bastion loot, the
+    Bottle of Ichor loot and its `LootedIchorBottle` flag, and the Common Haste dungeon loot.

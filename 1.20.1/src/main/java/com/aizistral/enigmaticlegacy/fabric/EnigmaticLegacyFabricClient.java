@@ -10,6 +10,7 @@ import com.aizistral.enigmaticlegacy.EnigmaticLegacy;
 import com.aizistral.enigmaticlegacy.helpers.ItemNBTHelper;
 import com.aizistral.enigmaticlegacy.items.EnigmaticAmulet;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticEntities;
+import com.aizistral.enigmaticlegacy.helpers.PotionHelper;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 
 import org.lwjgl.glfw.GLFW;
@@ -17,9 +18,11 @@ import org.lwjgl.glfw.GLFW;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 
@@ -57,6 +60,13 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 		// Port: upstream registers this in EntityRenderersEvent.RegisterRenderers.
 		EntityRendererRegistry.register(EnigmaticEntities.ULTIMATE_WITHER_SKULL, UltimateWitherSkullRenderer::new);
 		EntityRendererRegistry.register(EnigmaticEntities.PERMANENT_ITEM_ENTITY, ctx -> new PermanentItemRenderer(ctx, ctx.getItemRenderer()));
+		EntityRendererRegistry.register(EnigmaticEntities.ENIGMATIC_POTION, ThrownItemRenderer::new);
+
+		// Port: Fabric color provider instead of RegisterColorHandlersEvent
+		ColorProviderRegistry.ITEM.register((stack, color) -> color > 0 ? -1 : PotionHelper.getColor(stack),
+				EnigmaticItems.ULTIMATE_POTION, EnigmaticItems.ULTIMATE_POTION_SPLASH,
+				EnigmaticItems.ULTIMATE_POTION_LINGERING, EnigmaticItems.COMMON_POTION,
+				EnigmaticItems.COMMON_POTION_SPLASH, EnigmaticItems.COMMON_POTION_LINGERING);
 		ClientTickEvents.START_CLIENT_TICK.register(KEYBIND_HANDLER::onKeyInput);
 	}
 }

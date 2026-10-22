@@ -70,6 +70,14 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 | Blazing Core (blazing_core) | - | - | - | - (spellstone slot; fire, burning and hot floor immunity; ~30 s lava immunity, then the heat bar fills and lava hurts; extinguish sound and particles on first lava touch; double damage from water mobs and drowned; attackers burn and take damage; status effects tick twice as fast; clear lava fog; found in nether chests) | - |
 | Scroll of Postmortal Recall (escape_scroll) | - | - | - | - (scroll slot; on death all drops, trinkets included, become permanent items at the respawn point; only the owner picks them up; pickup particles and sound; immune to lava, fire and other damage except /kill) | - |
 | Enigmatic Amulet (enigmatic_amulet) | - | - | - | - (new world: gift in hotbar slot 9 with the inscription and a seeded color, not given again on rejoin; color model; charm slot; RED/AQUA/BLUE/MAGENTA/GREEN/VIOLET/BLACK attribute bonuses; MAGENTA lower gravity and fall damage -2 (2 or less cancelled); AQUA faster swimming; GREEN mining speed; BLACK 10% lifesteal; VIOLET 15% projectile deflection with sound; kept on death via postmortal possessions) | - |
+| Ultimate Potions (ultimate_potion, _splash, _lingering) | - | - | - | - (brewing from vanilla potions with Ender Eye/Nether Star chain; long effects in tooltip; splash hits area; lingering leaves a cloud; colors match effects; Potions tab) | - |
+| Common Potions (common_potion, _splash, _lingering; e.g. Haste, Molten Heart) | - | - | - | - (brew; Molten Heart: lava immunity and clear lava fog; common lingering leaves a cloud, not a splash) | - |
+| Potion of Twisted Mercy (twisted_potion) | - | - | - | - (cursed-only, needs a last death location; drink: teleports to where you last died, across dimensions) | - |
+| Bottle of Ichor (ichor_bottle) | - | - | - | - (drink: Regeneration III, Absorption V, Resistance III, Fire Resistance; sets ConsumedIchorBottle) | - |
+| Unholy Grail (unholy_grail) | - | - | - | - (drink: Wither, Poison, Nausea, Weakness, Hunger, Slowness + advancement; cursed player who ate the Forbidden Fruit gets Regeneration, Absorption, Resistance, Strength instead) | - |
+| Forbidden Fruit (forbidden_fruit) | - | - | - | - (cursed-only eat; hunger bar replaced by fruit icons; food stays full, no saturation; small heals reduced; flag survives death and relog; advancement on join) | - |
+| Redemption Potion (redemption_potion) | - | - | - | - (drinkable only after the Forbidden Fruit; drink: normal hunger bar and food return, also on the client) | - |
+| Celestial Fruit (astral_fruit) | - | - | - | - (cursed-only eat; beacon sound; effects; unlocks an extra ring slot) | - |
 
 Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).

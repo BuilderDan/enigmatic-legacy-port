@@ -11,6 +11,7 @@ import com.aizistral.enigmaticlegacy.crafting.CursedShapedRecipe;
 import com.aizistral.enigmaticlegacy.crafting.EnchantmentTransposingRecipe;
 import com.aizistral.enigmaticlegacy.crafting.MendingMixtureRepairRecipe;
 import com.aizistral.enigmaticlegacy.crafting.ShapelessNoReturnRecipe;
+import com.aizistral.enigmaticlegacy.helpers.PotionHelper;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -70,7 +71,6 @@ public class EnigmaticRecipes extends AbstractRegistry<RecipeSerializer<?>> {
 	/**
 	 * Port: upstream registers these in EnigmaticLegacy's common setup through Forge's
 	 * BrewingRecipeRegistry; here they go to the port's own registry (see the brewing package).
-	 * The Twisted, Common and Ultimate potion recipes return with those items.
 	 */
 	public static void registerBrewingRecipes() {
 		if (OmniconfigHandler.isItemEnabled(EnigmaticItems.RECALL_POTION)) {
@@ -78,8 +78,21 @@ public class EnigmaticRecipes extends AbstractRegistry<RecipeSerializer<?>> {
 			BrewingRecipeRegistry.addRecipe(new SpecialBrewingRecipe(Ingredient.of(PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.AWKWARD)), Ingredient.of(Items.ENDER_EYE), new ItemStack(EnigmaticItems.RECALL_POTION), new ResourceLocation(MODID, "recall_potion")));
 		}
 
-		// Port: upstream also lists TWISTED_POTION, ULTIMATE_POTION_LINGERING and COMMON_POTION_LINGERING.
-		BrewingRecipeRegistry.addRecipe(new ValidationBrewingRecipe(Ingredient.of(EnigmaticItems.RECALL_POTION), null));
+		if (OmniconfigHandler.isItemEnabled(EnigmaticItems.TWISTED_POTION)) {
+			BrewingRecipeRegistry.addRecipe(new SpecialBrewingRecipe(Ingredient.of(EnigmaticItems.RECALL_POTION), Ingredient.of(EnigmaticItems.TWISTED_HEART), new ItemStack(EnigmaticItems.TWISTED_POTION), new ResourceLocation(MODID, "twisted_potion")));
+		}
+
+		if (OmniconfigHandler.isItemEnabled(EnigmaticItems.COMMON_POTION)) {
+			PotionHelper.registerCommonPotions();
+		}
+
+		if (OmniconfigHandler.isItemEnabled(EnigmaticItems.ULTIMATE_POTION)) {
+			PotionHelper.registerBasicUltimatePotions();
+			PotionHelper.registerSplashUltimatePotions();
+			PotionHelper.registerLingeringUltimatePotions();
+		}
+
+		BrewingRecipeRegistry.addRecipe(new ValidationBrewingRecipe(Ingredient.of(EnigmaticItems.RECALL_POTION, EnigmaticItems.TWISTED_POTION, EnigmaticItems.ULTIMATE_POTION_LINGERING, EnigmaticItems.COMMON_POTION_LINGERING), null));
 	}
 
 }

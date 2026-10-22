@@ -13,7 +13,9 @@ import com.google.gson.JsonParser;
 
 import com.aizistral.enigmaticlegacy.EnigmaticLegacy;
 import com.aizistral.enigmaticlegacy.handlers.EnigmaticEventHandler;
+import com.aizistral.enigmaticlegacy.helpers.PotionHelper;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticPotions;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticTabs;
 
 import org.slf4j.Logger;
@@ -78,8 +80,10 @@ public final class DevSelfCheck {
 		int problems = 0;
 
 		CreativeModeTabs.tryRebuildTabContents(FeatureFlags.DEFAULT_FLAGS, false, VanillaRegistries.createLookup());
-		List<ItemStack> stacks = List.copyOf(EnigmaticTabs.MAIN.getDisplayItems());
+		List<ItemStack> stacks = new ArrayList<>(EnigmaticTabs.MAIN.getDisplayItems());
 		LOGGER.info("[devcheck] Main tab holds {} stacks", stacks.size());
+		stacks.addAll(EnigmaticTabs.POTIONS.getDisplayItems());
+		LOGGER.info("[devcheck] Potions tab holds {} stacks", EnigmaticTabs.POTIONS.getDisplayItems().size());
 
 		long registered = BuiltInRegistries.ITEM.keySet().stream()
 				.filter(id -> id.getNamespace().equals(EnigmaticLegacy.MODID)).count();
@@ -130,8 +134,8 @@ public final class DevSelfCheck {
 		problems += checkPiglinMixin();
 		problems += checkLootPools();
 		problems += checkBrewing();
-		problems += checkMixinApplied("net.minecraft.world.entity.LivingEntity", "onHurt", "onExperienceDrop", "startDropCapture", "onDrops");
-		problems += checkMixinApplied("net.minecraft.world.entity.Entity", "onSpawnAtLocation");
+		problems += checkMixinApplied("net.minecraft.world.entity.LivingEntity", "onHurt", "onExperienceDrop", "startDropCapture", "onDrops", "onHeal");
+		problems += checkMixinApplied("net.minecraft.world.entity.Entity", "captureDrop");
 		problems += checkMixinApplied("net.minecraft.world.item.enchantment.EnchantmentHelper", "addAccessoryLooting");
 		problems += checkMixinApplied("net.minecraft.world.entity.player.Player", "addAttributes", "onBreakSpeed");
 		problems += checkMixinApplied("net.minecraft.world.level.storage.loot.functions.ApplyBonusCount", "addAccessoryFortune");
@@ -139,6 +143,8 @@ public final class DevSelfCheck {
 		problems += checkMixinApplied("net.minecraft.server.level.ServerPlayerGameMode", "widenBreakDistance");
 		problems += checkMixinApplied("net.minecraft.server.network.ServerGamePacketListenerImpl", "widenUseDistance");
 		problems += checkMixinApplied("net.minecraft.client.multiplayer.MultiPlayerGameMode", "addBlockReach");
+		problems += checkMixinApplied("net.minecraft.world.effect.MobEffectInstance", "enigmaticlegacy$getDuration", "enigmaticlegacy$setDuration");
+		problems += checkMixinApplied("net.minecraft.client.gui.Gui", "renderHeatBar", "renderFoodIcon");
 		problems += checkPlayerAttributes();
 		LOGGER.info("[devcheck] Done: {} problem(s)", problems);
 	}
@@ -178,11 +184,16 @@ public final class DevSelfCheck {
 			boolean waterMix = PotionBrewing.hasMix(water, eye);
 			ItemStack result = PotionBrewing.mix(eye, awkward);
 			ItemStack vanilla = PotionBrewing.mix(new ItemStack(Items.NETHER_WART), water);
+			// Common potions: awkward + quartz -> common potion of haste (ComplexBrewingRecipe)
+			ItemStack haste = PotionBrewing.mix(new ItemStack(Items.QUARTZ), awkward);
+			boolean hasteOk = haste.is(EnigmaticItems.COMMON_POTION)
+					&& PotionHelper.getAdvancedPotion(haste) == EnigmaticPotions.HASTE;
 			if (ingredient && hasMix && !waterMix && result.is(EnigmaticItems.RECALL_POTION)
-					&& PotionUtils.getPotion(vanilla) == Potions.AWKWARD) {
-				LOGGER.info("[devcheck] brewing ok (awkward + ender_eye -> recall_potion)");
+					&& PotionUtils.getPotion(vanilla) == Potions.AWKWARD && hasteOk) {
+				LOGGER.info("[devcheck] brewing ok (awkward + ender_eye -> recall_potion, awkward + quartz -> common haste)");
 				return 0;
 			}
+			LOGGER.error("[devcheck] common haste brew: {} {}", haste, PotionHelper.getAdvancedPotion(haste));
 			LOGGER.error("[devcheck] brewing wrong: ingredient={}, hasMix={}, waterMix={}, result={}, vanilla={}",
 					ingredient, hasMix, waterMix, result, PotionUtils.getPotion(vanilla));
 		} catch (Throwable ex) {

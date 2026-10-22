@@ -70,6 +70,18 @@ import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import java.util.Map.Entry;
+import com.google.common.collect.Lists;
+import com.mojang.datafixers.util.Pair;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffectUtil;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
 /**
  * Port of upstream's SuperpositionHandler. Methods are added as the code that calls them
@@ -403,6 +415,33 @@ public class SuperpositionHandler {
 		return dimension.equals(Level.OVERWORLD) || dimension.equals(Level.NETHER) || dimension.equals(Level.END);
 	}
 
+	/**
+	 * Port: upstream added the Curios "Masterslot" modifier itself; the port goes through
+	 * the accessory service (Trinkets on Fabric). Same UUIDs, so unlocks stay one per slot type.
+	 */
+	public static boolean unlockSpecialSlot(String slot, Player player) {
+		if (!slot.equals("scroll") && !slot.equals("spellstone") && !slot.equals("ring") && !slot.equals("charm"))
+			throw new IllegalArgumentException("Slot type '" + slot + "' is not supported!");
+
+		UUID id = slot.equals("scroll") ? SCROLL_SLOT_UUID : (slot.equals("spellstone") ? SPELLSTONE_SLOT_UUID
+				: (slot.equals("ring") ? RING_SLOT_UUID : CHARM_SLOT_UUID));
+
+		return Services.ACCESSORIES.unlockSlot(player, slot, id, "Masterslot");
+	}
+
+	/**
+	 * Port: upstream used Forge's changeDimension(level, ITeleporter) with RealSmoothTeleporter,
+	 * which kept the player's position. Vanilla teleportTo across levels does the same.
+	 */
+	public static void sendToDimension(ServerPlayer player, ResourceKey<Level> dimension) {
+		if (!player.level().dimension().equals(dimension)) {
+			ServerLevel world = SuperpositionHandler.getWorld(dimension);
+			if (world != null) {
+				player.teleportTo(world, player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
+			}
+		}
+	}
+
 	public static ServerLevel backToSpawn(ServerPlayer serverPlayer) {
 		ResourceKey<Level> respawnDimension = AdvancedSpawnLocationHelper.getPlayerRespawnDimension(serverPlayer);
 		ServerLevel respawnWorld = SuperpositionHandler.getWorld(respawnDimension);
@@ -627,5 +666,60 @@ public class SuperpositionHandler {
 	public static boolean hasArchitectsFavor(Player player) {
 		// Port: Architect's Favor (cosmic_scroll) is not ported yet.
 		return false;
+	}
+
+	/** Port: copied from upstream; client-only callers. */
+	public static void addPotionTooltip(List<MobEffectInstance> list, ItemStack itemIn, List<Component> lores, float durationFactor) {
+		List<Pair<Attribute, AttributeModifier>> list1 = Lists.newArrayList();
+		if (list.isEmpty()) {
+			lores.add((Component.translatable("effect.none")).withStyle(ChatFormatting.GRAY));
+		} else {
+			for (MobEffectInstance effectinstance : list) {
+				MutableComponent iformattabletextcomponent = Component.translatable(effectinstance.getDescriptionId());
+				MobEffect effect = effectinstance.getEffect();
+				Map<Attribute, AttributeModifier> map = effect.getAttributeModifiers();
+				if (!map.isEmpty()) {
+					for (Entry<Attribute, AttributeModifier> entry : map.entrySet()) {
+						AttributeModifier attributemodifier = entry.getValue();
+						AttributeModifier attributemodifier1 = new AttributeModifier(attributemodifier.getName(), effect.getAttributeModifierValue(effectinstance.getAmplifier(), attributemodifier), attributemodifier.getOperation());
+						list1.add(new Pair<>(entry.getKey(), attributemodifier1));
+					}
+				}
+
+				if (effectinstance.getAmplifier() > 0) {
+					iformattabletextcomponent.append(" ").append(Component.translatable("potion.potency." + effectinstance.getAmplifier()));
+				}
+
+				if (effectinstance.getDuration() > 20) {
+					iformattabletextcomponent.append(" (").append(MobEffectUtil.formatDuration(effectinstance, durationFactor)).append(")");
+				}
+
+				lores.add(iformattabletextcomponent.withStyle(effect.getCategory().getTooltipFormatting()));
+			}
+		}
+
+		if (!list1.isEmpty()) {
+			lores.add(CommonComponents.EMPTY);
+			lores.add((Component.translatable("potion.whenDrank")).withStyle(ChatFormatting.DARK_PURPLE));
+
+			for (Pair<Attribute, AttributeModifier> pair : list1) {
+				AttributeModifier attributemodifier2 = pair.getSecond();
+				double d0 = attributemodifier2.getAmount();
+				double d1;
+				if (attributemodifier2.getOperation() != AttributeModifier.Operation.MULTIPLY_BASE && attributemodifier2.getOperation() != AttributeModifier.Operation.MULTIPLY_TOTAL) {
+					d1 = attributemodifier2.getAmount();
+				} else {
+					d1 = attributemodifier2.getAmount() * 100.0D;
+				}
+
+				if (d0 > 0.0D) {
+					lores.add((Component.translatable("attribute.modifier.plus." + attributemodifier2.getOperation().toValue(), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(d1), Component.translatable(pair.getFirst().getDescriptionId()))).withStyle(ChatFormatting.BLUE));
+				} else if (d0 < 0.0D) {
+					d1 = d1 * -1.0D;
+					lores.add((Component.translatable("attribute.modifier.take." + attributemodifier2.getOperation().toValue(), ItemStack.ATTRIBUTE_MODIFIER_FORMAT.format(d1), Component.translatable(pair.getFirst().getDescriptionId()))).withStyle(ChatFormatting.DARK_RED));
+				}
+			}
+		}
+
 	}
 }

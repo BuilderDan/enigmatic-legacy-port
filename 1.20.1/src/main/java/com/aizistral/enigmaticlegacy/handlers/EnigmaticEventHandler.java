@@ -27,9 +27,12 @@ import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncFireImmunity;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketWitherParticles;
 import com.aizistral.enigmaticlegacy.platform.Services;
 import com.aizistral.enigmaticlegacy.platform.network.TargetPoint;
+import com.aizistral.enigmaticlegacy.mixin.AccessorMobEffectInstance;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticEffects;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticSounds;
 import com.aizistral.enigmaticlegacy.triggers.BeheadingTrigger;
+import com.aizistral.enigmaticlegacy.triggers.ForbiddenFruitTrigger;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -59,6 +62,7 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.entity.projectile.ThrownTrident;
+import net.minecraft.world.food.FoodData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -125,6 +129,9 @@ public class EnigmaticEventHandler {
 		}
 
 		if (entity instanceof Player player) {
+			if (player.hasEffect(EnigmaticEffects.MOLTEN_HEART) && EnigmaticEffects.MOLTEN_HEART.providesImmunity(source))
+				return false;
+
 			if (source.is(DamageTypes.FALL)) {
 				if (EnigmaticItems.ENIGMATIC_AMULET.hasColor(player, AmuletColor.MAGENTA) && amount <= 2.0f)
 					return false;
@@ -226,7 +233,16 @@ public class EnigmaticEventHandler {
 			List<MobEffectInstance> effects = new java.util.ArrayList<>(player.getActiveEffects());
 
 			for (MobEffectInstance effect : effects) {
-				effect.tick(player, () -> {});
+				if (effect.getEffect().equals(EnigmaticEffects.MOLTEN_HEART)) {
+					// Port: duration is private on Fabric; see AccessorMobEffectInstance.
+					AccessorMobEffectInstance accessor = (AccessorMobEffectInstance) effect;
+
+					if (player.tickCount % 2 == 0 && accessor.enigmaticlegacy$getDuration() > 0) {
+						accessor.enigmaticlegacy$setDuration(accessor.enigmaticlegacy$getDuration() + 1);
+					}
+				} else {
+					effect.tick(player, () -> {});
+				}
 			}
 		}
 	}
@@ -291,6 +307,17 @@ public class EnigmaticEventHandler {
 		}
 
 		tickBlazingCoreEffects(player);
+
+		// Port: upstream ran this for players in its LivingTickEvent handler.
+		if (EnigmaticItems.FORBIDDEN_FRUIT.haveConsumedFruit(player)) {
+			FoodData foodStats = player.getFoodData();
+			foodStats.setFoodLevel(20);
+			foodStats.setSaturation(0F);
+
+			if (player.hasEffect(MobEffects.HUNGER)) {
+				player.removeEffect(MobEffects.HUNGER);
+			}
+		}
 	}
 
 	/** Port-only: drops per-player state kept in static maps when the server stops. */
@@ -428,6 +455,12 @@ public class EnigmaticEventHandler {
 	 * calls it from {@code ServerPlayConnectionEvents.JOIN}.
 	 */
 	public static void onPlayerJoin(ServerPlayer player) {
+		EnigmaticItems.FORBIDDEN_FRUIT.syncConsumedFruit(player);
+
+		if (EnigmaticItems.FORBIDDEN_FRUIT.haveConsumedFruit(player)) {
+			ForbiddenFruitTrigger.INSTANCE.trigger(player);
+		}
+
 		if (OmniconfigHandler.isItemEnabled(EnigmaticItems.ENIGMATIC_AMULET))
 			if (SuperpositionHandler.getPersistentTag(player, NBT_KEY_ENIGMATICGIFT, null) == null) {
 				ItemStack amuletStack = new ItemStack(EnigmaticItems.ENIGMATIC_AMULET);

@@ -16,7 +16,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.aizistral.enigmaticlegacy.handlers.EnigmaticEventHandler;
+import com.aizistral.enigmaticlegacy.items.ForbiddenFruit;
 import com.aizistral.enigmaticlegacy.items.MonsterCharm;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 import com.aizistral.enigmaticlegacy.objects.DropCapture;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticAttributes;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -123,5 +125,21 @@ public abstract class MixinLivingEntity {
 		for (ItemEntity drop : drops) {
 			self.level().addFreshEntity(drop);
 		}
+	}
+
+	/**
+	 * Forge fires LivingHealEvent at the head of heal. Upstream reduces small heals (natural
+	 * regeneration) for players who ate the Forbidden Fruit.
+	 */
+	@ModifyVariable(method = "heal", at = @At("HEAD"), argsOnly = true)
+	private float enigmaticlegacy$onHeal(float amount) {
+		LivingEntity self = (LivingEntity) (Object) this;
+		// Port: TODO upstream's onLivingHeal also applies the Cursed Scroll regeneration boost; add it with that item.
+
+		if (self instanceof Player player && !player.level().isClientSide && amount <= 1.0F
+				&& EnigmaticItems.FORBIDDEN_FRUIT.haveConsumedFruit(player))
+			return amount * ForbiddenFruit.regenerationSubtraction.getValue().asModifierInverted();
+
+		return amount;
 	}
 }

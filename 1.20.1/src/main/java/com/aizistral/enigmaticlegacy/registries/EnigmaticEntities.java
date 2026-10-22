@@ -1,6 +1,7 @@
 package com.aizistral.enigmaticlegacy.registries;
 
 import com.aizistral.enigmaticlegacy.api.generic.ObjectHolder;
+import com.aizistral.enigmaticlegacy.entities.EnigmaticPotionEntity;
 import com.aizistral.enigmaticlegacy.entities.PermanentItemEntity;
 import com.aizistral.enigmaticlegacy.entities.UltimateWitherSkullEntity;
 
@@ -15,6 +16,9 @@ import net.minecraft.world.entity.MobCategory;
 public class EnigmaticEntities extends AbstractRegistry<EntityType<?>> {
 	private static final EnigmaticEntities INSTANCE = new EnigmaticEntities();
 
+	@ObjectHolder(value = MODID + ":enigmatic_potion_entity", registryName = "entity_type")
+	public static EntityType<EnigmaticPotionEntity> ENIGMATIC_POTION;
+
 	@ObjectHolder(value = MODID + ":ultimate_wither_skull_entity", registryName = "entity_type")
 	public static EntityType<UltimateWitherSkullEntity> ULTIMATE_WITHER_SKULL;
 
@@ -23,6 +27,10 @@ public class EnigmaticEntities extends AbstractRegistry<EntityType<?>> {
 
 	private EnigmaticEntities() {
 		super(BuiltInRegistries.ENTITY_TYPE);
+
+		// Port: vanilla builder; the update interval matches upstream's setUpdateInterval(10)
+		this.register("enigmatic_potion_entity", () -> EntityType.Builder.<EnigmaticPotionEntity>of(EnigmaticPotionEntity::new, MobCategory.MISC)
+				.sized(0.25F, 0.25F).clientTrackingRange(64).updateInterval(10).build(MODID + ":enigmatic_potion_entity"));
 
 		this.register("ultimate_wither_skull_entity", () -> EntityType.Builder.<UltimateWitherSkullEntity>of(UltimateWitherSkullEntity::new, MobCategory.MISC)
 				.sized(0.25F, 0.25F).clientTrackingRange(64).build(MODID + ":ultimate_wither_skull_entity"));

@@ -17,18 +17,23 @@ public class EnigmaticTabs extends AbstractRegistry<CreativeModeTab> {
 	// Object holders don't work for creative tabs for some reason
 	public static final CreativeModeTab MAIN;
 
-	// Port: POTIONS ("tab_potions", icon RECALL_POTION) returns with the potion items.
+	public static final CreativeModeTab POTIONS;
 
 	static {
 		MAIN = FabricItemGroup.builder().title(Component.translatable("itemGroup.enigmaticCreativeTab"))
 				.icon(() -> new ItemStack(EnigmaticItems.ENIGMATIC_ITEM))
 				.displayItems((params, output) -> fillTab(EnigmaticTabs.MAIN, output)).build();
+
+		POTIONS = FabricItemGroup.builder().title(Component.translatable("itemGroup.enigmaticPotionCreativeTab"))
+				.icon(() -> new ItemStack(EnigmaticItems.RECALL_POTION))
+				.displayItems((params, output) -> fillTab(EnigmaticTabs.POTIONS, output)).build();
 	}
 
 	private static final EnigmaticTabs INSTANCE = new EnigmaticTabs();
 
 	private EnigmaticTabs() {
 		super(BuiltInRegistries.CREATIVE_MODE_TAB);
+		this.register("tab_potions", () -> POTIONS);
 		this.register("tab_main", () -> MAIN);
 	}
 

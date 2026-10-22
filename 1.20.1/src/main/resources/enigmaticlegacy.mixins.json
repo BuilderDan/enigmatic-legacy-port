@@ -5,6 +5,7 @@
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
 		"AccessorAbstractArrow",
+		"AccessorMobEffectInstance",
 		"MixinAbstractArrow",
 		"MixinAbstractHurtingProjectile",
 		"MixinApplyBonusCount",
