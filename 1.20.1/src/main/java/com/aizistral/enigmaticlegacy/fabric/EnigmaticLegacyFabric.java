@@ -13,10 +13,12 @@ import com.aizistral.enigmaticlegacy.objects.EnabledCondition;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncPlayTime;
+import com.aizistral.enigmaticlegacy.packets.server.PacketXPScrollKey;
 import com.aizistral.enigmaticlegacy.platform.Services;
 import com.aizistral.enigmaticlegacy.platform.network.PacketDirection;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticRecipes;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticSounds;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticTabs;
 import com.aizistral.omniconfig.packets.PacketSyncOptions;
 
@@ -38,6 +40,7 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		LOGGER.info("Enigmatic Legacy (Fabric port) initializing");
 		FabricPlatformHelper.init();
 		OmniconfigHandler.initialize();
+		EnigmaticSounds.init();
 		EnigmaticItems.init();
 		EnigmaticRecipes.init();
 		EnigmaticRecipes.registerBrewingRecipes();
@@ -64,5 +67,7 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 				PacketPortalParticles::decode, PacketPortalParticles::handle);
 		network.register(PacketRecallParticles.class, PacketDirection.TO_CLIENT, PacketRecallParticles::encode,
 				PacketRecallParticles::decode, PacketRecallParticles::handle);
+		network.register(PacketXPScrollKey.class, PacketDirection.TO_SERVER, PacketXPScrollKey::encode,
+				PacketXPScrollKey::decode, PacketXPScrollKey::handle);
 	}
 }

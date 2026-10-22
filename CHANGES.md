@@ -85,7 +85,8 @@ Sections are added here as each Minecraft version / loader is ported.
   Ring, Extradimensional Eye, Potion of Recall, Etherium Ingot, Etherium Nugget, Etherium Scraps, Ender Rod, Astral Dust, Lore
   Fragment, Heart of the Earth, Twisted Heart, Exquisite Ring, Nefarious Essence, Nefarious
   Ingot, Unholy Stone, Darkest Scroll, Tome of Hungering Knowledge, Heart of the Cosmos,
-  Heart of the Abyss, Soul Dust, Emblem of Monster Slayer), registered in upstream order.
+  Heart of the Abyss, Soul Dust, Emblem of Monster Slayer, Scroll of Ageless Wisdom),
+  registered in upstream order.
 - Creative tabs: built with `FabricItemGroup`; contents come from `ICreativeTabMember` in
   `displayItems` instead of Forge's `BuildCreativeModeTabContentsEvent`. Temporary: the main
   tab icon is Blank Scroll until the Enigmatic Amulet is ported; the potions tab returns with
@@ -213,6 +214,17 @@ Sections are added here as each Minecraft version / loader is ported.
   - Behavior change: the `BonusLooting` and `DoubleXP` config options are honored. Upstream
     ignores both (always +1 looting, always double XP) while the tooltip follows them.
   - The Quote played when hitting the Ender Dragon is skipped; quotes are not ported.
+- Scroll of Ageless Wisdom (`XPScroll`, `helpers/ExperienceHelper`, `registries/EnigmaticSounds`,
+  `packets/server/PacketXPScrollKey`, `handlers/EnigmaticKeybindHandler`):
+  - `ExperienceHelper` drops upstream's Forge `PlayerXpEvent` objects, which were built but
+    never posted, so behavior is unchanged.
+  - `EnigmaticSounds` registers all upstream sounds; the `Quote.getByID(0)` class-load in its
+    init is skipped.
+  - Keybinds: `KeyBindingHelper` + `ClientTickEvents.START_CLIENT_TICK` replace
+    `RegisterKeyMappingsEvent` and the Forge client tick. Only the scroll key (J) exists so far;
+    the Ender Ring (I), spellstone (K) keys and the Angel's Blessing double jump come with
+    their items.
+  - `SuperpositionHandler.getCurioStack` uses the accessory service (Trinkets on Fabric).
 - `IAccessoryItem.getLootingLevel` / `AccessorySlots`: the `target` parameter is now
   `@Nullable`.
 - Dev only, port-only: `DevSelfCheck` also checks that the `LivingEntity` and

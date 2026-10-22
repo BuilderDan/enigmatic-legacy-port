@@ -27,6 +27,7 @@ import com.aizistral.enigmaticlegacy.items.SuperMagnetRing;
 import com.aizistral.enigmaticlegacy.items.SoulDust;
 import com.aizistral.enigmaticlegacy.items.ThiccScroll;
 import com.aizistral.enigmaticlegacy.items.TwistedHeart;
+import com.aizistral.enigmaticlegacy.items.XPScroll;
 import com.aizistral.etherium.items.EnderRod;
 import com.aizistral.etherium.items.EtheriumIngot;
 import com.aizistral.etherium.items.EtheriumNugget;
@@ -108,6 +109,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ObjectHolder(value = MODID + ":darkest_scroll", registryName = "item")
 	public static DarkestScroll DARKEST_SCROLL;
 
+	@ConfigurableItem("Scroll of Ageless Wisdom")
+	@ObjectHolder(value = MODID + ":xp_scroll", registryName = "item")
+	public static XPScroll XP_SCROLL;
+
 	@ConfigurableItem("Magnet Ring")
 	@ObjectHolder(value = MODID + ":magnet_ring", registryName = "item")
 	public static MagnetRing MAGNET_RING;
@@ -147,6 +152,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	private EnigmaticItems() {
 		super(BuiltInRegistries.ITEM);
 
+		this.register("xp_scroll", XPScroll::new);
 		this.register("magnet_ring", MagnetRing::new);
 		this.register("extradimensional_eye", ExtradimensionalEye::new);
 		this.register("recall_potion", RecallPotion::new);

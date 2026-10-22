@@ -23,6 +23,7 @@ name, model and tooltip. Results go to the log with a `[devcheck]` prefix. With
 | 2026-10-21 | 22 | 22 | 0 | Added Exquisite Ring (piglin mixin check ok) and Heart of the Abyss. Recipe pass: 33 parsed, 49 skipped by conditions, 11 pending (unported content), 0 failed. |
 | 2026-10-21 | 23 | 23 | 0 | Added Extradimensional Eye. Recipe pass: 34 parsed, 48 skipped by conditions, 11 pending (unported content), 0 failed. |
 | 2026-10-21 | 24 | 24 | 0 | Added Potion of Recall. Recipe pass: 34 parsed, 48 skipped by conditions, 11 pending (unported content), 0 failed. |
+| 2026-10-22 | 26 | 26 | 0 | Added Scroll of Ageless Wisdom; tooltip shows the J keybind. Sound registry loaded. |
 
 ## Manual checklist
 
@@ -55,6 +56,7 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 | Heart of the Abyss (abyssal_heart) | - | - | - | - | - |
 | Soul Dust | - | - | - | - | - |
 | Emblem of Monster Slayer (monster_charm) | - | - | - | - (undead +25%, hostile +10%, +1 looting, double XP from monsters) | - |
+| Scroll of Ageless Wisdom (xp_scroll) | - | - | - | - (use/J toggles mode; absorb, extract, pull orbs in range; write/learn sounds) | - |
 
 Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).

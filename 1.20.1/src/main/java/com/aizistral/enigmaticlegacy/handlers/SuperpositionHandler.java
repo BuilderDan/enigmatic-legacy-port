@@ -53,6 +53,7 @@ import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -161,6 +162,19 @@ public class SuperpositionHandler {
 	public static boolean hasCurio(LivingEntity entity, Item curio) {
 		// Port: Curios lookup replaced by the accessory service (Trinkets on Fabric).
 		return Services.ACCESSORIES.isEquipped(entity, curio);
+	}
+
+	/**
+	 * Gets the first stack of the given curio the entity has equipped, or null if there is none.
+	 */
+	@Nullable
+	public static ItemStack getCurioStack(LivingEntity entity, Item curio) {
+		// Port: Curios lookup replaced by the accessory service (Trinkets on Fabric).
+		return Services.ACCESSORIES.findFirst(entity, stack -> stack.is(curio));
+	}
+
+	public static AABB getBoundingBoxAroundEntity(final Entity entity, final double radius) {
+		return new AABB(entity.getX() - radius, entity.getY() - radius, entity.getZ() - radius, entity.getX() + radius, entity.getY() + radius, entity.getZ() + radius);
 	}
 
 	/**
