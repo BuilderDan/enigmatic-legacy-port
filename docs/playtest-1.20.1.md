@@ -17,6 +17,7 @@ name, model and tooltip. Results go to the log with a `[devcheck]` prefix. With
 | Date | Items in tab | Registered | Problems | Notes |
 |---|---|---|---|---|
 | 2026-10-21 | 10 | 10 | 0 | Only log errors: the `alt textures` path (renamed afterwards) and a Realms auth failure, which is normal in dev. |
+| 2026-10-21 | 16 | 16 | 0 | Added Mending Mixture, Iron Ring and the 4 Etherium materials. Binding-curse mixin applied cleanly. |
 
 ## Manual checklist
 
@@ -24,7 +25,13 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 
 | Item | Creative tab | Texture | Name + tooltip | Recipe / use | Status |
 |---|---|---|---|---|---|
+| Mending Mixture | - | - | - | - (repair recipe needs EnigmaticRecipes, not ported yet) | - |
 | Blank Scroll (`thicc_scroll`) | - | - | - | - | - |
+| Iron Ring (ring slot, +1 armor, right-click equips, Curse of Binding in anvil) | - | - | - | - | - |
+| Etherium Ingot (fire resistant) | - | - | - | - | - |
+| Etherium Nugget | - | - | - | - | - |
+| Etherium Scraps | - | - | - | - | - |
+| Ender Rod | - | - | - | - | - |
 | Astral Dust | - | - | - | - | - |
 | Lore Fragment | - | - | - | - | - |
 | Heart of the Earth | - | - | - | - | - |

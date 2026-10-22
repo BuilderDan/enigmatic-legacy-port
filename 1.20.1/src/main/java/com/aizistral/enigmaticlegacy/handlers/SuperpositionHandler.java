@@ -25,7 +25,9 @@ import com.google.common.collect.Multimap;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 
 /**
  * Port of upstream's SuperpositionHandler. Methods are added as the code that calls them
@@ -128,6 +130,11 @@ public class SuperpositionHandler {
 		}
 
 		return accessibilityGeneratorMap;
+	}
+
+	public static boolean hasCurio(LivingEntity entity, Item curio) {
+		// Port: Curios lookup replaced by the accessory service (Trinkets on Fabric).
+		return Services.ACCESSORIES.isEquipped(entity, curio);
 	}
 
 	public static boolean isTheCursedOne(Player player) {

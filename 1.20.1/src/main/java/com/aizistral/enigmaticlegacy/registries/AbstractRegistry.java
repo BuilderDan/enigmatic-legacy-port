@@ -6,9 +6,12 @@ import java.util.function.Supplier;
 
 import com.aizistral.enigmaticlegacy.EnigmaticLegacy;
 import com.aizistral.enigmaticlegacy.api.generic.ObjectHolder;
+import com.aizistral.enigmaticlegacy.platform.Services;
+import com.aizistral.enigmaticlegacy.platform.accessory.IAccessoryItem;
 
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 
 /**
  * Port: Forge's DeferredRegister and RegisterEvent are replaced by direct vanilla
@@ -27,6 +30,11 @@ public abstract class AbstractRegistry<T> {
 	protected void register(String name, Supplier<T> supplier) {
 		T value = Registry.register(this.registry, new ResourceLocation(MODID, name), supplier.get());
 		this.fillHolder(MODID + ":" + name, value);
+
+		// Port: Curios finds ICurioItem by interface; Trinkets needs each item registered.
+		if (value instanceof Item item && value instanceof IAccessoryItem) {
+			Services.ACCESSORIES.registerAccessory(item);
+		}
 	}
 
 	private void fillHolder(String id, T value) {

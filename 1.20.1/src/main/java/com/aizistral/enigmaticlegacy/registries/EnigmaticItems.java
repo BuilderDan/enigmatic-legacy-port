@@ -12,10 +12,16 @@ import com.aizistral.enigmaticlegacy.items.DarkestScroll;
 import com.aizistral.enigmaticlegacy.items.EarthHeart;
 import com.aizistral.enigmaticlegacy.items.EvilEssence;
 import com.aizistral.enigmaticlegacy.items.EvilIngot;
+import com.aizistral.enigmaticlegacy.items.IronRing;
 import com.aizistral.enigmaticlegacy.items.LoreFragment;
+import com.aizistral.enigmaticlegacy.items.MendingMixture;
 import com.aizistral.enigmaticlegacy.items.SoulDust;
 import com.aizistral.enigmaticlegacy.items.ThiccScroll;
 import com.aizistral.enigmaticlegacy.items.TwistedHeart;
+import com.aizistral.etherium.items.EnderRod;
+import com.aizistral.etherium.items.EtheriumIngot;
+import com.aizistral.etherium.items.EtheriumNugget;
+import com.aizistral.etherium.items.EtheriumScraps;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
@@ -29,9 +35,33 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	public static final List<Item> SPELLSTONES = new ArrayList<>();
 	private static final EnigmaticItems INSTANCE = new EnigmaticItems();
 
+	@ConfigurableItem("Mending Mixture")
+	@ObjectHolder(value = MODID + ":mending_mixture", registryName = "item")
+	public static MendingMixture MENDING_MIXTURE;
+
 	@ConfigurableItem("Blank Scroll")
 	@ObjectHolder(value = MODID + ":thicc_scroll", registryName = "item")
 	public static ThiccScroll THICC_SCROLL;
+
+	@ConfigurableItem("Iron Ring")
+	@ObjectHolder(value = MODID + ":iron_ring", registryName = "item")
+	public static IronRing IRON_RING;
+
+	@ConfigurableItem("Etherium Ingot")
+	@ObjectHolder(value = MODID + ":etherium_ingot", registryName = "item")
+	public static EtheriumIngot ETHERIUM_INGOT;
+
+	@ConfigurableItem("Etherium Nugget")
+	@ObjectHolder(value = MODID + ":etherium_nugget", registryName = "item")
+	public static EtheriumNugget ETHERIUM_NUGGET;
+
+	@ConfigurableItem("Etherium Scraps")
+	@ObjectHolder(value = MODID + ":etherium_scraps", registryName = "item")
+	public static EtheriumScraps ETHERIUM_SCRAPS;
+
+	@ConfigurableItem("Ender Rod")
+	@ObjectHolder(value = MODID + ":ender_rod", registryName = "item")
+	public static EnderRod ENDER_ROD;
 
 	@ConfigurableItem("Astral Dust")
 	@ObjectHolder(value = MODID + ":astral_dust", registryName = "item")
@@ -72,7 +102,13 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	private EnigmaticItems() {
 		super(BuiltInRegistries.ITEM);
 
+		this.register("mending_mixture", MendingMixture::new);
 		this.register("thicc_scroll", ThiccScroll::new);
+		this.register("iron_ring", IronRing::new);
+		this.register("etherium_ingot", EtheriumIngot::new);
+		this.register("etherium_nugget", EtheriumNugget::new);
+		this.register("etherium_scraps", EtheriumScraps::new);
+		this.register("ender_rod", EnderRod::new);
 		this.register("astral_dust", AstralDust::new);
 		this.register("lore_fragment", LoreFragment::new);
 		this.register("evil_essence", EvilEssence::new);

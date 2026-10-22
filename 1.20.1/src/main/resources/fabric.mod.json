@@ -29,6 +29,9 @@
 			"com.aizistral.enigmaticlegacy.fabric.platform.EnigmaticComponents"
 		]
 	},
+	"mixins": [
+		"enigmaticlegacy.mixins.json"
+	],
 	"depends": {
 		"fabricloader": ">=0.16.14",
 		"minecraft": "~1.20.1",

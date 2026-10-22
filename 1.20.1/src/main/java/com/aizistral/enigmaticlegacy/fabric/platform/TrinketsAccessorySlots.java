@@ -19,8 +19,11 @@ import com.aizistral.enigmaticlegacy.platform.accessory.SlotContext;
 import dev.emi.trinkets.api.SlotReference;
 import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketInventory;
+import dev.emi.trinkets.api.TrinketItem;
 import dev.emi.trinkets.api.TrinketsApi;
 import dev.emi.trinkets.api.event.TrinketDropCallback;
+import net.fabricmc.fabric.api.event.player.UseItemCallback;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.Item;
@@ -43,6 +46,19 @@ public class TrinketsAccessorySlots implements AccessorySlots {
 		TrinketDropCallback.EVENT.register((rule, stack, ref, entity) -> {
 			DropRule override = AccessoryDrops.getOverride(entity, stack);
 			return override != null ? TrinketAdapter.toTrinkets(override) : rule;
+		});
+
+		// Port: Curios equips an ICurioItem on right-click when canEquipFromUse allows it.
+		// Trinkets does that only for its own TrinketItem, so the same check runs here.
+		UseItemCallback.EVENT.register((player, level, hand) -> {
+			ItemStack stack = player.getItemInHand(hand);
+
+			if (!player.isSpectator() && stack.getItem() instanceof IAccessoryItem accessory
+					&& accessory.canEquipFromUse(new SlotContext("", player, -1, false, true), stack)
+					&& TrinketItem.equipItem(player, stack))
+				return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+
+			return InteractionResultHolder.pass(ItemStack.EMPTY);
 		});
 	}
 

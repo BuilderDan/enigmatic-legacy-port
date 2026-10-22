@@ -81,7 +81,8 @@ Sections are added here as each Minecraft version / loader is ported.
   Holder fields are non-final with no initializer. `init()` methods (port-only) force class
   loading from the Fabric entry point. The `onRegister` block-item hook is left out until
   blocks are ported.
-- `EnigmaticItems` holds only the ported items (so far: Blank Scroll, Astral Dust, Lore
+- `EnigmaticItems` holds only the ported items (so far: Mending Mixture, Blank Scroll, Iron
+  Ring, Etherium Ingot, Etherium Nugget, Etherium Scraps, Ender Rod, Astral Dust, Lore
   Fragment, Heart of the Earth, Twisted Heart, Nefarious Essence, Nefarious Ingot, Unholy
   Stone, Darkest Scroll, Soul Dust), registered in upstream order.
 - Creative tabs: built with `FabricItemGroup`; contents come from `ICreativeTabMember` in
@@ -102,3 +103,19 @@ Sections are added here as each Minecraft version / loader is ported.
 - Resources: the upstream folder `textures/item/3d/alt textures/` is renamed to
   `alt_textures/` by `tools/sync_resources.py`. A space is not valid in a resource path,
   and nothing references these textures.
+- Accessories: `ItemBaseCurio` implements the port's `IAccessoryItem` instead of Curios'
+  `ICurioItem`. `AbstractRegistry` registers every `IAccessoryItem` with the accessory
+  service as it is registered (Trinkets needs each item registered; Curios finds them by
+  interface). `SuperpositionHandler.hasCurio` uses the same service.
+- Right-click equip: Trinkets only does this for its own `TrinketItem`, so the Trinkets
+  backend adds a `UseItemCallback` that equips any accessory whose `canEquipFromUse`
+  allows it, like Curios does.
+- `ItemBaseCurio` drops Forge's `isBookEnchantable` override. It returned true either way
+  (Forge's default), so it had no effect. Curse of Binding still reaches accessories
+  through upstream's own `MixinBindingCurseEnchantment` and `IBindable`, copied unchanged.
+- Etherium items live in the `com.aizistral.etherium` package as upstream. `EtheriumUtil.
+  defaultProperties` no longer reads the Etherium config, which upstream fetched but never
+  used.
+- Not yet ported: the recipe serializers (`EnigmaticRecipes`, e.g.
+  `enigmaticlegacy:mending_mixture_repair`). Until they are, recipes of those types fail
+  to load, so Mending Mixture cannot repair items yet.
