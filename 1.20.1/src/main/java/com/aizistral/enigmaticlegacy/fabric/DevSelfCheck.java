@@ -121,6 +121,8 @@ public final class DevSelfCheck {
 
 		problems += checkRecipes();
 		problems += checkPiglinMixin();
+		problems += checkMixinApplied("net.minecraft.world.entity.LivingEntity", "onHurt", "onExperienceDrop");
+		problems += checkMixinApplied("net.minecraft.world.item.enchantment.EnchantmentHelper", "addAccessoryLooting");
 		LOGGER.info("[devcheck] Done: {} problem(s)", problems);
 	}
 
@@ -143,6 +145,30 @@ public final class DevSelfCheck {
 			LOGGER.error("[devcheck] piglin mixin check failed", ex);
 		}
 		return 1;
+	}
+
+	/**
+	 * Checks that the handler methods of our mixins were merged into the target class. Mixin may
+	 * rename handlers, so it matches by name fragment.
+	 */
+	private static int checkMixinApplied(String target, String... handlers) {
+		try {
+			Method[] methods = Class.forName(target).getDeclaredMethods();
+			int missing = 0;
+			for (String handler : handlers) {
+				if (Stream.of(methods).noneMatch(m -> m.getName().contains(handler))) {
+					missing++;
+					LOGGER.error("[devcheck] mixin handler {} not found in {}", handler, target);
+				}
+			}
+			if (missing == 0) {
+				LOGGER.info("[devcheck] mixins ok in {}", target);
+			}
+			return missing;
+		} catch (Throwable ex) {
+			LOGGER.error("[devcheck] mixin check failed for {}", target, ex);
+			return 1;
+		}
 	}
 
 	/**

@@ -54,6 +54,7 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 | Heart of the Cosmos | - | - | - | - | - |
 | Heart of the Abyss (abyssal_heart) | - | - | - | - | - |
 | Soul Dust | - | - | - | - | - |
+| Emblem of Monster Slayer (monster_charm) | - | - | - | - (undead +25%, hostile +10%, +1 looting, double XP from monsters) | - |
 
 Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).

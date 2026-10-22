@@ -59,7 +59,7 @@ public interface IAccessoryItem {
 		return 0;
 	}
 
-	default int getLootingLevel(SlotContext context, @Nullable DamageSource source, LivingEntity target, int baseLooting, ItemStack stack) {
+	default int getLootingLevel(SlotContext context, @Nullable DamageSource source, @Nullable LivingEntity target, int baseLooting, ItemStack stack) {
 		return 0;
 	}
 

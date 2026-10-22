@@ -76,7 +76,7 @@ public interface AccessorySlots {
 	}
 
 	/** Sum of {@link IAccessoryItem#getLootingLevel} over equipped accessories. */
-	default int getLootingBonus(LivingEntity entity, @Nullable DamageSource source, LivingEntity target, int baseLooting) {
+	default int getLootingBonus(LivingEntity entity, @Nullable DamageSource source, @Nullable LivingEntity target, int baseLooting) {
 		int[] bonus = new int[1];
 		this.forEachEquipped(entity, (context, stack) -> {
 			if (stack.getItem() instanceof IAccessoryItem item) {

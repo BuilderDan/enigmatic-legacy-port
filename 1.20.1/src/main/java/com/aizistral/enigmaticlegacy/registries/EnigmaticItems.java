@@ -21,6 +21,7 @@ import com.aizistral.enigmaticlegacy.items.IronRing;
 import com.aizistral.enigmaticlegacy.items.LoreFragment;
 import com.aizistral.enigmaticlegacy.items.MagnetRing;
 import com.aizistral.enigmaticlegacy.items.MendingMixture;
+import com.aizistral.enigmaticlegacy.items.MonsterCharm;
 import com.aizistral.enigmaticlegacy.items.RecallPotion;
 import com.aizistral.enigmaticlegacy.items.SuperMagnetRing;
 import com.aizistral.enigmaticlegacy.items.SoulDust;
@@ -135,6 +136,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ObjectHolder(value = MODID + ":abyssal_heart", registryName = "item")
 	public static AbyssalHeart ABYSSAL_HEART;
 
+	@ConfigurableItem("Emblem of Monster Slayer")
+	@ObjectHolder(value = MODID + ":monster_charm", registryName = "item")
+	public static MonsterCharm MONSTER_CHARM;
+
 	@ConfigurableItem("Soul Dust")
 	@ObjectHolder(value = MODID + ":soul_dust", registryName = "item")
 	public static Item SOUL_DUST;
@@ -166,6 +171,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("cosmic_heart", CosmicHeart::new);
 		this.register("abyssal_heart", AbyssalHeart::new);
 		this.register("soul_dust", SoulDust::new);
+		this.register("monster_charm", MonsterCharm::new);
 	}
 
 	/** Port: forces class loading, which registers the items. */

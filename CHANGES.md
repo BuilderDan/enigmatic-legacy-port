@@ -85,7 +85,7 @@ Sections are added here as each Minecraft version / loader is ported.
   Ring, Extradimensional Eye, Potion of Recall, Etherium Ingot, Etherium Nugget, Etherium Scraps, Ender Rod, Astral Dust, Lore
   Fragment, Heart of the Earth, Twisted Heart, Exquisite Ring, Nefarious Essence, Nefarious
   Ingot, Unholy Stone, Darkest Scroll, Tome of Hungering Knowledge, Heart of the Cosmos,
-  Heart of the Abyss, Soul Dust), registered in upstream order.
+  Heart of the Abyss, Soul Dust, Emblem of Monster Slayer), registered in upstream order.
 - Creative tabs: built with `FabricItemGroup`; contents come from `ICreativeTabMember` in
   `displayItems` instead of Forge's `BuildCreativeModeTabContentsEvent`. Temporary: the main
   tab icon is Blank Scroll until the Enigmatic Amulet is ported; the potions tab returns with
@@ -182,3 +182,20 @@ Sections are added here as each Minecraft version / loader is ported.
   not yet in End city loot (`LootTableLoadEvent` not ported).
 - `javax.annotation.Nullable` (from Forge's classpath) is replaced by
   `org.jetbrains.annotations.Nullable` where ported files used it.
+- Emblem of Monster Slayer (`MonsterCharm`): upstream's Forge event cases are port-only
+  mixins in `mixin/MixinLivingEntity` and `mixin/MixinEnchantmentHelper`, calling static
+  methods on the item:
+  - `LivingHurtEvent` -> `@ModifyVariable` on the amount at the head of
+    `LivingEntity.actuallyHurt`. `Player` overrides `actuallyHurt`, so hits on players are not
+    covered (the charm only affects monsters, so nothing is lost).
+  - `LivingExperienceDropEvent` -> `@ModifyArg` on the `ExperienceOrb.award` amount in
+    `LivingEntity.dropExperience`, with the last player who hurt the entity as attacker.
+  - `LootingLevelEvent` -> `EnchantmentHelper.getMobLooting` RETURN adds the accessory
+    looting bonus. The damage source and target passed to `getLootingLevel` are null there.
+  - Behavior change: the `BonusLooting` and `DoubleXP` config options are honored. Upstream
+    ignores both (always +1 looting, always double XP) while the tooltip follows them.
+  - The Quote played when hitting the Ender Dragon is skipped; quotes are not ported.
+- `IAccessoryItem.getLootingLevel` / `AccessorySlots`: the `target` parameter is now
+  `@Nullable`.
+- Dev only, port-only: `DevSelfCheck` also checks that the `LivingEntity` and
+  `EnchantmentHelper` mixin handlers were merged.
