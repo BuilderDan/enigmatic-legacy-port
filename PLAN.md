@@ -10,8 +10,8 @@ Written 2026-10-21. Living document: update it as decisions are made.
 - Also useful as reference: `neoforge_1.20.1` (upstream's own NeoForge 1.20.1 build, 2.30.2).
 - Related project: [Enigmatic Legacy Plus](https://modrinth.com/mod/enigmaticlegacy-plus)
   by Auviotre ([source](https://github.com/Auviotre/Enigmatic-Legacy-Plus)), an active
-  1.21.1 NeoForge port under the same license. It overlaps with our 1.21.1 NeoForge target
-  (see open questions).
+  1.21.1 NeoForge port under the same license. **We skip 1.21.1 NeoForge** (Dan,
+  2026-10-21) and point NeoForge players there.
 
 ## 2. Size of the job
 
@@ -64,13 +64,18 @@ Design rule: game code talks to a small `common` interface (`SlotAccess`, `Netwo
 
 ## 6. Repository layout
 
-One multiloader Gradle project per Minecraft version, side by side in this repo:
+One Gradle project per Minecraft version, side by side in this repo:
 
 ```
-1.20.1/   common/ fabric/            (Fabric only for this version)
-1.21.1/   common/ fabric/ neoforge/
-26.3/     common/ fabric/ neoforge/
+1.20.1/   single Fabric Loom project
+1.21.1/   single Fabric Loom project
+26.3/     common/ fabric/ neoforge/   (multiloader)
 ```
+
+Fabric-only versions skip the common/fabric split: loader-specific code lives in a
+`platform` package behind the interfaces from section 3, so it can move into a `common`
+module later. Client code stays in the main source set at first (upstream mixes it in);
+split it out when the port is stable.
 
 Tooling: Fabric Loom with Mojang mappings + Parchment (keeps names close to upstream, so
 diffs stay readable), ModDevGradle for NeoForge. Mod id stays `enigmaticlegacy` unless
@@ -85,7 +90,7 @@ decided otherwise.
    4. Port game logic and the event handler; port mixins and access widener.
    5. Config (Omniconfig Fabric backend), guide book, client rendering.
    6. Playtest every item in the dev client (checklist in `docs/playtest-1.20.1.md`).
-2. **1.21.1 NeoForge** (see open question about Enigmatic Legacy Plus), then **1.21.1 Fabric**.
+2. **1.21.1 Fabric** (NeoForge skipped: Enigmatic Legacy Plus covers it).
 3. **26.3** NeoForge, then Fabric when a trinket API exists.
 4. Mid-point version (e.g. 1.21.4) only if cheap.
 
@@ -102,8 +107,6 @@ A version counts as done only after a full dev-client playtest of every item.
 
 ## 9. Open questions
 
-- **Enigmatic Legacy Plus already covers 1.21.1 NeoForge.** Skip that target (and point
-  NeoForge players there), or port it anyway for a matching Fabric/NeoForge pair?
 - Mod name on the mod sites (e.g. "Enigmatic Legacy (Fabric)")?
 - Upstream has no `package-info.java`, so the license's API exemption covers nothing.
   Ask the creator about it in the permission request.

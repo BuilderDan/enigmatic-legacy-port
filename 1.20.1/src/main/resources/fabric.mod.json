@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "enigmaticlegacy",
+	"version": "${version}",
+	"name": "Enigmatic Legacy (Fabric port)",
+	"description": "Unofficial Fabric port of Enigmatic Legacy. Enigmatic Legacy is created and owned by Aizistral (Aizistral Studios); this port is not affiliated with them.",
+	"authors": [
+		"Aizistral (original author and owner)"
+	],
+	"contributors": [
+		"BuilderDan (Fabric port)"
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/enigmatic-legacy",
+		"sources": "https://github.com/BuilderDan/enigmatic-legacy-port",
+		"issues": "https://github.com/BuilderDan/enigmatic-legacy-port/issues"
+	},
+	"license": "LicenseRef-Enigmatic-Legacy-License-II",
+	"icon": "EL_logo.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.aizistral.enigmaticlegacy.fabric.EnigmaticLegacyFabric"
+		],
+		"client": [
+			"com.aizistral.enigmaticlegacy.fabric.EnigmaticLegacyFabricClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.16.14",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*",
+		"trinkets": ">=3.7.0",
+		"patchouli": "*"
+	}
+}

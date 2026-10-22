@@ -1,0 +1,92 @@
+plugins {
+	id 'fabric-loom' version "${loom_version}"
+}
+
+base {
+	archivesName = 'enigmaticlegacy-fabric-1.20.1'
+}
+
+repositories {
+	maven { name = 'ParchmentMC'; url = 'https://maven.parchmentmc.org' }
+	maven { name = 'TerraformersMC'; url = 'https://maven.terraformersmc.com/releases' } // Mod Menu
+	maven { name = 'Modrinth'; url = 'https://api.modrinth.com/maven'; content { includeGroup 'maven.modrinth' } }
+	maven { name = 'Ladysnake'; url = 'https://maven.ladysnake.org/releases' } // Cardinal Components
+	maven { name = 'BlameJared'; url = 'https://maven.blamejared.com' } // Patchouli
+}
+
+loom {
+	// Dev runs use ./run. Dan's ./run is a junction to B:/EnigmaticLegacyPort/run-1.20.1 so worlds stay off C:.
+	mods {
+		"enigmaticlegacy" {
+			sourceSet sourceSets.main
+		}
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings loom.layered() {
+		officialMojangMappings()
+		parchment("org.parchmentmc.data:parchment-${project.minecraft_version}:${project.parchment_version}@zip")
+	}
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	// Curios -> Trinkets (rings, charms, scrolls, spellstones, back slot)
+	// Trinkets from Modrinth: the TerraformersMC maven jar of 3.7.2 has an unremapped mixin shadow and crashes Mojmap dev runs.
+	modImplementation "maven.modrinth:trinkets:${project.trinkets_version}"
+	// Playtime counter (upstream: Forge capability)
+	modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cca_version}"
+	modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cca_version}"
+	// The Acknowledgment guide book
+	modImplementation "vazkii.patchouli:Patchouli:${project.patchouli_version}"
+
+	// Dev client only
+	modLocalRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"
+}
+
+processResources {
+	def version = project.version
+	inputs.property "version", version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 17
+	it.options.encoding = 'UTF-8'
+}
+
+java {
+	withSourcesJar()
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+jar {
+	from(rootProject.file('../LICENSE.md'))
+	from(rootProject.file('../CHANGES.md'))
+}
+
+// Run the game on Java 17 like a real 1.20.1 install (Gradle itself runs on JDK 21).
+tasks.withType(JavaExec).configureEach {
+	javaLauncher = javaToolchains.launcherFor {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+// Dev client defaults (Dan): music and narrator off, no first-launch accessibility screen.
+// Only these keys are forced; other options set in game are kept.
+def devOptions = file('run/options.txt')
+tasks.named('runClient') {
+	doFirst {
+		def forced = ['soundCategory_music': '0.0', 'narrator': '0', 'onboardAccessibility': 'false']
+		def lines = devOptions.exists() ? devOptions.readLines('UTF-8') : []
+		lines = lines.findAll { line -> !forced.keySet().any { line.startsWith(it + ':') } }
+		forced.each { k, v -> lines << "${k}:${v}".toString() }
+		devOptions.parentFile.mkdirs()
+		devOptions.write(lines.join('\n') + '\n', 'UTF-8')
+	}
+}
