@@ -75,3 +75,24 @@ Sections are added here as each Minecraft version / loader is ported.
 - Config sync on login/logout moved from `EnigmaticEventHandler` to the new
   `config/OmniconfigSync`, called from Fabric connection events.
 - `OmniconfigHandler.isBoss` uses `BuiltInRegistries` instead of `ForgeRegistries`.
+- Registries: Forge `DeferredRegister`/`RegisterEvent` replaced by direct vanilla
+  `Registry.register` in `registries/AbstractRegistry`. Forge `@ObjectHolder` replaced by a
+  port-only `api/generic/ObjectHolder` annotation that `AbstractRegistry` fills by reflection.
+  Holder fields are non-final with no initializer. `init()` methods (port-only) force class
+  loading from the Fabric entry point. The `onRegister` block-item hook is left out until
+  blocks are ported.
+- `EnigmaticItems` holds only the ported items (so far: Blank Scroll, Astral Dust, Lore
+  Fragment, Heart of the Earth, Twisted Heart, Nefarious Essence, Nefarious Ingot, Unholy
+  Stone, Darkest Scroll, Soul Dust), registered in upstream order.
+- Creative tabs: built with `FabricItemGroup`; contents come from `ICreativeTabMember` in
+  `displayItems` instead of Forge's `BuildCreativeModeTabContentsEvent`. Temporary: the main
+  tab icon is Blank Scroll until the Enigmatic Amulet is ported; the potions tab returns with
+  the potion items.
+- `@OnlyIn` is removed (not replaced with Fabric `@Environment`) so common code stays
+  loader-neutral; only client code calls the client-only methods (`ItemLoreHelper`,
+  `LoreFragment`).
+- `ItemLoreHelper.indicateWorthyOnesOnly` / `indicateBlessedOnesOnly` are left out until the
+  Cursed Ring and the Architect/Believer items are ported.
+- Temporary: `SuperpositionHandler.isTheCursedOne` always returns false until the Cursed Ring
+  is ported (cursed-only tooltips and Twisted Heart/Soul Dust curse checks are inactive).
+- `SuperpositionHandler.isExplosion` uses the vanilla `DamageTypeTags.IS_EXPLOSION` tag.

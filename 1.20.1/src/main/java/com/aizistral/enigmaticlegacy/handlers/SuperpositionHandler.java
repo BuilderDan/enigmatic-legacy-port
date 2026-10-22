@@ -1,13 +1,18 @@
 package com.aizistral.enigmaticlegacy.handlers;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import org.jetbrains.annotations.Nullable;
+
 import com.aizistral.enigmaticlegacy.EnigmaticLegacy;
+import com.aizistral.enigmaticlegacy.api.capabilities.IPlaytimeCounter;
 import com.aizistral.enigmaticlegacy.api.generic.ConfigurableItem;
 import com.aizistral.enigmaticlegacy.api.generic.SubscribeConfig;
 import com.aizistral.enigmaticlegacy.config.ConfigHolders;
@@ -18,6 +23,8 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -121,5 +128,72 @@ public class SuperpositionHandler {
 		}
 
 		return accessibilityGeneratorMap;
+	}
+
+	public static boolean isTheCursedOne(Player player) {
+		// Port: always false until CursedRing is ported; then
+		// Services.ACCESSORIES.isEquipped(player, EnigmaticItems.CURSED_RING).
+		return false;
+	}
+
+	public static double getSufferingFraction(@Nullable Player player) {
+		if (player == null)
+			return 0;
+
+		IPlaytimeCounter counter = Services.PLAYER_DATA.getPlaytimeCounter(player);
+
+		if (counter == null)
+			return 0;
+
+		long timeWithRing = counter.getTimeWithCurses();
+		long timeWithoutRing = counter.getTimeWithoutCurses();
+
+		if (timeWithRing <= 0)
+			return 0;
+		else if (timeWithoutRing <= 0)
+			return 1;
+
+		if (timeWithRing > 100000 || timeWithoutRing > 100000) {
+			timeWithRing = timeWithRing / 100;
+			timeWithoutRing = timeWithoutRing / 100;
+
+			if (timeWithRing <= 0)
+				return 0;
+			else if (timeWithoutRing <= 0)
+				return 1;
+		}
+
+		double ringFraction = timeWithRing / (double) (timeWithoutRing + timeWithRing);
+		return roundToPlaces(ringFraction, 3);
+	}
+
+	public static String getSufferingTime(@Nullable Player player) {
+		double fraction = getSufferingFraction(player);
+		double percent = roundToPlaces(100 * fraction, 1);
+
+		if (percent % 1 == 0)
+			return (int) percent + "%";
+		else
+			return percent + "%";
+	}
+
+	public static double roundToPlaces(double value, int places) {
+		if (places < 0)
+			throw new IllegalArgumentException();
+
+		BigDecimal bd = new BigDecimal(Double.toString(value));
+		bd = bd.setScale(places, RoundingMode.HALF_UP);
+		return bd.doubleValue();
+	}
+
+	public static boolean isExplosion(DamageSource source) {
+		return source.is(DamageTypeTags.IS_EXPLOSION);
+	}
+
+	public static String minimizeNumber(double num) {
+		if (num % 1 == 0)
+			return Integer.toString((int) num);
+		else
+			return Double.toString(num);
 	}
 }

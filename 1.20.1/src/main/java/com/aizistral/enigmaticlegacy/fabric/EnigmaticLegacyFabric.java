@@ -12,6 +12,8 @@ import com.aizistral.enigmaticlegacy.objects.EnabledCondition;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncPlayTime;
 import com.aizistral.enigmaticlegacy.platform.Services;
 import com.aizistral.enigmaticlegacy.platform.network.PacketDirection;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticTabs;
 import com.aizistral.omniconfig.packets.PacketSyncOptions;
 
 import net.fabricmc.api.ModInitializer;
@@ -30,6 +32,8 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		LOGGER.info("Enigmatic Legacy (Fabric port) initializing");
 		FabricPlatformHelper.init();
 		OmniconfigHandler.initialize();
+		EnigmaticItems.init();
+		EnigmaticTabs.init();
 		TrinketsAccessorySlots.init();
 		EnabledCondition.register();
 		PlayerPlaytimeCounter.registerStats();
