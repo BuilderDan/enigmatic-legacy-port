@@ -1,6 +1,7 @@
 package com.aizistral.enigmaticlegacy.fabric;
 
 import com.aizistral.enigmaticlegacy.client.BlazingCoreClient;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketCosmicRevive;
 import com.aizistral.enigmaticlegacy.config.OmniconfigSync;
 import com.aizistral.enigmaticlegacy.fabric.platform.client.FabricClientNetwork;
 import com.aizistral.enigmaticlegacy.client.renderers.PermanentItemRenderer;
@@ -20,8 +21,10 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
@@ -41,6 +44,7 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 			BlazingCoreClient.onDisconnect();
 		});
 		ClientTickEvents.END_CLIENT_TICK.register(BlazingCoreClient::onClientTick);
+		ClientTickEvents.END_CLIENT_TICK.register(PacketCosmicRevive::onClientTick);
 		registerKeybinds();
 		registerItemProperties();
 		DevSelfCheck.register();
@@ -68,5 +72,8 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 				EnigmaticItems.ULTIMATE_POTION_LINGERING, EnigmaticItems.COMMON_POTION,
 				EnigmaticItems.COMMON_POTION_SPLASH, EnigmaticItems.COMMON_POTION_LINGERING);
 		ClientTickEvents.START_CLIENT_TICK.register(KEYBIND_HANDLER::onKeyInput);
+		// Port: Fabric tooltip callback instead of ItemTooltipEvent (Architect's Favor lines).
+		ItemTooltipCallback.EVENT.register((stack, context, lines) ->
+				EnigmaticItems.COSMIC_SCROLL.onTooltip(stack, Minecraft.getInstance().player, lines));
 	}
 }

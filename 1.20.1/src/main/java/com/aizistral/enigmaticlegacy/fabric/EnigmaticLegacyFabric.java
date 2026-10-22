@@ -18,6 +18,10 @@ import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncFireImmunity;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncForbiddenFruit;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncPlayTime;
+import com.aizistral.enigmaticlegacy.items.GolemHeart;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayerMotion;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayerSetlook;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketCosmicRevive;
 import com.aizistral.enigmaticlegacy.packets.server.PacketEnderRingKey;
 import com.aizistral.enigmaticlegacy.packets.server.PacketXPScrollKey;
 import com.aizistral.enigmaticlegacy.platform.Services;
@@ -67,8 +71,14 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		EnigmaticItems.init();
 		EnigmaticEntities.init();
 		// Port: upstream adds this in onLoadComplete.
-		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.ENIGMATIC_ITEM);
+		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.ANGEL_BLESSING);
+		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.GOLEM_HEART);
+		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.OCEAN_STONE);
 		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.BLAZING_CORE);
+		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.EYE_OF_NEBULA);
+		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.VOID_PEARL);
+		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.THE_CUBE);
+		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.ENIGMATIC_ITEM);
 		EnigmaticRecipes.init();
 		EnigmaticRecipes.registerBrewingRecipes();
 		EnigmaticTabs.init();
@@ -86,6 +96,7 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		});
 		ServerLivingEntityEvents.ALLOW_DAMAGE.register(EnigmaticEventHandler::onLivingAttack);
 		ServerLivingEntityEvents.ALLOW_DEATH.register(EnigmaticEventHandler::onLivingDeath);
+		ServerLivingEntityEvents.AFTER_DEATH.register(EnigmaticEventHandler::onEntityKilled);
 		// Forge keeps the PlayerPersisted compound across respawns; copy ours over too.
 		ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) ->
 				((PersistentData) newPlayer).enigmaticlegacy$setPersistedTag(
@@ -95,6 +106,8 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 				EnigmaticEventHandler.onPlayerTick(player);
 			}
 		});
+		// Port: upstream builds this in common setup, after every mod has registered its items.
+		ServerLifecycleEvents.SERVER_STARTING.register(server -> GolemHeart.buildArmorExclusions());
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> EnigmaticEventHandler.onServerStopped());
 		LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) ->
 				EnigmaticEventHandler.onLootTablesLoaded(id, tableBuilder::pool));
@@ -126,5 +139,11 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 				PacketSpellstoneKey::decode, PacketSpellstoneKey::handle);
 		network.register(PacketForceArrowRotations.class, PacketDirection.TO_CLIENT, PacketForceArrowRotations::encode,
 				PacketForceArrowRotations::decode, PacketForceArrowRotations::handle);
+		network.register(PacketPlayerMotion.class, PacketDirection.TO_CLIENT, PacketPlayerMotion::encode,
+				PacketPlayerMotion::decode, PacketPlayerMotion::handle);
+		network.register(PacketPlayerSetlook.class, PacketDirection.TO_CLIENT, PacketPlayerSetlook::encode,
+				PacketPlayerSetlook::decode, PacketPlayerSetlook::handle);
+		network.register(PacketCosmicRevive.class, PacketDirection.TO_CLIENT, PacketCosmicRevive::encode,
+				PacketCosmicRevive::decode, PacketCosmicRevive::handle);
 	}
 }

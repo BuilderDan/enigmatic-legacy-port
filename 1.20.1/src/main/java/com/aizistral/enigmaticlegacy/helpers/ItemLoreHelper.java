@@ -36,9 +36,22 @@ public class ItemLoreHelper {
 
 	}
 
-	// Port: indicateWorthyOnesOnly and indicateBlessedOnesOnly return when CursedRing and
-	// the Architect/Believer items are ported (they need CursedRing.superCursedTime and
-	// SuperpositionHandler.isTheWorthyOne/isTheBlessedOne).
+	public static void indicateBlessedOnesOnly(List<Component> list) {
+		ChatFormatting format;
+
+		if (Minecraft.getInstance().player != null) {
+			format = SuperpositionHandler.isTheBlessedOne(Minecraft.getInstance().player) ? ChatFormatting.GOLD : ChatFormatting.DARK_RED;
+		} else {
+			format = ChatFormatting.DARK_RED;
+		}
+
+		list.add(Component.translatable("tooltip.enigmaticlegacy.blessedOnesOnly1").withStyle(format));
+		list.add(Component.translatable("tooltip.enigmaticlegacy.blessedOnesOnly2").withStyle(format));
+
+	}
+
+	// Port: indicateWorthyOnesOnly returns when CursedRing is ported (it needs
+	// CursedRing.superCursedTime and SuperpositionHandler.isTheWorthyOne).
 
 	public static void addLocalizedFormattedString(List<Component> list, String str, ChatFormatting format) {
 		list.add(Component.translatable(str).withStyle(format));

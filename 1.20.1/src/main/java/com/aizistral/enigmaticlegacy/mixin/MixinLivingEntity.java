@@ -16,6 +16,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.aizistral.enigmaticlegacy.handlers.EnigmaticEventHandler;
+import com.aizistral.enigmaticlegacy.handlers.SuperpositionHandler;
+import com.aizistral.enigmaticlegacy.items.CursedScroll;
 import com.aizistral.enigmaticlegacy.items.ForbiddenFruit;
 import com.aizistral.enigmaticlegacy.items.MonsterCharm;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
@@ -50,7 +52,7 @@ public abstract class MixinLivingEntity {
 	@ModifyVariable(method = "actuallyHurt", at = @At("HEAD"), argsOnly = true)
 	private float enigmaticlegacy$onHurt(float amount, DamageSource source) {
 		LivingEntity self = (LivingEntity) (Object) this;
-		return MonsterCharm.modifyHurtAmount(self, source, amount);
+		return EnigmaticEventHandler.onLivingHurt(self, source, MonsterCharm.modifyHurtAmount(self, source, amount));
 	}
 
 	/**
@@ -134,11 +136,15 @@ public abstract class MixinLivingEntity {
 	@ModifyVariable(method = "heal", at = @At("HEAD"), argsOnly = true)
 	private float enigmaticlegacy$onHeal(float amount) {
 		LivingEntity self = (LivingEntity) (Object) this;
-		// Port: TODO upstream's onLivingHeal also applies the Cursed Scroll regeneration boost; add it with that item.
+		if (self instanceof Player player && !player.level().isClientSide) {
+			if (amount <= 1.0F && EnigmaticItems.FORBIDDEN_FRUIT.haveConsumedFruit(player)) {
+				amount *= ForbiddenFruit.regenerationSubtraction.getValue().asModifierInverted();
+			}
 
-		if (self instanceof Player player && !player.level().isClientSide && amount <= 1.0F
-				&& EnigmaticItems.FORBIDDEN_FRUIT.haveConsumedFruit(player))
-			return amount * ForbiddenFruit.regenerationSubtraction.getValue().asModifierInverted();
+			if (SuperpositionHandler.hasCurio(player, EnigmaticItems.CURSED_SCROLL)) {
+				amount += amount * (CursedScroll.regenBoost.getValue().asModifier() * SuperpositionHandler.getCurseAmount(player));
+			}
+		}
 
 		return amount;
 	}

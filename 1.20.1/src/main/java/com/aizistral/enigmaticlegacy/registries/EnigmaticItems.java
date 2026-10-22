@@ -47,6 +47,17 @@ import com.aizistral.enigmaticlegacy.items.SoulDust;
 import com.aizistral.enigmaticlegacy.items.ThiccScroll;
 import com.aizistral.enigmaticlegacy.items.TwistedHeart;
 import com.aizistral.enigmaticlegacy.items.XPScroll;
+import com.aizistral.enigmaticlegacy.items.HeavenScroll;
+import com.aizistral.enigmaticlegacy.items.GolemHeart;
+import com.aizistral.enigmaticlegacy.items.EyeOfNebula;
+import com.aizistral.enigmaticlegacy.items.VoidPearl;
+import com.aizistral.enigmaticlegacy.items.OceanStone;
+import com.aizistral.enigmaticlegacy.items.AngelBlessing;
+import com.aizistral.enigmaticlegacy.items.FabulousScroll;
+import com.aizistral.enigmaticlegacy.items.CursedScroll;
+import com.aizistral.enigmaticlegacy.items.AvariceScroll;
+import com.aizistral.enigmaticlegacy.items.TheCube;
+import com.aizistral.enigmaticlegacy.items.CosmicScroll;
 import com.aizistral.etherium.items.EnderRod;
 import com.aizistral.etherium.items.EtheriumIngot;
 import com.aizistral.etherium.items.EtheriumNugget;
@@ -247,6 +258,50 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ObjectHolder(value = MODID + ":mining_charm", registryName = "item")
 	public static MiningCharm MINING_CHARM;
 
+	@ConfigurableItem("Gift of the Heaven")
+	@ObjectHolder(value = MODID + ":heaven_scroll", registryName = "item")
+	public static HeavenScroll HEAVEN_SCROLL;
+
+	@ConfigurableItem("Heart of the Golem")
+	@ObjectHolder(value = MODID + ":golem_heart", registryName = "item")
+	public static GolemHeart GOLEM_HEART;
+
+	@ConfigurableItem("Eye of Nebula")
+	@ObjectHolder(value = MODID + ":eye_of_nebula", registryName = "item")
+	public static EyeOfNebula EYE_OF_NEBULA;
+
+	@ConfigurableItem("Pearl of the Void")
+	@ObjectHolder(value = MODID + ":void_pearl", registryName = "item")
+	public static VoidPearl VOID_PEARL;
+
+	@ConfigurableItem("Will of the Ocean")
+	@ObjectHolder(value = MODID + ":ocean_stone", registryName = "item")
+	public static OceanStone OCEAN_STONE;
+
+	@ConfigurableItem("Angel's Blessing")
+	@ObjectHolder(value = MODID + ":angel_blessing", registryName = "item")
+	public static AngelBlessing ANGEL_BLESSING;
+
+	@ConfigurableItem("Grace of the Creator")
+	@ObjectHolder(value = MODID + ":fabulous_scroll", registryName = "item")
+	public static FabulousScroll FABULOUS_SCROLL;
+
+	@ConfigurableItem("Scroll of a Thousand Curses")
+	@ObjectHolder(value = MODID + ":cursed_scroll", registryName = "item")
+	public static CursedScroll CURSED_SCROLL;
+
+	@ConfigurableItem("Pact of Infinite Avarice")
+	@ObjectHolder(value = MODID + ":avarice_scroll", registryName = "item")
+	public static AvariceScroll AVARICE_SCROLL;
+
+	@ConfigurableItem("Non-Euclidean Cube")
+	@ObjectHolder(value = MODID + ":the_cube", registryName = "item")
+	public static TheCube THE_CUBE;
+
+	@ConfigurableItem("Cosmic Scroll")
+	@ObjectHolder(value = MODID + ":cosmic_scroll", registryName = "item")
+	public static CosmicScroll COSMIC_SCROLL;
+
 	@ConfigurableItem("Soul Dust")
 	@ObjectHolder(value = MODID + ":soul_dust", registryName = "item")
 	public static Item SOUL_DUST;
@@ -301,6 +356,17 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("infinimeal", Infinimeal::new);
 		this.register("astral_potato", AstralPotato::new);
 		this.register("mining_charm", MiningCharm::new);
+		this.register("heaven_scroll", HeavenScroll::new);
+		this.register("golem_heart", GolemHeart::new);
+		this.register("eye_of_nebula", EyeOfNebula::new);
+		this.register("void_pearl", VoidPearl::new);
+		this.register("ocean_stone", OceanStone::new);
+		this.register("angel_blessing", AngelBlessing::new);
+		this.register("fabulous_scroll", FabulousScroll::new);
+		this.register("cursed_scroll", CursedScroll::new);
+		this.register("avarice_scroll", AvariceScroll::new);
+		this.register("the_cube", TheCube::new);
+		this.register("cosmic_scroll", CosmicScroll::new);
 	}
 
 	/** Port: forces class loading, which registers the items. */

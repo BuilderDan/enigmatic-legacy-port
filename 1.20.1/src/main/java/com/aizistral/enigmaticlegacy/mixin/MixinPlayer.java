@@ -51,7 +51,7 @@ public abstract class MixinPlayer implements PersistentData {
 
 	@ModifyVariable(method = "actuallyHurt", at = @At("HEAD"), argsOnly = true)
 	private float enigmaticlegacy$onHurt(float amount, DamageSource source) {
-		return EnigmaticEventHandler.onPlayerHurt((Player) (Object) this, source, amount);
+		return EnigmaticEventHandler.onLivingHurt((Player) (Object) this, source, amount);
 	}
 
 	/** Player's copy of MixinLivingEntity's LivingDamageEvent hook. */

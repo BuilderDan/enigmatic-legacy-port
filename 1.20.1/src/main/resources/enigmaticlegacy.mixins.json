@@ -5,6 +5,7 @@
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
 		"AccessorAbstractArrow",
+		"AccessorBeaconBlockEntity",
 		"AccessorMobEffectInstance",
 		"MixinAbstractArrow",
 		"MixinAbstractHurtingProjectile",
@@ -22,11 +23,13 @@
 		"MixinServerGamePacketListenerImpl",
 		"MixinServerPlayer",
 		"MixinServerPlayerGameMode",
-		"MixinThrowableProjectile"
+		"MixinThrowableProjectile",
+		"MixinThrownEnderPearl"
 	],
 	"client": [
 		"MixinFogRenderer",
 		"MixinGui",
+		"MixinItemStack",
 		"MixinMultiPlayerGameMode"
 	],
 	"injectors": {

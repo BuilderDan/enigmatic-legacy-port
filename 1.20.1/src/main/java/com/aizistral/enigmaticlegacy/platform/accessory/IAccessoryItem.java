@@ -67,6 +67,14 @@ public interface IAccessoryItem {
 		return false;
 	}
 
+	/**
+	 * Port-only. Stands in for Curios' getAttributesTooltip: when true, the accessory's
+	 * "When worn" attribute lines are left out of its tooltip.
+	 */
+	default boolean hidesAttributeTooltip(ItemStack stack) {
+		return false;
+	}
+
 	default SoundInfo getEquipSound(SlotContext context, ItemStack stack) {
 		return new SoundInfo(SoundEvents.ARMOR_EQUIP_GENERIC, 1.0F, 1.0F);
 	}

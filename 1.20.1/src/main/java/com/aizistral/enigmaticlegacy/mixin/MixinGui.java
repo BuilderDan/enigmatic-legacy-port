@@ -9,7 +9,9 @@ import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.aizistral.enigmaticlegacy.client.BlazingCoreClient;
+import com.aizistral.enigmaticlegacy.handlers.SuperpositionHandler;
 import com.aizistral.enigmaticlegacy.items.ForbiddenFruit;
+import com.aizistral.enigmaticlegacy.items.OceanStone;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -23,7 +25,8 @@ import net.minecraft.resources.ResourceLocation;
 /**
  * Port-only. Stands in for Forge's {@code RenderGuiOverlayEvent.Pre} on the experience bar,
  * which upstream cancels to draw the Blazing Core's heat bar, and for its
- * {@code FOOD_LEVEL} overlay, which upstream replaces for players who ate the Forbidden Fruit.
+ * {@code FOOD_LEVEL} overlay, which upstream replaces for players who ate the Forbidden Fruit,
+ * and its {@code AIR_LEVEL} overlay, which upstream hides for Ocean Stone, Void Pearl and Cube wearers.
  */
 @Mixin(Gui.class)
 public abstract class MixinGui {
@@ -67,6 +70,22 @@ public abstract class MixinGui {
 				return;
 			}
 		}
+
+		original.call(graphics, texture, x, y, u, v, width, height);
+	}
+
+	/** Every blit after the "air" section starts is an oxygen bubble. */
+	@WrapOperation(method = "renderPlayerHealth", at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIIIII)V"),
+			slice = @Slice(from = @At(value = "INVOKE_STRING", target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V", args = "ldc=air")))
+	private void enigmaticlegacy$renderAirBubble(GuiGraphics graphics, ResourceLocation texture, int x, int y,
+			int u, int v, int width, int height, Operation<Void> original) {
+		LocalPlayer player = Minecraft.getInstance().player;
+
+		if (player != null && OceanStone.preventOxygenBarRender.getValue()
+				&& (SuperpositionHandler.hasCurio(player, EnigmaticItems.OCEAN_STONE) || SuperpositionHandler.hasCurio(player, EnigmaticItems.VOID_PEARL)
+						|| SuperpositionHandler.hasCurio(player, EnigmaticItems.THE_CUBE)))
+			return;
 
 		original.call(graphics, texture, x, y, u, v, width, height);
 	}

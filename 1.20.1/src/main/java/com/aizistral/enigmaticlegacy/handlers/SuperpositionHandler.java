@@ -6,6 +6,7 @@ import java.math.RoundingMode;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.WeakHashMap;
 import com.aizistral.enigmaticlegacy.api.items.ISpellstone;
@@ -46,6 +47,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.advancements.Advancement;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -54,6 +56,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -70,6 +73,10 @@ import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import com.aizistral.enigmaticlegacy.items.GolemHeart;
 import java.util.Map.Entry;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
@@ -97,6 +104,7 @@ public class SuperpositionHandler {
 	public static final char[] UPPERCASE_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
 	public static final char[] LOWERCASE_LETTERS = "abcdefghijklmnopqrstuvwxyz".toCharArray();
 	public static final char[] NUMBERS = "0123456789".toCharArray();
+	public static final char[] SPECIAL_SYMBOLS = "-+=(){}[]':;./,<>*&^%$#@!?~".toCharArray();
 
 	public static boolean areWeDedicatedServer() {
 		return !Services.PLATFORM.isPhysicalClient();
@@ -275,6 +283,66 @@ public class SuperpositionHandler {
 		return netherList;
 	}
 
+	public static List<ResourceLocation> getEarthenDungeons() {
+		List<ResourceLocation> lootChestList = new ArrayList<ResourceLocation>();
+
+		lootChestList.add(BuiltInLootTables.SIMPLE_DUNGEON);
+		lootChestList.add(BuiltInLootTables.ABANDONED_MINESHAFT);
+		lootChestList.add(BuiltInLootTables.VILLAGE_ARMORER);
+
+		return lootChestList;
+	}
+
+	public static List<ResourceLocation> getWaterDungeons() {
+		List<ResourceLocation> lootChestList = new ArrayList<ResourceLocation>();
+
+		lootChestList.add(BuiltInLootTables.UNDERWATER_RUIN_BIG);
+		lootChestList.add(BuiltInLootTables.UNDERWATER_RUIN_SMALL);
+		lootChestList.add(BuiltInLootTables.SHIPWRECK_TREASURE);
+		lootChestList.add(BuiltInLootTables.BURIED_TREASURE);
+
+		return lootChestList;
+	}
+
+	public static List<ResourceLocation> getAirDungeons() {
+		List<ResourceLocation> lootChestList = new ArrayList<ResourceLocation>();
+
+		lootChestList.add(BuiltInLootTables.VILLAGE_TEMPLE);
+
+		return lootChestList;
+	}
+
+	public static List<ResourceLocation> getEnderDungeons() {
+		List<ResourceLocation> lootChestList = new ArrayList<ResourceLocation>();
+
+		lootChestList.add(BuiltInLootTables.END_CITY_TREASURE);
+
+		return lootChestList;
+	}
+
+	public static List<ResourceLocation> getMergedAir$EarthenDungeons() {
+		List<ResourceLocation> lootChestList = new ArrayList<ResourceLocation>();
+
+		lootChestList.add(BuiltInLootTables.DESERT_PYRAMID);
+		lootChestList.add(BuiltInLootTables.JUNGLE_TEMPLE);
+
+		return lootChestList;
+	}
+
+	public static List<ResourceLocation> getMergedEnder$EarthenDungeons() {
+		List<ResourceLocation> lootChestList = new ArrayList<ResourceLocation>();
+
+		lootChestList.add(BuiltInLootTables.STRONGHOLD_CORRIDOR);
+		lootChestList.add(BuiltInLootTables.STRONGHOLD_CROSSING);
+
+		return lootChestList;
+	}
+
+	public static boolean isMagic(DamageSource source) {
+		return source.is(DamageTypes.MAGIC) || source.is(DamageTypes.WITHER) || source.is(DamageTypes.WITHER_SKULL)
+				|| source.is(DamageTypes.DRAGON_BREATH) || source.is(DamageTypes.INDIRECT_MAGIC) || source.is(DamageTypes.THORNS);
+	}
+
 	public static boolean isTheBlessedOne(Player player) {
 		if (EnigmaticLegacy.SOUL_OF_THE_ARCHITECT.equals(player.getUUID()))
 			return true;
@@ -400,6 +468,68 @@ public class SuperpositionHandler {
 		else
 			return 1.0F;
 
+	}
+
+	public static ServerLevel getOverworld() {
+		return SuperpositionHandler.getWorld(Level.OVERWORLD);
+	}
+
+	public static ServerLevel getNether() {
+		return SuperpositionHandler.getWorld(Level.NETHER);
+	}
+
+	public static ServerLevel getEnd() {
+		return SuperpositionHandler.getWorld(Level.END);
+	}
+
+	@SafeVarargs
+	public static <T> T getRandomElement(List<T> list, T... excluding) {
+		List<T> newList = new ArrayList<>(list);
+		newList.removeAll(Arrays.asList(excluding));
+
+		if (newList.isEmpty())
+			throw new IllegalArgumentException("List has no valid elements to choose");
+		else if (newList.size() == 1)
+			return newList.get(0);
+		else
+			return newList.get(RANDOM.nextInt(newList.size()));
+	}
+
+	// Port: upstream walks ChunkMap.visibleChunkMap, which Fabric cannot reach. Beacon range
+	// tops out at 50 blocks, so scanning loaded chunks within 4 chunks of the player covers it.
+	public static boolean isInBeaconRange(Player player) {
+		if (!(player.level() instanceof ServerLevel level))
+			return false;
+
+		int cx = player.chunkPosition().x, cz = player.chunkPosition().z;
+
+		for (int x = cx - 4; x <= cx + 4; x++) {
+			for (int z = cz - 4; z <= cz + 4; z++) {
+				net.minecraft.world.level.chunk.LevelChunk chunk = level.getChunkSource().getChunkNow(x, z);
+
+				if (chunk == null) {
+					continue;
+				}
+
+				for (net.minecraft.world.level.block.entity.BlockEntity tile : chunk.getBlockEntities().values()) {
+					if (tile instanceof net.minecraft.world.level.block.entity.BeaconBlockEntity beacon) {
+						int levels = ((com.aizistral.enigmaticlegacy.mixin.AccessorBeaconBlockEntity) beacon).enigmaticlegacy$getLevels();
+
+						if (levels <= 0 || beacon.getBeamSections().isEmpty()) {
+							continue;
+						}
+
+						int range = (levels + 1) * 10;
+						double distance = Math.sqrt(beacon.getBlockPos().distToCenterSqr(player.getX(), beacon.getBlockPos().getY(), player.getZ()));
+
+						if (distance <= range)
+							return true;
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 
 	public static ServerLevel getWorld(ResourceKey<Level> key) {
@@ -664,8 +794,7 @@ public class SuperpositionHandler {
 	}
 
 	public static boolean hasArchitectsFavor(Player player) {
-		// Port: Architect's Favor (cosmic_scroll) is not ported yet.
-		return false;
+		return isTheBlessedOne(player) && SuperpositionHandler.hasCurio(player, EnigmaticItems.COSMIC_SCROLL);
 	}
 
 	/** Port: copied from upstream; client-only callers. */
@@ -721,5 +850,206 @@ public class SuperpositionHandler {
 			}
 		}
 
+	}
+
+	/**
+	 * Attempts to teleport entity at given coordinates, or nearest valid location
+	 * on Y axis.
+	 *
+	 * @return True if successfull, false otherwise.
+	 */
+
+	public static boolean validTeleport(Entity entity, double x_init, double y_init, double z_init, Level world, int checkAxis) {
+		int x = (int) x_init;
+		int y = (int) y_init;
+		int z = (int) z_init;
+
+		BlockState block = world.getBlockState(new BlockPos(x, y - 1, z));
+
+		if (!world.isEmptyBlock(new BlockPos(x, y - 1, z)) && block.canOcclude()) {
+			for (int counter = 0; counter <= checkAxis; counter++) {
+				if (!world.isEmptyBlock(new BlockPos(x, y + counter - 1, z)) && world.getBlockState(new BlockPos(x, y + counter - 1, z)).canOcclude() && world.isEmptyBlock(new BlockPos(x, y + counter, z)) && world.isEmptyBlock(new BlockPos(x, y + counter + 1, z))) {
+					world.playSound(null, entity.blockPosition(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F, (float) (0.8F + (Math.random() * 0.2D)));
+
+					Services.NETWORK.sendToNear(new TargetPoint(entity.getX(), entity.getY(), entity.getZ(), 128, entity.level().dimension()), new PacketPortalParticles(entity.getX(), entity.getY() + (entity.getBbHeight() / 2), entity.getZ(), 72, 1.0F, false));
+
+					if (entity instanceof ServerPlayer) {
+						ServerPlayer player = (ServerPlayer) entity;
+						player.teleportTo(x + 0.5, y + counter, z + 0.5);
+					} else {
+						((LivingEntity) entity).teleportTo(x + 0.5, y + counter, z + 0.5);
+					}
+
+					world.playSound(null, entity.blockPosition(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F, (float) (0.8F + (Math.random() * 0.2D)));
+					Services.NETWORK.sendToNear(new TargetPoint(entity.getX(), entity.getY(), entity.getZ(), 128, entity.level().dimension()), new PacketRecallParticles(entity.getX(), entity.getY() + (entity.getBbHeight() / 2), entity.getZ(), 48, false));
+					return true;
+				}
+			}
+		} else {
+			for (int counter = 0; counter <= checkAxis; counter++) {
+				if (!world.isEmptyBlock(new BlockPos(x, y - counter - 1, z)) && world.getBlockState(new BlockPos(x, y - counter - 1, z)).canOcclude() && world.isEmptyBlock(new BlockPos(x, y - counter, z)) && world.isEmptyBlock(new BlockPos(x, y - counter + 1, z))) {
+					world.playSound(null, entity.blockPosition(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F, (float) (0.8F + (Math.random() * 0.2D)));
+					Services.NETWORK.sendToNear(new TargetPoint(entity.getX(), entity.getY(), entity.getZ(), 128, entity.level().dimension()), new PacketRecallParticles(entity.getX(), entity.getY() + (entity.getBbHeight() / 2), entity.getZ(), 48, false));
+
+					if (entity instanceof ServerPlayer) {
+						ServerPlayer player = (ServerPlayer) entity;
+						player.teleportTo(x + 0.5, y - counter, z + 0.5);
+					} else {
+						((LivingEntity) entity).teleportTo(x + 0.5, y - counter, z + 0.5);
+					}
+
+					world.playSound(null, entity.blockPosition(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F, (float) (0.8F + (Math.random() * 0.2D)));
+					Services.NETWORK.sendToNear(new TargetPoint(entity.getX(), entity.getY(), entity.getZ(), 128, entity.level().dimension()), new PacketRecallParticles(entity.getX(), entity.getY() + (entity.getBbHeight() / 2), entity.getZ(), 48, false));
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Attempts to find valid location within given radius and teleport entity
+	 * there.
+	 *
+	 * @return True if teleportation were successfull, false otherwise.
+	 */
+	public static boolean validTeleportRandomly(Entity entity, Level world, int radius) {
+		int d = radius * 2;
+
+		double x = entity.getX() + ((Math.random() - 0.5D) * d);
+		double y = entity.getY() + ((Math.random() - 0.5D) * d);
+		double z = entity.getZ() + ((Math.random() - 0.5D) * d);
+		return SuperpositionHandler.validTeleport(entity, x, y, z, world, radius);
+	}
+
+	// Port: the Ring of Seven Curses (CURSED_RING) is not ported yet, so its +7 and its
+	// count-once rule are left out of both getCurseAmount methods until it is.
+	public static int getCurseAmount(ItemStack stack) {
+		Map<Enchantment, Integer> enchantments = EnchantmentHelper.getEnchantments(stack);
+		int totalCurses = 0;
+
+		for (Enchantment enchantment: enchantments.keySet()) {
+			if (enchantment.isCurse() && enchantments.get(enchantment) > 0) {
+				totalCurses+=1;
+			}
+		}
+
+		return totalCurses;
+	}
+
+	public static int getCurseAmount(Player player) {
+		int count = 0;
+
+		for (ItemStack theStack : getFullEquipment(player)) {
+			if (theStack != null) {
+				count += getCurseAmount(theStack);
+			}
+		}
+
+		return count;
+	}
+
+	// Port: Curios stack handlers -> Services.ACCESSORIES.findAll.
+	public static List<ItemStack> getFullEquipment(Player player) {
+		List<ItemStack> equipmentStacks = Lists.newArrayList();
+
+		equipmentStacks.add(player.getMainHandItem());
+		equipmentStacks.add(player.getOffhandItem());
+		equipmentStacks.addAll(player.getInventory().armor);
+		equipmentStacks.addAll(Services.ACCESSORIES.findAll(player, stack -> true));
+
+		return equipmentStacks;
+	}
+
+	public static boolean hasAnyArmor(LivingEntity entity) {
+		int armorAmount = 0;
+
+		for (ItemStack stack : entity.getArmorSlots()) {
+			if (!stack.isEmpty() && !GolemHeart.EXCLUDED_ARMOR.stream().anyMatch(stack::is)) {
+				armorAmount++;
+			}
+		}
+
+		if (armorAmount != 0)
+			return true;
+		else
+			return false;
+	}
+
+	/**
+	 * Checks whether or not player has completed specified advancement.
+	 */
+
+	public static boolean hasAdvancement(ServerPlayer player, ResourceLocation location) {
+		try {
+			if (player.getAdvancements().getOrStartProgress(player.server.getAdvancements().getAdvancement(location)).isDone())
+				return true;
+		} catch (NullPointerException ex) {
+			// Just don't do it lol }
+		}
+
+		return false;
+	}
+
+	/**
+	 * Grant specified advancement to specified player.
+	 * Don't forget to specify!
+	 */
+
+	public static void grantAdvancement(ServerPlayer player, ResourceLocation location) {
+		Advancement adv = player.server.getAdvancements().getAdvancement(location);
+
+		for (String criterion : player.getAdvancements().getOrStartProgress(adv).getRemainingCriteria()) {
+			player.getAdvancements().award(adv, criterion);
+		}
+
+	}
+
+	private static boolean contains(char[] array, char ch) {
+		for (char ach : array) {
+			if (ach == ch)
+				return true;
+		}
+
+		return false;
+	}
+
+	public static String obscureString(String string) {
+		char[] oldArray = string.toCharArray();
+		char[] newArray = new char[oldArray.length];
+		boolean code = false;
+
+		for (int i = 0; i < oldArray.length; i++) {
+			char ch = oldArray[i];
+			newArray[i] = ch;
+
+			if (ch == '§') {
+				code = true;
+				continue;
+			} else if (code) {
+				code = false;
+				continue;
+			} else if (ch == ' ') {
+				continue;
+			}
+
+			char[] replacements = null;
+
+			if (contains(UPPERCASE_LETTERS, ch)) {
+				replacements = UPPERCASE_LETTERS;
+			} else if (contains(LOWERCASE_LETTERS, ch)) {
+				replacements = LOWERCASE_LETTERS;
+			} else if (contains(NUMBERS, ch)) {
+				replacements = NUMBERS;
+			} else {
+				replacements = SPECIAL_SYMBOLS;
+			}
+
+			ch = replacements[RANDOM.nextInt(replacements.length)];
+			newArray[i] = ch;
+		}
+
+		return new String(newArray);
 	}
 }

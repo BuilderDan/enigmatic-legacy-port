@@ -2,6 +2,9 @@ package com.aizistral.enigmaticlegacy.handlers;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.WeakHashMap;
 import java.util.function.Consumer;
 
 import com.google.common.collect.ArrayListMultimap;
@@ -16,11 +19,19 @@ import com.aizistral.enigmaticlegacy.items.ForbiddenAxe;
 import com.aizistral.enigmaticlegacy.items.generic.ItemSpellstoneCurio;
 import com.aizistral.enigmaticlegacy.items.MiningCharm;
 import com.aizistral.enigmaticlegacy.items.BlazingCore;
+import com.aizistral.enigmaticlegacy.items.AngelBlessing;
+import com.aizistral.enigmaticlegacy.items.AvariceScroll;
+import com.aizistral.enigmaticlegacy.items.CursedScroll;
+import com.aizistral.enigmaticlegacy.items.EyeOfNebula;
+import com.aizistral.enigmaticlegacy.items.OceanStone;
+import com.aizistral.enigmaticlegacy.items.VoidPearl;
 import com.aizistral.enigmaticlegacy.objects.DimensionalPosition;
 import com.aizistral.enigmaticlegacy.objects.FireImmunityData;
 import com.aizistral.enigmaticlegacy.mixin.AccessorAbstractArrow;
 import com.aizistral.enigmaticlegacy.objects.Perhaps;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketCosmicRevive;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketForceArrowRotations;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayerMotion;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncFireImmunity;
@@ -77,6 +88,9 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
 /**
  * Port: upstream's handler is one big Forge event subscriber. Here it holds only the
@@ -90,6 +104,8 @@ public class EnigmaticEventHandler {
 
 	public static final Multimap<Player, Item> POSTMORTAL_POSESSIONS = ArrayListMultimap.create();
 	public static final String NBT_KEY_ENIGMATICGIFT = "enigmaticlegacy.firstjoin";
+	public static final Map<Player, Float> LAST_HEALTH = new WeakHashMap<>();
+	public static final Random THEY_SEE_ME_ROLLIN = new Random();
 
 	/**
 	 * Port: was part of the Forge {@code LivingAttackEvent} handler. Fabric calls it from
@@ -147,6 +163,19 @@ public class EnigmaticEventHandler {
 				}
 			}
 
+			if (SuperpositionHandler.hasCurio(player, EnigmaticItems.EYE_OF_NEBULA)) {
+				if (EyeOfNebula.dodgeProbability.getValue().roll() && player.invulnerableTime <= 10 && source.getEntity() instanceof LivingEntity) {
+					for (int counter = 0; counter <= 32; counter++) {
+						if (SuperpositionHandler.validTeleportRandomly(player, player.level(), (int) EyeOfNebula.dodgeRange.getValue())) {
+							break;
+						}
+					}
+
+					player.invulnerableTime = 20;
+					return false;
+				}
+			}
+
 			// Port: upstream reads the timer from TransientPlayerData; see FireImmunityData.
 			if (!player.getAbilities().invulnerable && player.getEffect(MobEffects.FIRE_RESISTANCE) == null)
 				if (SuperpositionHandler.hasCurio(player, EnigmaticItems.BLAZING_CORE) && source.is(DamageTypes.LAVA)) {
@@ -175,8 +204,7 @@ public class EnigmaticEventHandler {
 	/**
 	 * Port: the player-target part of upstream's {@code LivingHurtEvent} handler. Fabric calls
 	 * it from {@code MixinPlayer} at the head of {@code Player.actuallyHurt}, where Forge fires
-	 * the event. Only the Blazing Core and Enigmatic Amulet terms are ported; the Golem Heart,
-	 * Eye of Nebula and Ocean Stone terms follow with those items.
+	 * the event, through {@link #onLivingHurt}.
 	 *
 	 * @return the new damage amount.
 	 */
@@ -194,6 +222,17 @@ public class EnigmaticEventHandler {
 				if (trueSource.getMobType() == MobType.WATER || trueSource instanceof Drowned) {
 					amount *= 2F;
 				}
+
+			if (advancedCurio == EnigmaticItems.GOLEM_HEART && (source.is(DamageTypes.EXPLOSION) || source.is(DamageTypes.PLAYER_EXPLOSION))
+					&& SuperpositionHandler.hasAnyArmor(player)) {
+				continue;
+			} else if (advancedCurio == EnigmaticItems.EYE_OF_NEBULA && player.isInWater()) {
+				amount *= 2F;
+			} else if (advancedCurio == EnigmaticItems.OCEAN_STONE && trueSource != null) {
+				if (trueSource.getMobType() == MobType.WATER || trueSource instanceof Drowned) {
+					amount *= OceanStone.underwaterCreaturesResistance.getValue().asModifierInverted();
+				}
+			}
 
 			for (var type : advancedCurio.resistanceList.keySet()) {
 				if (source.is(type)) {
@@ -219,6 +258,8 @@ public class EnigmaticEventHandler {
 				}
 			}
 		}
+
+		amount = EnigmaticItems.COSMIC_SCROLL.onEntityHurt(player, source, amount);
 
 		return amount;
 	}
@@ -250,7 +291,6 @@ public class EnigmaticEventHandler {
 	/**
 	 * Port: was the Forge {@code MobEffectEvent.Applicable} handler. Fabric calls it from
 	 * {@code MixinLivingEntity} at the head of {@code canBeAffected}, where Forge fires the event.
-	 * The Pearl of the Void and Cube terms follow with those items.
 	 *
 	 * @return false to deny the effect (upstream: {@code event.setResult(Result.DENY)}).
 	 */
@@ -262,7 +302,10 @@ public class EnigmaticEventHandler {
 			if (new ResourceLocation("mana-and-artifice", "chrono-exhaustion").equals(BuiltInRegistries.MOB_EFFECT.getKey(effect.getEffect())))
 				return true;
 
-			if (SuperpositionHandler.hasCurio(player, EnigmaticItems.ENIGMATIC_ITEM) && !effect.getEffect().isBeneficial())
+			if (SuperpositionHandler.hasCurio(player, EnigmaticItems.VOID_PEARL))
+				return false;
+			else if ((SuperpositionHandler.hasCurio(player, EnigmaticItems.ENIGMATIC_ITEM) || SuperpositionHandler.hasCurio(player, EnigmaticItems.THE_CUBE))
+					&& !effect.getEffect().isBeneficial())
 				return false;
 		}
 
@@ -270,16 +313,40 @@ public class EnigmaticEventHandler {
 	}
 
 	/**
-	 * Port: was the Heart of Creation part of the Forge {@code LivingDeathEvent} handler. Fabric
-	 * calls it from {@code ServerLivingEntityEvents.ALLOW_DEATH}. The Nemesis Curse term follows
-	 * with that item.
+	 * Port: was the Forge {@code LivingDeathEvent} handler (Cube, Heart of Creation, Pearl of the
+	 * Void, Architect's Favor). Fabric calls it from {@code ServerLivingEntityEvents.ALLOW_DEATH}.
+	 * The Nemesis Curse term follows with that item.
 	 *
 	 * @return false to cancel the death (upstream: {@code event.setCanceled(true)}).
 	 */
 	public static boolean onLivingDeath(LivingEntity entity, DamageSource source, float amount) {
-		if (entity instanceof Player player) {
-			if (SuperpositionHandler.hasCurio(player, EnigmaticItems.ENIGMATIC_ITEM) || player.getInventory().contains(new ItemStack(EnigmaticItems.ENIGMATIC_ITEM))) {
+		if (entity instanceof Player player && !player.level().isClientSide) {
+			if (LAST_HEALTH.containsKey(player) && LAST_HEALTH.get(player) >= 1.5F && SuperpositionHandler.hasCurio(player, EnigmaticItems.THE_CUBE)) {
 				player.setHealth(1);
+				return false;
+			} else if (SuperpositionHandler.hasCurio(player, EnigmaticItems.ENIGMATIC_ITEM) || player.getInventory().contains(new ItemStack(EnigmaticItems.ENIGMATIC_ITEM))) {
+				player.setHealth(1);
+				return false;
+			} else if (SuperpositionHandler.hasCurio(player, EnigmaticItems.VOID_PEARL) && Math.random() <= VoidPearl.undeadProbability.getValue().asMultiplier(false)) {
+				player.setHealth(1);
+				return false;
+			}
+
+			if (!EnigmaticItems.COSMIC_SCROLL.onLivingDeath(entity))
+				return false;
+
+			if (player instanceof ServerPlayer serverPlayer && SuperpositionHandler.hasCurio(serverPlayer, EnigmaticItems.THE_CUBE)
+					&& !SuperpositionHandler.hasSpellstoneCooldown(serverPlayer)) {
+				serverPlayer.setHealth(serverPlayer.getMaxHealth() * 0.3F);
+				EnigmaticItems.THE_CUBE.triggerActiveAbility(serverPlayer.level(), serverPlayer, SuperpositionHandler.getCurioStack(serverPlayer, EnigmaticItems.THE_CUBE));
+
+				serverPlayer.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 1200, 2));
+				serverPlayer.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 1200, 1));
+				serverPlayer.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 1200, 0));
+				serverPlayer.addEffect(new MobEffectInstance(MobEffects.DAMAGE_BOOST, 1200, 1));
+
+				Services.NETWORK.sendToNear(new TargetPoint(serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), 128, serverPlayer.level().dimension()),
+						new PacketCosmicRevive(serverPlayer.getId(), 1));
 				return false;
 			}
 		}
@@ -326,6 +393,11 @@ public class EnigmaticEventHandler {
 		SuperpositionHandler.clearSpellstoneCooldowns();
 		FireImmunityData.clear();
 		POSTMORTAL_POSESSIONS.clear();
+		EnigmaticItems.HEAVEN_SCROLL.flyMap.clear();
+		EnigmaticItems.FABULOUS_SCROLL.flyMap.clear();
+		EnigmaticItems.THE_CUBE.clearLocationCache();
+		EyeOfNebula.EMPOWERED_PLAYERS.clear();
+		LAST_HEALTH.clear();
 	}
 
 	/**
@@ -360,10 +432,17 @@ public class EnigmaticEventHandler {
 	/**
 	 * Port: was upstream's {@code LivingDamageEvent} handler. Fabric calls it from MixinLivingEntity
 	 * and MixinPlayer in {@code actuallyHurt}, right before the combat tracker records the damage,
-	 * which is where Forge fires the event. Only the Enigmatic Amulet's lifesteal is ported.
+	 * which is where Forge fires the event.
 	 */
 	public static void onLivingDamage(LivingEntity entity, DamageSource source, float amount) {
-		// TODO: LAST_HEALTH tracking when the item that reads it is ported.
+		if (entity instanceof ServerPlayer player) {
+			LAST_HEALTH.put(player, player.getHealth());
+		}
+
+		if (source.getDirectEntity() instanceof Player player && source.is(DamageTypes.PLAYER_ATTACK)
+				&& SuperpositionHandler.hasCurio(player, EnigmaticItems.VOID_PEARL)) {
+			entity.addEffect(new MobEffectInstance(MobEffects.WITHER, VoidPearl.witheringTime.getValue(), VoidPearl.witheringLevel.getValue(), false, true));
+		}
 
 		if (source.getDirectEntity() instanceof Player player && !player.level().isClientSide) {
 			float lifesteal = 0;
@@ -408,7 +487,15 @@ public class EnigmaticEventHandler {
 				boolean trigger = false;
 				double chance = 0.0D;
 
-				// TODO: Angel's Blessing and The Cube terms when those items are ported.
+				if (SuperpositionHandler.hasCurio(player, EnigmaticItems.ANGEL_BLESSING)) {
+					trigger = true;
+					chance += AngelBlessing.deflectChance.getValue().asModifier(false);
+				}
+
+				if (SuperpositionHandler.hasCurio(player, EnigmaticItems.THE_CUBE)) {
+					trigger = true;
+					chance += 0.35;
+				}
 
 				if (EnigmaticItems.ENIGMATIC_AMULET.hasColor(player, AmuletColor.VIOLET)) {
 					trigger = true;
@@ -456,6 +543,7 @@ public class EnigmaticEventHandler {
 	 */
 	public static void onPlayerJoin(ServerPlayer player) {
 		EnigmaticItems.FORBIDDEN_FRUIT.syncConsumedFruit(player);
+		EnigmaticItems.COSMIC_SCROLL.onPlayerJoin(player);
 
 		if (EnigmaticItems.FORBIDDEN_FRUIT.haveConsumedFruit(player)) {
 			ForbiddenFruitTrigger.INSTANCE.trigger(player);
@@ -489,7 +577,7 @@ public class EnigmaticEventHandler {
 	/**
 	 * Port: the End city part of upstream's {@code LootTableLoadEvent} handler. Fabric calls it
 	 * from {@code LootTableEvents.MODIFY}; {@code addPool} adds the pool to the table.
-	 * The other dungeon pools are not ported yet.
+	 * Also adds the spellstone pools; the other dungeon "epic" pools are not ported yet.
 	 */
 	public static void onLootTablesLoaded(ResourceLocation id, Consumer<LootPool> addPool) {
 		if (!OmniconfigHandler.customDungeonLootEnabled.getValue())
@@ -514,11 +602,40 @@ public class EnigmaticEventHandler {
 
 			addPool.accept(epic);
 			// Port: upstream's second End pool (Corrupted Tome with a revelation function) is not ported.
+		}
+
+		LootPool spellstones = null;
+
+		if (SuperpositionHandler.getMergedAir$EarthenDungeons().contains(id)) {
+			spellstones = SuperpositionHandler.constructLootPool("spellstones", -12F, 1F,
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.GOLEM_HEART, 35),
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.ANGEL_BLESSING, 65),
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.ICHOR_BOTTLE, 65));
+		} else if (SuperpositionHandler.getMergedEnder$EarthenDungeons().contains(id)) {
+			spellstones = SuperpositionHandler.constructLootPool("spellstones", -10F, 1F,
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.EYE_OF_NEBULA, 35),
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.GOLEM_HEART, 65));
+		} else if (SuperpositionHandler.getAirDungeons().contains(id)) {
+			spellstones = SuperpositionHandler.constructLootPool("spellstones", -10F, 1F,
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.ANGEL_BLESSING, 100),
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.ICHOR_BOTTLE, 100));
+		} else if (SuperpositionHandler.getEarthenDungeons().contains(id)) {
+			spellstones = SuperpositionHandler.constructLootPool("spellstones", -20F, 1F,
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.GOLEM_HEART, 100));
 		} else if (SuperpositionHandler.getNetherDungeons().contains(id)) {
 			// Port: upstream's nether "epic" pool is not ported yet; only the spellstone pool is.
-			LootPool spellstones = SuperpositionHandler.constructLootPool("spellstones", -24F, 1F,
+			spellstones = SuperpositionHandler.constructLootPool("spellstones", -24F, 1F,
 					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.BLAZING_CORE, 100));
+		} else if (SuperpositionHandler.getWaterDungeons().contains(id)) {
+			spellstones = SuperpositionHandler.constructLootPool("spellstones", -20F, 1F,
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.OCEAN_STONE, 100));
+		} else if (SuperpositionHandler.getEnderDungeons().contains(id)) {
+			spellstones = SuperpositionHandler.constructLootPool("spellstones", -12F, 1F,
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.EYE_OF_NEBULA, 90),
+					SuperpositionHandler.createOptionalLootEntry(EnigmaticItems.VOID_PEARL, 10));
+		}
 
+		if (spellstones != null) {
 			addPool.accept(spellstones);
 		}
 	}
@@ -526,8 +643,6 @@ public class EnigmaticEventHandler {
 	/**
 	 * Port: was the Forge {@code PlayerEvent.BreakSpeed} handler (miningStuff). Fabric calls it from
 	 * {@code MixinPlayer} at the end of {@code Player.getDestroySpeed}, where Forge fires the event.
-	 * Only the Charm of Treasure Hunter, Enigmatic Amulet and Heart of Creation terms are ported so
-	 * far; the Cursed Scroll, Cube, flight scrolls and Ocean Stone terms follow with those items.
 	 *
 	 * @return the new break speed.
 	 */
@@ -539,12 +654,26 @@ public class EnigmaticEventHandler {
 			miningBoost += MiningCharm.breakSpeedBonus.getValue().asModifier();
 		}
 
+		if (SuperpositionHandler.hasCurio(player, EnigmaticItems.CURSED_SCROLL)) {
+			miningBoost += CursedScroll.miningBoost.getValue().asModifier() * SuperpositionHandler.getCurseAmount(player);
+		}
+
 		if (EnigmaticItems.ENIGMATIC_AMULET.hasColor(player, AmuletColor.GREEN)) {
 			miningBoost += 0.25F;
 		}
 
+		if (SuperpositionHandler.hasCurio(player, EnigmaticItems.THE_CUBE)) {
+			miningBoost += 0.6F;
+		}
+
 		if (!player.onGround())
-			if (SuperpositionHandler.hasCurio(player, EnigmaticItems.ENIGMATIC_ITEM)) {
+			if (SuperpositionHandler.hasCurio(player, EnigmaticItems.HEAVEN_SCROLL) || SuperpositionHandler.hasCurio(player, EnigmaticItems.FABULOUS_SCROLL)
+					|| SuperpositionHandler.hasCurio(player, EnigmaticItems.ENIGMATIC_ITEM)) {
+				correctedSpeed *= 5F;
+			}
+
+		if (player.isEyeInFluid(FluidTags.WATER) && !EnchantmentHelper.hasAquaAffinity(player))
+			if (SuperpositionHandler.hasCurio(player, EnigmaticItems.OCEAN_STONE)) {
 				correctedSpeed *= 5F;
 			}
 
@@ -552,6 +681,82 @@ public class EnigmaticEventHandler {
 		correctedSpeed -= originalSpeed;
 
 		return originalSpeed + correctedSpeed;
+	}
+
+	/**
+	 * Port: the rest of upstream's {@code LivingHurtEvent} handler (attacker terms and the Cube).
+	 * Fabric calls it from MixinLivingEntity and MixinPlayer at the head of {@code actuallyHurt};
+	 * player targets also go through {@link #onPlayerHurt}. The Berserk Emblem and Hunter's
+	 * Guidebook terms follow with those items.
+	 *
+	 * @return the new damage amount.
+	 */
+	public static float onLivingHurt(LivingEntity victim, DamageSource source, float amount) {
+		if (source.getEntity() instanceof Player attacker) {
+			if (SuperpositionHandler.hasCurio(attacker, EnigmaticItems.CURSED_SCROLL)) {
+				amount += amount * (CursedScroll.damageBoost.getValue().asModifier() * SuperpositionHandler.getCurseAmount(attacker));
+			}
+
+			if (SuperpositionHandler.hasCurio(attacker, EnigmaticItems.EYE_OF_NEBULA) && SuperpositionHandler.isMagic(source)) {
+				amount *= EyeOfNebula.magicBoost.getValue().asModifier(true);
+			}
+
+			if (EyeOfNebula.EMPOWERED_PLAYERS.remove(attacker.getUUID())) {
+				amount *= EyeOfNebula.attackEmpower.getValue().asModifier(true);
+			}
+		}
+
+		if (victim instanceof Player player) {
+			amount = onPlayerHurt(player, source, amount);
+		}
+
+		if (victim instanceof ServerPlayer player && SuperpositionHandler.hasCurio(player, EnigmaticItems.THE_CUBE)) {
+			if (source.getDirectEntity() instanceof LivingEntity living) {
+				if (amount <= EnigmaticItems.THE_CUBE.getDamageLimit(player) && THEY_SEE_ME_ROLLIN.nextDouble() <= 0.35) {
+					living.hurt(source, amount);
+					player.level().playSound(null, player.blockPosition(), EnigmaticSounds.SWORD_HIT_REJECT, SoundSource.PLAYERS, 1.0F, 1.0F);
+					return 0;
+				} else {
+					EnigmaticItems.THE_CUBE.applyRandomEffect(living, false);
+				}
+			}
+
+			if (source.getEntity() != null && amount > EnigmaticItems.THE_CUBE.getDamageLimit(player)) {
+				player.level().playSound(null, player.blockPosition(), SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 1.0F, 1.0F);
+
+				if (source.getDirectEntity() instanceof LivingEntity living) {
+					Vec3 dir = living.position().subtract(player.position()).normalize();
+					knockBack(living, 1.0F, dir.x, dir.z);
+				}
+
+				return 0;
+			}
+		}
+
+		return amount;
+	}
+
+	/** Upstream EtheriumConfigHandler.knockBack (pulls the entity toward the player). */
+	private static void knockBack(LivingEntity entity, float strength, double xRatio, double zRatio) {
+		entity.hasImpulse = true;
+		Vec3 vec = new Vec3(xRatio, 0.0D, zRatio).normalize().scale(strength);
+		double y = entity.onGround() ? Math.min(0.4D, strength) : 0.0D;
+
+		if (entity instanceof ServerPlayer player) {
+			Services.NETWORK.sendToPlayer(player, new PacketPlayerMotion(-vec.x, y, -vec.z));
+		}
+
+		entity.setDeltaMovement(-vec.x, y, -vec.z);
+	}
+
+	/**
+	 * Port: the Cube part of upstream's {@code LivingDeathEvent} handler for killed entities.
+	 * Fabric calls it from {@code ServerLivingEntityEvents.AFTER_DEATH}.
+	 */
+	public static void onEntityKilled(LivingEntity entity, DamageSource source) {
+		if (source.getEntity() instanceof ServerPlayer player && SuperpositionHandler.hasCurio(player, EnigmaticItems.THE_CUBE)) {
+			EnigmaticItems.THE_CUBE.applyRandomEffect(player, true);
+		}
 	}
 
 	/**
@@ -580,9 +785,16 @@ public class EnigmaticEventHandler {
 		onLivingDropsLowest(entity, source, drops);
 	}
 
-	/** Upstream onLivingDrops (NORMAL), Axe of Executioner part. */
+	/** Upstream onLivingDrops (NORMAL), Pact of Infinite Avarice and Axe of Executioner parts. */
 	private static void onLivingDropsNormal(LivingEntity entity, DamageSource source, Collection<ItemEntity> drops,
 			int lootingLevel, boolean recentlyHit) {
+		if (recentlyHit && source.getEntity() instanceof Player killer && SuperpositionHandler.isTheCursedOne(killer)) {
+			if (SuperpositionHandler.hasCurio(killer, EnigmaticItems.AVARICE_SCROLL)
+					&& THEY_SEE_ME_ROLLIN.nextInt(100) < AvariceScroll.emeraldChance.getValue()) {
+				addDrop(entity, drops, new ItemStack(Items.EMERALD, 1));
+			}
+		}
+
 		if (!recentlyHit || !(source.getEntity() instanceof Player player)
 				|| player.getMainHandItem().getItem() != EnigmaticItems.FORBIDDEN_AXE)
 			return;

@@ -79,6 +79,18 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 | Redemption Potion (redemption_potion) | - | - | - | - (drinkable only after the Forbidden Fruit; drink: normal hunger bar and food return, also on the client) | - |
 | Celestial Fruit (astral_fruit) | - | - | - | - (cursed-only eat; beacon sound; effects; unlocks an extra ring slot) | - |
 
+| Angel's Blessing (angel_blessing) | - | - | - | - (spellstone key or jump mid-air: dash where you look; no fall/collision damage; deflects some projectiles; own arrows faster) | - |
+| Heart of the Golem (golem_heart) | - | - | - | - (+armor; with no armor worn: more armor, toughness, explosion resistance; melee and knockback resistance; extra magic damage taken) | - |
+| Will of the Ocean (ocean_stone) | - | - | - | - (key: thunderstorm for XP; breathe underwater, air bar hidden, night vision, fast swim, no attribute lines in tooltip; extra fire damage taken) | - |
+| Eye of the Nebula (eye_of_nebula) | - | - | - | - (key: teleport behind target, next hit empowered; magic resist; chance to phase away from hits; no ender pearl damage) | - |
+| Pearl of the Void (void_pearl) | - | - | - | - (no hunger, no air, effect immunity; hits wither; mobs in darkness nearby take damage; chance to survive lethal hit) | - |
+| The Cube (the_cube) | - | - | - | - (key: random teleport across dimensions; all passive buffs in tooltip; lethal hit leaves 1 HP or revives via active) | - |
+| Gift of the Heaven (heaven_scroll) | - | - | - | - (flight in survival, drains XP) | - |
+| Fabulous Scroll (fabulous_scroll) | - | - | - | - (flight drains XP, free within an active beacon's range; no mining penalty while flying) | - |
+| Scroll of a Thousand Curses (cursed_scroll) | - | - | - | - (cursed-only; inactive until the Cursed Ring) | - |
+| Scroll of Avarice (avarice_scroll) | - | - | - | - (cursed-only; inactive until the Cursed Ring) | - |
+| Cosmic Scroll (cosmic_scroll, not in creative tab: /give) | - | - | - | - (blessed-only; +1 scroll slot, revive at 50% on cooldown, extra tooltip lines) | - |
+
 Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).
 

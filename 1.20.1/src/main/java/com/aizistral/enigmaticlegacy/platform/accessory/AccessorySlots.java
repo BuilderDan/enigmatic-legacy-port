@@ -8,8 +8,12 @@ import java.util.function.Predicate;
 
 import org.jetbrains.annotations.Nullable;
 
+import com.google.common.collect.Multimap;
+
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootContext;
@@ -37,6 +41,14 @@ public interface AccessorySlots {
 	 * or "charm"). Returns false if the entity already had that modifier.
 	 */
 	boolean unlockSlot(LivingEntity entity, String slotId, UUID modifierId, String modifierName);
+
+	/**
+	 * Port: was {@code CuriosApi.getCuriosHelper().addSlotModifier}. Adds a modifier to an
+	 * item's attribute map that changes how many slots of the given type ("scroll",
+	 * "spellstone", "ring" or "charm") the wearer has, while the item is equipped.
+	 */
+	void addSlotModifier(Multimap<Attribute, AttributeModifier> map, String slotId, UUID uuid, double amount,
+			AttributeModifier.Operation operation);
 
 	/** Empties every accessory slot holding the item. Returns how many stacks were removed. */
 	int destroy(LivingEntity entity, Item item);

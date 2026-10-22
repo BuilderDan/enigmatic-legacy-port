@@ -383,4 +383,37 @@ Sections are added here as each Minecraft version / loader is ported.
     on the food-bar `blit` calls in `Gui.renderPlayerHealth` (only the shank background is
     redrawn). Food is held at 20 with no saturation in the player tick.
   - Not ported yet: the Cursed Scroll heal boost in `onHeal`, Eldritch Pan's `cannotHunger` check, the Forbidden Fruit bastion loot, the
-    Bottle of Ichor loot and its `LootedIchorBottle` flag, and the Common Haste dungeon loot.
+    Bottle of Ichor special loot and its `LootedIchorBottle` flag (its dungeon pool entries came with the spellstones batch), and the Common Haste dungeon loot.
+- Spellstones and scrolls batch (Angel's Blessing, Heart of the Golem, Will of the Ocean, Eye of
+  the Nebula, Pearl of the Void, The Cube; Gift of the Heaven, Fabulous Scroll, Scroll of a
+  Thousand Curses, Scroll of Avarice, Cosmic Scroll):
+  - Forge `LivingHurtEvent`/`LivingDeathEvent` parts go through `EnigmaticEventHandler`
+    (called from `MixinLivingEntity`/`MixinPlayer` at the head of `actuallyHurt`). The Berserk
+    Emblem and Hunter's Guidebook damage terms come with those items.
+  - Spellstone loot pools (the earthen, air, water and ender structure groups) are built in `LootTableEvents.MODIFY`, with upstream's
+    weights (Ichor Bottle included).
+  - Curios' `getAttributesTooltip` override (hides attribute lines on Will of the Ocean, The Cube
+    and Cosmic Scroll) becomes `IAccessoryItem.hidesAttributeTooltip`; `TrinketAdapter` returns
+    no modifiers while `MixinItemStack` marks a tooltip pass, so Trinkets shows none.
+  - Ender pearl self-damage is zeroed by `MixinThrownEnderPearl` (`@ModifyArg` on the hurt
+    call) for wearers of the Eye of the Nebula or The Cube, instead of Forge's
+    `EntityTeleportEvent.EnderPearl`.
+  - The air bar is hidden by a `@WrapOperation` on its `blit` calls in `Gui.renderPlayerHealth`
+    instead of `RenderGuiOverlayEvent` (Will of the Ocean, Pearl of the Void, The Cube).
+  - Fabulous Scroll's beacon check: upstream walks `ChunkMap.visibleChunkMap`; the port scans
+    loaded chunks within 4 chunks of the player (`isInBeaconRange`, beacon levels through
+    `AccessorBeaconBlockEntity`). Beacon reach tops out at 50 blocks, so the result is the same.
+  - Cosmic Scroll's extra scroll slot uses `AccessorySlots.addSlotModifier` (Trinkets) instead
+    of Curios' slot modifier. Its tooltip lines come from Fabric's `ItemTooltipCallback`.
+  - Eye of the Nebula's empowered-hit flag is held in the item (`EMPOWERED_PLAYERS`, cleared on
+    server stop) instead of `TransientPlayerData`.
+  - The Cube's hurt parts (35% reflect, then the damage-limit block that upstream runs at LOW
+    priority) run in one `onLivingHurt` call, in the same order, after the other damage changes.
+  - Heart of the Golem's armor exclusion list is built on server start instead of common setup.
+  - New packets `PacketCosmicRevive`, `PacketPlayerMotion`, `PacketPlayerSetlook` use the port's
+    network service.
+  - Scroll of Avarice: the Forge `makesPiglinsNeutral` override is dropped; the Curios-style
+    `IAccessoryItem.makesPiglinsNeutral` override stays. Its effects stay dormant until the Ring of Seven
+    Curses is ported, as for every cursed-only item.
+  - Not ported yet: Pearl of the Void's Animal Guidebook check (Tomes batch), and the Ring of
+    Seven Curses part of `getCurseAmount`.

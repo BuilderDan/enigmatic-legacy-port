@@ -5,6 +5,7 @@ import java.util.UUID;
 import com.aizistral.enigmaticlegacy.platform.accessory.DropRule;
 import com.aizistral.enigmaticlegacy.platform.accessory.IAccessoryItem;
 import com.aizistral.enigmaticlegacy.platform.accessory.SlotContext;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
 import dev.emi.trinkets.api.SlotReference;
@@ -19,6 +20,13 @@ import net.minecraft.world.item.ItemStack;
  * Port-only. Forwards Trinkets callbacks to an {@link IAccessoryItem}.
  */
 public record TrinketAdapter(IAccessoryItem item) implements Trinket {
+
+	/**
+	 * Set by MixinItemStack while a tooltip is being built, so items that hide their
+	 * attribute lines report no modifiers to Trinkets' tooltip code.
+	 */
+	/** Depth of nested ItemStack.getTooltipLines calls on this thread (bundle/shulker previews nest). */
+	public static final ThreadLocal<int[]> TOOLTIP_PASS = ThreadLocal.withInitial(() -> new int[1]);
 
 	static SlotContext context(SlotReference ref, LivingEntity entity) {
 		return new SlotContext(ref.inventory().getSlotType().getName(), entity, ref.index(), false, true);
@@ -60,6 +68,9 @@ public record TrinketAdapter(IAccessoryItem item) implements Trinket {
 
 	@Override
 	public Multimap<Attribute, AttributeModifier> getModifiers(ItemStack stack, SlotReference slot, LivingEntity entity, UUID uuid) {
+		if (TOOLTIP_PASS.get()[0] > 0 && this.item.hidesAttributeTooltip(stack))
+			return ImmutableMultimap.of();
+
 		return this.item.getAttributeModifiers(context(slot, entity), uuid, stack);
 	}
 

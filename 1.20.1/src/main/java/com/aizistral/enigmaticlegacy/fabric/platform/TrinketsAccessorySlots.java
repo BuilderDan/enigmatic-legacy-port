@@ -11,11 +11,13 @@ import java.util.function.Predicate;
 import org.jetbrains.annotations.Nullable;
 
 import com.aizistral.enigmaticlegacy.platform.accessory.AccessoryDrops;
+import com.google.common.collect.Multimap;
 import com.aizistral.enigmaticlegacy.platform.accessory.AccessorySlots;
 import com.aizistral.enigmaticlegacy.platform.accessory.DropRule;
 import com.aizistral.enigmaticlegacy.platform.accessory.IAccessoryItem;
 import com.aizistral.enigmaticlegacy.platform.accessory.SlotContext;
 
+import dev.emi.trinkets.api.SlotAttributes;
 import dev.emi.trinkets.api.SlotReference;
 import dev.emi.trinkets.api.TrinketComponent;
 import dev.emi.trinkets.api.TrinketInventory;
@@ -25,6 +27,7 @@ import dev.emi.trinkets.api.event.TrinketDropCallback;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -128,6 +131,17 @@ public class TrinketsAccessorySlots implements AccessorySlots {
 
 		inventory.addPersistentModifier(new AttributeModifier(modifierId, modifierName, 1, AttributeModifier.Operation.ADDITION));
 		return true;
+	}
+
+	@Override
+	public void addSlotModifier(Multimap<Attribute, AttributeModifier> map, String slotId, UUID uuid, double amount,
+			AttributeModifier.Operation operation) {
+		String group = UNLOCK_GROUPS.get(slotId);
+
+		if (group == null)
+			throw new IllegalArgumentException("Unknown slot type '" + slotId + "'");
+
+		SlotAttributes.addSlotModifier(map, group + "/" + slotId, uuid, amount, operation);
 	}
 
 	@Override

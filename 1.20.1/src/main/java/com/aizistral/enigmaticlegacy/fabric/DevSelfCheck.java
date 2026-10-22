@@ -144,7 +144,10 @@ public final class DevSelfCheck {
 		problems += checkMixinApplied("net.minecraft.server.network.ServerGamePacketListenerImpl", "widenUseDistance");
 		problems += checkMixinApplied("net.minecraft.client.multiplayer.MultiPlayerGameMode", "addBlockReach");
 		problems += checkMixinApplied("net.minecraft.world.effect.MobEffectInstance", "enigmaticlegacy$getDuration", "enigmaticlegacy$setDuration");
-		problems += checkMixinApplied("net.minecraft.client.gui.Gui", "renderHeatBar", "renderFoodIcon");
+		problems += checkMixinApplied("net.minecraft.client.gui.Gui", "renderHeatBar", "renderFoodIcon", "renderAirBubble");
+		problems += checkMixinApplied("net.minecraft.world.entity.projectile.ThrownEnderpearl", "pearlDamage");
+		problems += checkMixinApplied("net.minecraft.world.item.ItemStack", "beginTooltip", "endTooltip");
+		problems += checkMixinApplied("net.minecraft.world.level.block.entity.BeaconBlockEntity", "enigmaticlegacy$getLevels");
 		problems += checkPlayerAttributes();
 		LOGGER.info("[devcheck] Done: {} problem(s)", problems);
 	}
@@ -203,19 +206,20 @@ public final class DevSelfCheck {
 	}
 
 	/**
-	 * Builds the End city pool the way LootTableEvents.MODIFY would, so a broken entry shows
-	 * up without loading a world. It does not check that the pool reaches the chest.
+	 * Builds the End city and simple dungeon pools the way LootTableEvents.MODIFY would, so a broken entry shows
+	 * up without loading a world: the End city gets the epic pool plus the ender spellstone pool,
+	 * the simple dungeon the earthen spellstone pool. It does not check that pools reach the chest.
 	 */
 	private static int checkLootPools() {
 		try {
 			List<LootPool> pools = new ArrayList<>();
 			EnigmaticEventHandler.onLootTablesLoaded(BuiltInLootTables.END_CITY_TREASURE, pools::add);
 			EnigmaticEventHandler.onLootTablesLoaded(BuiltInLootTables.SIMPLE_DUNGEON, pools::add);
-			if (pools.size() == 1) {
-				LOGGER.info("[devcheck] loot ok (1 pool for end_city_treasure)");
+			if (pools.size() == 3) {
+				LOGGER.info("[devcheck] loot ok (3 pools: end city epic + spellstones, simple dungeon spellstones)");
 				return 0;
 			}
-			LOGGER.error("[devcheck] loot wrong: {} pool(s) built, expected 1", pools.size());
+			LOGGER.error("[devcheck] loot wrong: {} pool(s) built, expected 3", pools.size());
 		} catch (Throwable ex) {
 			LOGGER.error("[devcheck] loot check failed", ex);
 		}
