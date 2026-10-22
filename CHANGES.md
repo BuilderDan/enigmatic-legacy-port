@@ -60,3 +60,18 @@ Sections are added here as each Minecraft version / loader is ported.
   `onCurioDrops`) go through `AccessoryDrops` and Trinkets' drop callback.
 - Accessory `onEquip`/`onUnequip` get an empty stack as the previous/new stack; Trinkets
   does not pass it. Upstream gets the real stack from Curios.
+- `EnigmaticLegacy.LOGGER` is upstream's `LoggerWrapper` (log4j) instead of an slf4j logger.
+- Config holder discovery: upstream finds `@SubscribeConfig` and `@ConfigurableItem` through
+  Forge scan data. The port lists the holder classes in `config/ConfigHolders` and reads
+  the annotations by reflection; classes not ported yet are skipped.
+- `SuperpositionHandler` is ported piece by piece; methods are added as callers are ported.
+- Omniconfig (`com.aizistral.omniconfig`):
+  - Config and game folders come from `Services.PLATFORM` instead of `FMLPaths`.
+  - `SidedConfigType.getDist()` is replaced by `isActiveOnThisSide()`; sided actions run
+    on the physical side directly instead of through `DistExecutor`.
+  - New port-only `FileWatcher` (Java `WatchService`) replaces night-config's, which
+    Fabric does not ship.
+  - `PacketSyncOptions` is sent with `Services.NETWORK` and handled with `PacketContext`.
+- Config sync on login/logout moved from `EnigmaticEventHandler` to the new
+  `config/OmniconfigSync`, called from Fabric connection events.
+- `OmniconfigHandler.isBoss` uses `BuiltInRegistries` instead of `ForgeRegistries`.

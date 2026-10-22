@@ -1,7 +1,6 @@
 package com.aizistral.enigmaticlegacy;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.aizistral.enigmaticlegacy.objects.LoggerWrapper;
 
 /**
  * Port: loader-neutral home of upstream's EnigmaticLegacy constants. Upstream's Forge
@@ -9,5 +8,5 @@ import org.slf4j.LoggerFactory;
  */
 public class EnigmaticLegacy {
 	public static final String MODID = "enigmaticlegacy";
-	public static final Logger LOGGER = LoggerFactory.getLogger(MODID);
+	public static final LoggerWrapper LOGGER = new LoggerWrapper("Enigmatic Legacy");
 }
