@@ -90,6 +90,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
@@ -117,6 +119,7 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import com.aizistral.enigmaticlegacy.items.CursedRing;
 import com.aizistral.enigmaticlegacy.items.MonsterCharm;
+import com.aizistral.enigmaticlegacy.client.Quote;
 import com.aizistral.enigmaticlegacy.mixin.AccessorPlayer;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.animal.Chicken;
@@ -1407,6 +1410,85 @@ public class EnigmaticEventHandler {
 	public static void onEntityKilled(LivingEntity entity, DamageSource source) {
 		if (source.getEntity() instanceof ServerPlayer player && SuperpositionHandler.hasCurio(player, EnigmaticItems.THE_CUBE)) {
 			EnigmaticItems.THE_CUBE.applyRandomEffect(player, true);
+		}
+
+		if (source.getEntity() instanceof ServerPlayer player && entity instanceof WitherBoss) {
+			int killedWither = SuperpositionHandler.getPersistentInteger(player, "TimesKilledWither", 0);
+
+			if (killedWither <= 0) {
+				Quote.BREATHES_RELIEVED.play(player, 140);
+				killedWither++;
+			} else if (killedWither == 1) {
+				Quote.APPALING_PRESENCE.play(player, 140);
+				killedWither++;
+			} else if (killedWither == 2) {
+				Quote.TERRIFYING_FORM.play(player, 140);
+				killedWither++;
+			} else if (killedWither > 2 && killedWither < 5) {
+				killedWither++;
+			} else if (killedWither == 4) {
+				Quote.WHETHER_IT_IS.play(player, 140);
+				killedWither++;
+			}
+
+			SuperpositionHandler.setPersistentInteger(player, "TimesKilledWither", killedWither);
+		}
+	}
+
+	/**
+	 * Port: the quote part of upstream's onPlayerRespawn (PlayerRespawnEvent).
+	 * Fabric calls it from {@code ServerPlayerEvents.AFTER_RESPAWN}.
+	 */
+	public static void onPlayerRespawnQuotes(ServerPlayer player, boolean endConquered) {
+		if (!endConquered) {
+			if (SuperpositionHandler.getPersistentBoolean(player, "DestroyedCursedRing", false)) {
+				SuperpositionHandler.removePersistentTag(player, "DestroyedCursedRing");
+				Quote.getRandom(Quote.RING_DESTRUCTION).playIfUnlocked(player, 10);
+			} else if (THEY_SEE_ME_ROLLIN.nextDouble() > 0.2) {
+				if (SuperpositionHandler.getPersistentBoolean(player, "DeathFromEntity", false)) {
+					Quote.getRandom(Quote.DEATH_QUOTES_ENTITY).playIfUnlocked(player, 10);
+				} else {
+					Quote.getRandom(Quote.DEATH_QUOTES).playIfUnlocked(player, 10);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Port: upstream's onEndPortal (EndPortalActivatedEvent). Called from MixinEnderEyeItem.
+	 */
+	public static void onEndPortal(ServerPlayer player) {
+		Quote.END_DOORSTEP.playOnceIfUnlocked(player, 40);
+	}
+
+	/**
+	 * Port: upstream's onEntitySummon (SummonedEntityEvent). Called from MixinSummonedEntityTrigger.
+	 */
+	public static void onEntitySummon(ServerPlayer player, Entity summoned) {
+		if (summoned instanceof WitherBoss) {
+			Quote.COUNTLESS_DEAD.playOnceIfUnlocked(player, 20);
+		} else if (summoned instanceof EnderDragon) {
+			Quote.HORRIBLE_EXISTENCE.playOnceIfUnlocked(player, 100);
+		}
+	}
+
+	/**
+	 * Port: upstream's onEnteredBlock (EnterBlockEvent). Called from MixinEnterBlockTrigger.
+	 */
+	public static void onEnteredBlock(ServerPlayer player, BlockState state) {
+		if (state.getBlock() == Blocks.END_GATEWAY) {
+			Quote.I_WANDERED.playOnceIfUnlocked(player, 160);
+		}
+	}
+
+	/**
+	 * Port: the quote part of upstream's onPlayerTravel (PlayerChangedDimensionEvent).
+	 */
+	public static void onPlayerTravelQuotes(ServerPlayer player) {
+		if (player.level().dimension() == Level.NETHER) {
+			Quote.SULFUR_AIR.playOnceIfUnlocked(player, 240);
+		} else if (player.level().dimension() == Level.END) {
+			Quote.TORTURED_ROCKS.playOnceIfUnlocked(player, 240);
 		}
 	}
 

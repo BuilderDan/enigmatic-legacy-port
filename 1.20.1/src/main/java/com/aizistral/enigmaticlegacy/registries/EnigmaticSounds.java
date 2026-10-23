@@ -1,5 +1,6 @@
 package com.aizistral.enigmaticlegacy.registries;
 
+import com.aizistral.enigmaticlegacy.client.Quote;
 import com.aizistral.enigmaticlegacy.api.generic.ObjectHolder;
 
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -58,8 +59,8 @@ public class EnigmaticSounds extends AbstractRegistry<SoundEvent> {
 	}
 
 	public static void init() {
-		// NO-OP; loading the class registers the sounds.
-		// Port: upstream's onRegister calls Quote.getByID(0); quotes are not ported yet.
+		// Loading the class registers the sounds; loading Quote registers the quote sounds.
+		Quote.getByID(0);
 	}
 
 }

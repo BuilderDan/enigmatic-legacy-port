@@ -1,5 +1,6 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import com.aizistral.enigmaticlegacy.objects.NarratorData;
 import java.util.List;
 import java.util.Random;
 
@@ -72,7 +73,7 @@ public class RelicOfTesting extends ItemBase implements IHidden {
 		if (!worldIn.isClientSide) {
 			//Quote.NO_PERIL.play((ServerPlayer) playerIn);
 
-			// Port: TransientPlayerData (narrator unlock) is not ported yet; that reset is left out.
+			NarratorData.setUnlocked(playerIn, false);
 			//playerIn.sendMessage(Component.literal("INTEGER: " + UltimaTestConfig.integerTest.getValue()), playerIn.getUniqueID());
 			//playerIn.sendMessage(Component.literal("FLOAT: " + UltimaTestConfig.floatTest.getValue()), playerIn.getUniqueID());
 			//playerIn.sendMessage(Component.literal("BOOLEAN: " + UltimaTestConfig.booleanTest.getValue()), playerIn.getUniqueID());

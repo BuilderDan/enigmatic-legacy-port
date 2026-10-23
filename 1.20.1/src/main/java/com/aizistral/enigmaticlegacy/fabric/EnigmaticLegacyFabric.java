@@ -20,6 +20,7 @@ import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketGenericParticleEffect;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncFireImmunity;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayQuote;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketUpdateCompass;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncForbiddenFruit;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncPlayTime;
@@ -165,11 +166,14 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 			EnigmaticItems.SOUL_CRYSTAL.updatePlayerSoulMap(newPlayer);
 			// Port: upstream onPlayerRespawn (PlayerRespawnEvent).
 			EnigmaticEventHandler.LAST_SOUL_COMPASS_UPDATE.remove(newPlayer);
-			// TODO Port Quote: upstream removes "DestroyedCursedRing" here and plays Quote.RING_DESTRUCTION.
+			// Fabric's alive flag is true exactly when upstream's isEndConquered is.
+			EnigmaticEventHandler.onPlayerRespawnQuotes(newPlayer, alive);
 		});
 		// Port: upstream onPlayerTravel (PlayerChangedDimensionEvent).
-		ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) ->
-				EnigmaticEventHandler.LAST_SOUL_COMPASS_UPDATE.remove(player));
+		ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> {
+			EnigmaticEventHandler.LAST_SOUL_COMPASS_UPDATE.remove(player);
+			EnigmaticEventHandler.onPlayerTravelQuotes(player);
+		});
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 				EnigmaticEventHandler.onPlayerTick(player);
@@ -199,6 +203,8 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 				PacketUpdateCompass::decode, PacketUpdateCompass::handle);
 		network.register(PacketSyncFireImmunity.class, PacketDirection.TO_CLIENT, PacketSyncFireImmunity::encode,
 				PacketSyncFireImmunity::decode, PacketSyncFireImmunity::handle);
+		network.register(PacketPlayQuote.class, PacketDirection.TO_CLIENT, PacketPlayQuote::encode,
+				PacketPlayQuote::decode, PacketPlayQuote::handle);
 		network.register(PacketSyncForbiddenFruit.class, PacketDirection.TO_CLIENT, PacketSyncForbiddenFruit::encode,
 				PacketSyncForbiddenFruit::decode, PacketSyncForbiddenFruit::handle);
 		network.register(PacketSyncOptions.class, PacketDirection.TO_CLIENT, PacketSyncOptions::encode,

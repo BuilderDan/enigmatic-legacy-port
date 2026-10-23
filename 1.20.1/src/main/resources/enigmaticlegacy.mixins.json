@@ -24,7 +24,9 @@
 		"MixinEnchantment",
 		"MixinEnchantmentHelper",
 		"MixinEnchantmentMenu",
+		"MixinEnderEyeItem",
 		"MixinEnderMan",
+		"MixinEnterBlockTrigger",
 		"MixinEntity",
 		"MixinHoglinTasks",
 		"MixinLivingEntity",
@@ -38,6 +40,7 @@
 		"MixinServerPlayer",
 		"MixinServerPlayerGameMode",
 		"MixinShulker",
+		"MixinSummonedEntityTrigger",
 		"MixinThrowableProjectile",
 		"MixinThrownEnderPearl"
 	],

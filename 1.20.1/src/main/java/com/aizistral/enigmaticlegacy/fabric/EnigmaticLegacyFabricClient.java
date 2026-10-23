@@ -1,5 +1,6 @@
 package com.aizistral.enigmaticlegacy.fabric;
 
+import com.aizistral.enigmaticlegacy.client.QuoteHandler;
 import java.util.List;
 import org.jetbrains.annotations.Nullable;
 import com.aizistral.enigmaticlegacy.api.items.ICursed;
@@ -72,6 +73,7 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 		ClientTickEvents.END_CLIENT_TICK.register(InfinitumClient::onClientTick);
 		ClientTickEvents.END_CLIENT_TICK.register(PacketCosmicRevive::onClientTick);
 		ClientTickEvents.END_CLIENT_TICK.register(EnigmaticElytraClient::onClientTick);
+		QuoteHandler.register();
 		EnigmaticElytra.clientBoostHandler = EnigmaticElytraClient::handleBoosting;
 		registerKeybinds();
 		registerItemProperties();

@@ -663,3 +663,22 @@ Sections are added here as each Minecraft version / loader is ported.
   Caelus' `RenderCapeEvent`, and `EnigmaticElytraLayer` is added to players and armor stands with
   `LivingEntityFeatureRendererRegistrationCallback`.
 - `TheJudgement` (The Judgement): copied unchanged except Forge's `@OnlyIn` client markers.
+- Quote system (`Quote`, `Subtitles`, `QuoteHandler`, `PacketPlayQuote`): the narrator flag from
+  upstream's `TransientPlayerData` becomes `NarratorData` (port-only, persistent boolean
+  `ELUnlockedNarrator`). `QuoteHandler` hooks Fabric's client tick, HUD and screen-render events
+  instead of Forge's PlayerTickEvent, RenderGuiEvent and ScreenEvent; it counts the delay down
+  twice per client tick, because upstream's PlayerTickEvent fired at START and END. The subtitle
+  box uses `GuiGraphics.fill` (upstream's gradient rect used two equal colors), and
+  `wrapString`/`greatestWidth` moved from `SuperpositionHandler` into `QuoteHandler` to keep
+  client classes out of common code. Quote sounds register through the vanilla registry
+  (`SuperpositionHandler.registerSound`); `EnigmaticSounds.init` loads `Quote` so they register
+  in time.
+  - Upstream's custom Forge events become three port-only mixins that call
+    `EnigmaticEventHandler` directly: `MixinEnderEyeItem` (eye placed in an End portal frame
+    that completes it), `MixinSummonedEntityTrigger` (Wither/Ender Dragon summoned) and
+    `MixinEnterBlockTrigger` (entering an End gateway).
+  - Respawn quotes run from Fabric's AFTER_RESPAWN (its `alive` flag equals upstream's
+    `isEndConquered`); Nether/End arrival quotes from AFTER_PLAYER_CHANGE_WORLD. The Wither kill
+    counter quotes, the Ender Dragon hit quote (Monster Charm hurt hook, worn or not, as
+    upstream) and the Relic of Testing narrator reset are wired in.
+  - `WITH_DRAGONS` is not wired yet: it plays after the Abyssal Heart drop, which is not ported.

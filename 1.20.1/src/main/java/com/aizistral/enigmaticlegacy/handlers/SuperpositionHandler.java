@@ -46,6 +46,8 @@ import com.google.common.collect.Multimap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.ParticleStatus;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.ByteTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntTag;
@@ -58,6 +60,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.GameRules;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
@@ -307,6 +310,17 @@ public class SuperpositionHandler {
 
 	public static double getRandomNegative() {
 		return (Math.random()-0.5)*2.0;
+	}
+
+	/**
+	 * Port: upstream registered through ForgeRegistries.SOUND_EVENTS; Fabric registers
+	 * straight into the vanilla registry.
+	 */
+	public static SoundEvent registerSound(final String soundName) {
+		ResourceLocation location = new ResourceLocation("enigmaticlegacy", soundName);
+		SoundEvent event = SoundEvent.createVariableRangeEvent(location);
+		Registry.register(BuiltInRegistries.SOUND_EVENT, location, event);
+		return event;
 	}
 
 	public static AABB getBoundingBoxAroundEntity(final Entity entity, final double radius) {
@@ -942,6 +956,13 @@ public class SuperpositionHandler {
 			return persistent.get(tag);
 		else
 			return expectedValue;
+	}
+
+	/**
+	 * Checks whether player has specified tag in their persistent NBT.
+	 */
+	public static boolean hasPersistentTag(Player player, String tag) {
+		return getPersistedCompound(player).contains(tag);
 	}
 
 	/**

@@ -122,6 +122,7 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 | Hidden recipes (crafting_shaped_hidden) | - | - | - | - (crafting table: The Cube, Amulet of Ascension (keeps the Enigmatic Amulet's color and inscription), The Testament of Contempt, Cosmic Scroll (needs a blessed Cosmic Heart); each shows on its Acknowledgment page) | - |
 | Majestic Elytra (enigmatic_elytra) | - | - | - | - (chest or back slot; glides; holding jump while flying boosts with the ender-eye sound and dragon-breath particles, seen by other players too; boosting wears durability faster; repair with etherium; hides the cape; renders on armor stands; right-click equips to chest) | - |
 | The Judgement (the_judgement) | - | - | - | - (creative-only; a hit kills every living entity within 64 blocks of the target; right-click toggles no-drops mode (glint, charge sound), which also deletes nearby items and XP orbs) | - |
+| Narrator quotes (system) | - | - | - | - (needs the narrator unlocked by the Enigmatic Eye; voice line plus yellow subtitle box above the hotbar, also over open screens; quotes on respawn, first Nether/End arrival, completing an End portal, summoning the Wither/Ender Dragon, entering an End gateway, hitting the dragon; each "once" quote plays only once per player; Relic of Testing resets the unlock) | - |
 
 Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).

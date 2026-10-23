@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import com.aizistral.enigmaticlegacy.client.Quote;
+import net.minecraft.server.level.ServerPlayer;
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -106,6 +108,9 @@ public class MonsterCharm extends ItemBaseCurio {
 	public static float modifyHurtAmount(LivingEntity target, DamageSource source, float amount) {
 		if (!(target instanceof Monster || target instanceof EnderDragon))
 			return amount;
+		if (target instanceof EnderDragon && source.getEntity() instanceof ServerPlayer splayer) {
+			Quote.POOR_CREATURE.playOnceIfUnlocked(splayer, 60);
+		}
 		if (!(source.getEntity() instanceof Player player) || !SuperpositionHandler.hasCurio(player, EnigmaticItems.MONSTER_CHARM))
 			return amount;
 
@@ -120,7 +125,6 @@ public class MonsterCharm extends ItemBaseCurio {
 			return amount * hostileDamageBonus.getValue().asModifier(true);
 		}
 
-		// Port: upstream also plays Quote.POOR_CREATURE when the dragon is hit; quotes are not ported.
 		return amount;
 	}
 
