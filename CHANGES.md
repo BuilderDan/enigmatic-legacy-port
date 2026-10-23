@@ -606,7 +606,7 @@ Sections are added here as each Minecraft version / loader is ported.
     copy. Curios' `DropRulesEvent` becomes an `AccessoryDrops` rule (`ALWAYS_KEEP`). Port
     addition: `TrinketAdapter.canUnequip` refuses items with a binding curse outside creative,
     because Trinkets (unlike Curios' slot) does not check it; this also covers vanilla Binding.
-    The Eldritch Amulet branch is left as a TODO until that item is ported.
+    The Eldritch Amulet branch came with that item.
   - Cursed Ring lava-pool destruction: `onConfirmedDeath` now records and consumes the Unholy
     Stone (Forge's private `Inventory.compartments` -> the items, armor and offhand lists). The
     lava-pool part of upstream's `onCurioDrops` (Curios `DropRulesEvent`) moves to
@@ -644,3 +644,11 @@ Sections are added here as each Minecraft version / loader is ported.
     carried) in `POSTMORTAL_POSESSIONS`, and the Extradimensional Vessel counts it like the
     Enigmatic Amulet (`hadEnigmaticAmulet`). Its recipe type, `crafting_shaped_hidden`, is not
     ported yet, so for now it is creative-only.
+  - `EldritchAmulet` (The Testament of Contempt): `storeInventory` saves stacks with vanilla
+    `ItemStack.save` instead of Forge's `serializeNBT`; upstream's `getAttributesTooltip`
+    override is dropped. For a worthy wearer, `onConfirmedDeath` stores the main inventory,
+    armor and offhand (minus Curse of Vanishing items) instead of the Eternal Binding armor,
+    and `onPlayerClone` restores them and skips the bound-armor restore. Curios'
+    `DropRulesEvent` becomes an `AccessoryDrops` rule that keeps every accessory without Curse
+    of Vanishing. The 15% lifesteal is in `onLivingDamage`. Like the Ascension Amulet it is
+    creative-only until `crafting_shaped_hidden` is ported.

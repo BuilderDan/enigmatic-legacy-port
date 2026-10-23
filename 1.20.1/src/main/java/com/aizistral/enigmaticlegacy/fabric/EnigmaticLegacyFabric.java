@@ -67,6 +67,7 @@ import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -112,6 +113,9 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		TrinketsAccessorySlots.init();
 		// Port: upstream onCurioDrops (Curios DropRulesEvent).
 		AccessoryDrops.register((entity, stack) -> EnchantmentHelper.getItemEnchantmentLevel(EnigmaticEnchantments.ETERNAL_BINDING, stack) > 0 ? DropRule.ALWAYS_KEEP : null);
+		AccessoryDrops.register((entity, stack) -> entity instanceof ServerPlayer player
+				&& EnigmaticEventHandler.POSTMORTAL_POSESSIONS.containsEntry(player, EnigmaticItems.ELDRITCH_AMULET)
+				&& EnchantmentHelper.getItemEnchantmentLevel(Enchantments.VANISHING_CURSE, stack) <= 0 ? DropRule.ALWAYS_KEEP : null);
 		EnabledCondition.register();
 		PlayerPlaytimeCounter.registerStats();
 		registerPackets();

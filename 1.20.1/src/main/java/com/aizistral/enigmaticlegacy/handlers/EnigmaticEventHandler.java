@@ -745,13 +745,17 @@ public class EnigmaticEventHandler {
 			tomeStack.shrink(1);
 		}
 
-		// TODO: Eldritch Amulet branch (storeInventory) when that item is ported; this is its else.
-		for (int i = 0; i < player.getInventory().armor.size(); i++) {
-			ItemStack armor = player.getInventory().armor.get(i);
+		if (SuperpositionHandler.hasCurio(player, EnigmaticItems.ELDRITCH_AMULET) && SuperpositionHandler.isTheWorthyOne(player)) {
+			EnigmaticItems.ELDRITCH_AMULET.storeInventory(player);
+			POSTMORTAL_POSESSIONS.put(player, EnigmaticItems.ELDRITCH_AMULET);
+		} else {
+			for (int i = 0; i < player.getInventory().armor.size(); i++) {
+				ItemStack armor = player.getInventory().armor.get(i);
 
-			if (EnchantmentHelper.getItemEnchantmentLevel(EnigmaticEnchantments.ETERNAL_BINDING, armor) > 0) {
-				player.getInventory().armor.set(i, ItemStack.EMPTY);
-				SuperpositionHandler.setPersistentTag(player, "EternallyBoundArmor" + i, armor.save(new CompoundTag()));
+				if (EnchantmentHelper.getItemEnchantmentLevel(EnigmaticEnchantments.ETERNAL_BINDING, armor) > 0) {
+					player.getInventory().armor.set(i, ItemStack.EMPTY);
+					SuperpositionHandler.setPersistentTag(player, "EternallyBoundArmor" + i, armor.save(new CompoundTag()));
+				}
 			}
 		}
 
@@ -824,23 +828,24 @@ public class EnigmaticEventHandler {
 	}
 
 	/**
-	 * Port: the Eternal Binding part of upstream's {@code playerClone} ({@code PlayerEvent.Clone}).
+	 * Port: the Eldritch Amulet and Eternal Binding parts of upstream's {@code playerClone} ({@code PlayerEvent.Clone}).
 	 * Called from EnigmaticLegacyFabric's COPY_FROM hook, after the persisted tag is copied.
 	 */
 	public static void onPlayerClone(ServerPlayer oldPlayer, ServerPlayer newPlayer, boolean alive) {
 		if (alive)
 			return;
 
-		// TODO: skip this when ELDRITCH_AMULET.reclaimInventory succeeds, once that item is ported.
-		for (int i = 0; i < 4; i++) {
-			Tag tag = SuperpositionHandler.getPersistentTag(oldPlayer, "EternallyBoundArmor" + i, null);
+		if (!EnigmaticItems.ELDRITCH_AMULET.reclaimInventory(oldPlayer, newPlayer)) {
+			for (int i = 0; i < 4; i++) {
+				Tag tag = SuperpositionHandler.getPersistentTag(oldPlayer, "EternallyBoundArmor" + i, null);
 
-			if (tag instanceof CompoundTag armor) {
-				ItemStack stack = ItemStack.of(armor);
-				newPlayer.getInventory().armor.set(i, stack);
+				if (tag instanceof CompoundTag armor) {
+					ItemStack stack = ItemStack.of(armor);
+					newPlayer.getInventory().armor.set(i, stack);
+				}
+
+				SuperpositionHandler.removePersistentTag(newPlayer, "EternallyBoundArmor" + i);
 			}
-
-			SuperpositionHandler.removePersistentTag(newPlayer, "EternallyBoundArmor" + i);
 		}
 	}
 
@@ -870,7 +875,11 @@ public class EnigmaticEventHandler {
 				lifesteal += amount * 0.1F;
 			}
 
-			// TODO: Eldritch Amulet, Pact of Infinite Avarice, Eldritch Pan and Growing Bloodlust terms.
+			if (SuperpositionHandler.isTheWorthyOne(player) && SuperpositionHandler.hasCurio(player, EnigmaticItems.ELDRITCH_AMULET)) {
+				lifesteal += amount * 0.15F;
+			}
+
+			// TODO: Pact of Infinite Avarice, Eldritch Pan and Growing Bloodlust terms.
 
 			if (lifesteal > 0) {
 				player.heal(lifesteal);

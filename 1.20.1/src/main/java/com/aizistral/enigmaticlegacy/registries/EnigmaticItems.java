@@ -18,6 +18,7 @@ import com.aizistral.enigmaticlegacy.items.BerserkEmblem;
 import com.aizistral.enigmaticlegacy.items.GuardianHeart;
 import com.aizistral.enigmaticlegacy.items.TheInfinitum;
 import com.aizistral.enigmaticlegacy.items.AscensionAmulet;
+import com.aizistral.enigmaticlegacy.items.EldritchAmulet;
 import com.aizistral.enigmaticlegacy.items.TheTwist;
 import com.aizistral.enigmaticlegacy.items.EnderSlayer;
 import com.aizistral.enigmaticlegacy.items.DeceptionAmulet;
@@ -235,6 +236,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ConfigurableItem("Amulet of Ascension")
 	@ObjectHolder(value = MODID + ":ascension_amulet", registryName = "item")
 	public static AscensionAmulet ASCENSION_AMULET;
+
+	@ConfigurableItem("The Testament of Contempt")
+	@ObjectHolder(value = MODID + ":eldritch_amulet", registryName = "item")
+	public static EldritchAmulet ELDRITCH_AMULET;
 
 	@ConfigurableItem("Mending Mixture")
 	@ObjectHolder(value = MODID + ":mending_mixture", registryName = "item")
@@ -596,6 +601,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("infernal_shield", InfernalShield::new);
 		this.register("the_infinitum", TheInfinitum::new);
 		this.register("ascension_amulet", AscensionAmulet::new);
+		this.register("eldritch_amulet", EldritchAmulet::new);
 	}
 
 	/** Port: forces class loading, which registers the items. */
