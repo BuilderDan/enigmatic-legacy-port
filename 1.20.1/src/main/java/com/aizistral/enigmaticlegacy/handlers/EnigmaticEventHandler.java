@@ -163,6 +163,7 @@ public class EnigmaticEventHandler {
 	public static final Map<Player, Float> LAST_HEALTH = new WeakHashMap<>();
 	public static final Random THEY_SEE_ME_ROLLIN = new Random();
 	public static final Map<LivingEntity, Float> KNOCKBACK_THAT_BASTARD = new WeakHashMap<>();
+	public static final Map<Player, AABB> DESOLATION_BOXES = new WeakHashMap<>();
 	public static final Multimap<Player, Guardian> AGERED_GUARDIANS = ArrayListMultimap.create();
 
 	/**
@@ -458,6 +459,12 @@ public class EnigmaticEventHandler {
 		}
 
 		EnigmaticItems.ENIGMATIC_ITEM.handleEnigmaticFlight(player);
+
+		if (SuperpositionHandler.hasCurio(player, EnigmaticItems.DESOLATION_RING) && SuperpositionHandler.isTheWorthyOne(player)) {
+			DESOLATION_BOXES.put(player, SuperpositionHandler.getBoundingBoxAroundEntity(player, 128));
+		} else {
+			DESOLATION_BOXES.remove(player);
+		}
 
 		FireImmunityData fireData = FireImmunityData.get(player);
 		fireData.setTimer(fireData.getTimer() - (player.isOnFire() ? 100 : 200));

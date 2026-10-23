@@ -26,6 +26,7 @@
 		"MixinEntity",
 		"MixinLivingEntity",
 		"MixinMob",
+		"MixinNaturalSpawner",
 		"MixinPiglinAi",
 		"MixinPlayer",
 		"MixinPotionBrewing",

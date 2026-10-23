@@ -39,6 +39,7 @@ name, model and tooltip. Results go to the log with a `[devcheck]` prefix. With
 | 2026-10-22 | 87 | 88 | 0 | Added Amulet of Deception (cursed curio, tooltip only; upstream has no behavior for it, name still says [WIP] as upstream). |
 | 2026-10-22 | 88 | 90 | 0 | Added Guide to Animal Companionship and Guide to Feral Hunt (Cursed Ring neutral-anger skip, Void Pearl darkness skip, pet damage redirected to the Hunter's Guide owner). |
 | 2026-10-22 | 90 | 91 | 0 | Added Enchanter's Pearl (lapis-free double-roll enchanting mixin, charm slot bonus). |
+| 2026-10-22 | 91 | 92 | 0 | Added The Burden of Desolation (natural-spawn block mixin; refmap target verified). |
 
 ## Manual checklist
 

@@ -570,3 +570,10 @@ Sections are added here as each Minecraft version / loader is ported.
     button-index bounds check. The `getGoldCount` inject (64 lapis) was client-only upstream and
     runs on both sides here. `SuperpositionHandler.mergeEnchantments` is ported; the Eternal
     Binding roll is skipped until that enchantment is ported.
+  - `DesolationRing` (The Burden of Desolation): `@OnlyIn` removed; Curios `SlotContext` and
+    `DropRule` -> platform equivalents. Forge's `MobSpawnEvent.FinalizeSpawn` handler is replaced
+    by the port-only `MixinNaturalSpawner` (HEAD of `isValidPositionForMob`), which refuses
+    natural spawns of piglins, zombified piglins, iron golems and endermen inside a desolation
+    box. Upstream also cleared `DESOLATION_BOXES` on server stop; the port relies on its
+    `WeakHashMap` keys and the per-tick removal. The death-handler lava-pool destruction is not
+    ported yet.
