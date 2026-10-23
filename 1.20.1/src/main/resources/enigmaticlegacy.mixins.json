@@ -50,6 +50,7 @@
 		"MixinThrownEnderPearl"
 	],
 	"client": [
+		"AccessorAbstractContainerScreen",
 		"MixinCapeLayer",
 		"MixinEntityRenderer",
 		"MixinFogRenderer",

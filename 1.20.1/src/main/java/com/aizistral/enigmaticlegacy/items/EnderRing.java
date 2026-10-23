@@ -22,7 +22,6 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
-// Port: the inventory GUI button (gui/EnderChestInventoryButton) is not ported yet; its client config is kept.
 public class EnderRing extends ItemBaseCurio {
 	public static Omniconfig.BooleanParameter inventoryButtonEnabled;
 	public static Omniconfig.IntParameter buttonOffsetX;

@@ -43,8 +43,7 @@ public class PacketEnderRingKey {
 		ctx.get().enqueueWork(() -> {
 			ServerPlayer playerServ = ctx.get().getSender();
 
-			// Port: upstream also accepts the Ring of the Seven Curses, which is not ported yet.
-			if (SuperpositionHandler.hasCurio(playerServ, EnigmaticItems.ENDER_RING)) {
+			if (SuperpositionHandler.hasCurio(playerServ, EnigmaticItems.ENDER_RING) || SuperpositionHandler.hasCurio(playerServ, EnigmaticItems.CURSED_RING)) {
 				// Port: upstream builds the menu, sends ClientboundOpenScreenPacket and posts Forge's
 				// PlayerContainerEvent.Open by hand; vanilla openMenu does the same steps.
 				playerServ.openMenu(new SimpleMenuProvider((containerId, inventory, player) ->

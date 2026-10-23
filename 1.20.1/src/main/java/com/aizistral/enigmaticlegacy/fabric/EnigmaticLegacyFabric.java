@@ -24,6 +24,7 @@ import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncFireImmunity;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayQuote;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketUpdateCompass;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncForbiddenFruit;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncMagnetEffects;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncPlayTime;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncElytraBoosting;
 import com.aizistral.enigmaticlegacy.packets.server.PacketUpdateElytraBoosting;
@@ -35,6 +36,7 @@ import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayerMotion;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayerSetlook;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketCosmicRevive;
 import com.aizistral.enigmaticlegacy.packets.server.PacketEnderRingKey;
+import com.aizistral.enigmaticlegacy.packets.server.PacketToggleMagnetEffects;
 import com.aizistral.enigmaticlegacy.packets.server.PacketXPScrollKey;
 import com.aizistral.enigmaticlegacy.packets.server.PacketInkwellField;
 import com.aizistral.enigmaticlegacy.platform.Services;
@@ -229,6 +231,10 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 				PacketHandleItemPickup::decode, PacketHandleItemPickup::handle);
 		network.register(PacketEnderRingKey.class, PacketDirection.TO_SERVER, PacketEnderRingKey::encode,
 				PacketEnderRingKey::decode, PacketEnderRingKey::handle);
+		network.register(PacketToggleMagnetEffects.class, PacketDirection.TO_SERVER, PacketToggleMagnetEffects::encode,
+				PacketToggleMagnetEffects::decode, PacketToggleMagnetEffects::handle);
+		network.register(PacketSyncMagnetEffects.class, PacketDirection.TO_CLIENT, PacketSyncMagnetEffects::encode,
+				PacketSyncMagnetEffects::decode, PacketSyncMagnetEffects::handle);
 		network.register(PacketXPScrollKey.class, PacketDirection.TO_SERVER, PacketXPScrollKey::encode,
 				PacketXPScrollKey::decode, PacketXPScrollKey::handle);
 		network.register(PacketInkwellField.class, PacketDirection.TO_SERVER, PacketInkwellField::encode,

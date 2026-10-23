@@ -48,6 +48,7 @@ name, model and tooltip. Results go to the log with a `[devcheck]` prefix. With
 | 2026-10-23 | 94 | 95 | 0 | Added the Bulwark of Blazing Pride (shield mixins, blocking property). |
 | 2026-10-23 | 95 | 96 | 0 | Added The Infinitum (worthy-only; knockback, boss damage, lifesteal, death save; open property). |
 | 2026-10-23 | 101 | 104 | 1 | Added the other seven enchantments (Sharpshooter, Ceaseless, Slayer, Torrent, Wrath, Nemesis, Sorrow); `Player.getProjectile`, `CrossbowItem` and `ThrownTrident` accessor mixins load. The 1 problem is a false positive from the Enigmatic Eye commit (fe96ec4): its name uses the `enigmatic_eye_dormant`/`_active` keys, as upstream. Enchantments still need an in-world test. |
+| 2026-10-23 | 112 | 115 | 1 | Inventory buttons (Ender Chest, magnet toggle) and the magnet flag sync packets; client accessor mixin loads. Same Enigmatic Eye false positive. Buttons still need an in-world click test (survival and creative inventory, Ender/Cursed Ring worn). |
 
 ## Manual checklist
 

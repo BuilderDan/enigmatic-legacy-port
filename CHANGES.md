@@ -125,10 +125,17 @@ Sections are added here as each Minecraft version / loader is ported.
   is copied unchanged.
 - `SuperpositionHandler`: added `setEntityMotionFromVector`, `canPickStack`,
   `canMergeStacks` and `stackEqualExact`, copied unchanged from upstream.
-- Magnetic Ring and Dislocation Ring: the inventory button that toggles magnet effects
-  (and the `TransientPlayerData` flag and packet behind it) is not ported yet, so magnet
-  effects are always on. The client config keys for the button (`ButtonEnabled`,
-  `ButtonOffset*`) are still read but do nothing yet.
+- Magnetic Ring and Dislocation Ring: the magnet-disabled flag moves from upstream's
+  `TransientPlayerData` to the same persistent player tag (`DisabledMagnetEffects`), read by
+  `MagnetRing.hasMagnetEffectsDisabled`. A port-only `PacketSyncMagnetEffects` sends it to
+  its own player on join and after each toggle (upstream synced all transient data to every
+  client). `PacketToggleMagnetEffects` flips it as upstream.
+- Inventory buttons (`gui/PlayerInventoryButton`, `ToggleMagnetEffectsButton`,
+  `EnderChestInventoryButton`): added through Fabric's `ScreenEvents.AFTER_INIT` instead of
+  Forge's `ScreenEvent.Init.Post`. The `CuriosScreen` checks are dropped (Trinkets uses the
+  vanilla inventory screen), the gui position comes from a port-only
+  `AccessorAbstractContainerScreen` mixin, and the creative inventory tab check uses vanilla
+  `isInventoryOpen()`. The Quark mini-button shift is not ported.
 - Magnetic Ring and Dislocation Ring: upstream skipped items whose Forge entity
   persistent data held `PreventRemoteMovement` (a cross-mod convention). Fabric entities
   have no such data map, so that check is dropped and those items are pulled too.
@@ -228,9 +235,6 @@ Sections are added here as each Minecraft version / loader is ported.
   - The I key opens the ender chest through vanilla `ServerPlayer.openMenu` instead of
     upstream's hand-built open (manual container id, open-screen packet, Forge
     `PlayerContainerEvent.Open`). Same menu, title and open/close sounds.
-  - The key does not accept the Ring of the Seven Curses yet (not ported).
-  - The inventory-screen ender chest button (`EnderChestInventoryButton`) is not ported yet;
-    its client config options are kept.
 - Essence of Raging Life (`Infinimeal`):
   - Crop growth uses vanilla `BoneMealItem.growCrop` instead of Forge's `applyBonemeal`, so no
     Forge `BonemealEvent` fires and dispensers no longer use a fake player.

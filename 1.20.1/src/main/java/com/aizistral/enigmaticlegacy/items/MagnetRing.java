@@ -11,6 +11,8 @@ import com.aizistral.enigmaticlegacy.helpers.ItemLoreHelper;
 import com.aizistral.enigmaticlegacy.items.generic.ItemBaseCurio;
 import com.aizistral.enigmaticlegacy.platform.accessory.SlotContext;
 import com.aizistral.enigmaticlegacy.objects.Vector3;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncMagnetEffects;
+import com.aizistral.enigmaticlegacy.platform.Services;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 import com.aizistral.omniconfig.Configuration;
 import com.aizistral.omniconfig.wrappers.Omniconfig;
@@ -20,6 +22,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -144,10 +147,34 @@ public class MagnetRing extends ItemBaseCurio {
 		return super.canEquip(context, stack) && !SuperpositionHandler.hasCurio(context.entity(), EnigmaticItems.SUPER_MAGNET_RING);
 	}
 
+	/**
+	 * Port: the client's own copy of the flag, set by {@link PacketSyncMagnetEffects}. Upstream
+	 * kept it in {@code TransientPlayerData}, which is not ported.
+	 */
+	public static boolean clientMagnetEffectsDisabled = false;
+
+	/**
+	 * Port: upstream read {@code TransientPlayerData}, which saves to the same persistent tag.
+	 * The server reads the player's persistent NBT; the client reads the synced copy.
+	 */
 	public boolean hasMagnetEffectsDisabled(Player player) {
-		// Port: upstream reads TransientPlayerData, toggled by the inventory magnet button and its
-		// packet. Neither is ported yet, so magnet effects are always enabled (see CHANGES.md).
-		return false;
+		if (player.level().isClientSide)
+			return clientMagnetEffectsDisabled;
+
+		return SuperpositionHandler.getPersistentBoolean(player, disabledMagnetTag, false);
+	}
+
+	/** Port-only: flips the flag (inventory magnet button) and syncs it to its player. */
+	public static void toggleMagnetEffects(ServerPlayer player) {
+		boolean disabled = !SuperpositionHandler.getPersistentBoolean(player, disabledMagnetTag, false);
+		SuperpositionHandler.setPersistentBoolean(player, disabledMagnetTag, disabled);
+		syncMagnetEffects(player);
+	}
+
+	/** Port-only: sends the flag to its player (on change and on join). */
+	public static void syncMagnetEffects(ServerPlayer player) {
+		Services.NETWORK.sendToPlayer(player, new PacketSyncMagnetEffects(
+				SuperpositionHandler.getPersistentBoolean(player, disabledMagnetTag, false)));
 	}
 
 	protected boolean canPullItem(ItemEntity item) {

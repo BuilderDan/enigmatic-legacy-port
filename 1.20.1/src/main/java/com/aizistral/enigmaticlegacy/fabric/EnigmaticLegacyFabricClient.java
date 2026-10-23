@@ -1,5 +1,15 @@
 package com.aizistral.enigmaticlegacy.fabric;
 
+import com.aizistral.enigmaticlegacy.gui.EnderChestInventoryButton;
+import com.aizistral.enigmaticlegacy.gui.ToggleMagnetEffectsButton;
+import com.aizistral.enigmaticlegacy.packets.server.PacketEnderRingKey;
+import com.aizistral.enigmaticlegacy.packets.server.PacketToggleMagnetEffects;
+import com.aizistral.enigmaticlegacy.platform.Services;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
+import net.fabricmc.fabric.api.client.screen.v1.Screens;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import com.aizistral.enigmaticlegacy.client.QuoteHandler;
 import java.util.List;
 import org.jetbrains.annotations.Nullable;
@@ -82,10 +92,36 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 		QuoteHandler.register();
 		EnigmaticElytra.clientBoostHandler = EnigmaticElytraClient::handleBoosting;
 		registerKeybinds();
+		registerInventoryButtons();
 		registerItemProperties();
 		registerRenderers();
 		SeparateTransformsModel.register();
 		DevSelfCheck.register();
+	}
+
+	/**
+	 * Port: upstream EnigmaticEventHandler.onInventoryGuiInit (ScreenEvent.Init.Post). The Quark
+	 * mini-button shift and the PacketEnchantingGUI send are not ported.
+	 */
+	private static void registerInventoryButtons() {
+		ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
+			if (!(screen instanceof InventoryScreen || screen instanceof CreativeModeInventoryScreen))
+				return;
+
+			AbstractContainerScreen<?> gui = (AbstractContainerScreen<?>) screen;
+			boolean isCreative = screen instanceof CreativeModeInventoryScreen;
+			ResourceLocation texture = new ResourceLocation(EnigmaticLegacy.MODID, "textures/gui/ender_chest_button.png");
+
+			EnderChestInventoryButton enderButton = new EnderChestInventoryButton(gui, 0, 0, 20, 18, 0, 0, 19, texture,
+					input -> Services.NETWORK.sendToServer(new PacketEnderRingKey(true)));
+			enderButton.updatePosition(isCreative);
+			Screens.getButtons(screen).add(enderButton);
+
+			ToggleMagnetEffectsButton magnetButton = new ToggleMagnetEffectsButton(gui, 0, 0, 20, 18, 21, 0, 19, texture,
+					input -> Services.NETWORK.sendToServer(new PacketToggleMagnetEffects()));
+			magnetButton.updatePosition(isCreative);
+			Screens.getButtons(screen).add(magnetButton);
+		});
 	}
 
 	private static void registerItemProperties() {

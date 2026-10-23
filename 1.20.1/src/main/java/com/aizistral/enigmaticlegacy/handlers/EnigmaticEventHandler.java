@@ -19,6 +19,7 @@ import com.aizistral.enigmaticlegacy.config.OmniconfigHandler;
 import com.aizistral.enigmaticlegacy.entities.PermanentItemEntity;
 import com.aizistral.enigmaticlegacy.helpers.ItemNBTHelper;
 import com.aizistral.enigmaticlegacy.helpers.PotionHelper;
+import com.aizistral.enigmaticlegacy.items.MagnetRing;
 import com.aizistral.enigmaticlegacy.items.EnigmaticAmulet;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -1068,6 +1069,7 @@ public class EnigmaticEventHandler {
 	 */
 	public static void onPlayerJoin(ServerPlayer player) {
 		EnigmaticItems.FORBIDDEN_FRUIT.syncConsumedFruit(player);
+		MagnetRing.syncMagnetEffects(player);
 		EnigmaticItems.COSMIC_SCROLL.onPlayerJoin(player);
 		EnigmaticItems.SOUL_CRYSTAL.updatePlayerSoulMap(player);
 
