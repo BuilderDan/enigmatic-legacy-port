@@ -30,6 +30,7 @@
 		"MixinEntity",
 		"MixinHoglinTasks",
 		"MixinLivingEntity",
+		"MixinLootTable",
 		"MixinMob",
 		"MixinNaturalSpawner",
 		"MixinPiglinAi",
@@ -46,9 +47,11 @@
 	],
 	"client": [
 		"MixinCapeLayer",
+		"MixinEntityRenderer",
 		"MixinFogRenderer",
 		"MixinGui",
 		"MixinItemStack",
+		"MixinLivingEntityRenderer",
 		"MixinMultiPlayerGameMode"
 	],
 	"injectors": {

@@ -13,6 +13,7 @@ import com.aizistral.enigmaticlegacy.fabric.platform.TrinketsAccessorySlots;
 import com.aizistral.enigmaticlegacy.objects.EnabledCondition;
 import com.aizistral.enigmaticlegacy.objects.PersistentData;
 import com.aizistral.enigmaticlegacy.objects.RegisteredMeleeAttack;
+import com.aizistral.enigmaticlegacy.objects.SpecialLootModifier;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketForceArrowRotations;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketHandleItemPickup;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketFlameParticles;
@@ -193,6 +194,9 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		});
 		LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) ->
 				EnigmaticEventHandler.onLootTablesLoaded(id, tableBuilder::pool));
+		// Port: maps loot tables to their ids for SpecialLootModifier (Forge gives them on the context).
+		LootTableEvents.ALL_LOADED.register((resourceManager, lootManager) ->
+				SpecialLootModifier.onLootTablesLoaded(lootManager));
 	}
 
 	private static void registerPackets() {

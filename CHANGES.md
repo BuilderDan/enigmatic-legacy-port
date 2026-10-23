@@ -380,9 +380,10 @@ Sections are added here as each Minecraft version / loader is ported.
     `@ModifyVariable` on `LivingEntity.heal`; the hunger-bar texture swap is a `@WrapOperation`
     on the food-bar `blit` calls in `Gui.renderPlayerHealth` (only the shank background is
     redrawn). Food is held at 20 with no saturation in the player tick.
-  - Not ported yet: the Cursed Scroll heal boost in `onHeal`, Eldritch Pan's `cannotHunger` check, the Forbidden Fruit bastion loot, the
-    Bottle of Ichor special loot and its `LootedIchorBottle` flag (its dungeon pool entries came with the spellstones batch). The Common Haste dungeon loot
-    came with the Revelation Tomes.
+  - Not ported yet: the Cursed Scroll heal boost in `onHeal`, Eldritch Pan's `cannotHunger` check, the Forbidden Fruit bastion loot. The
+    Bottle of Ichor special loot and its `LootedIchorBottle` flag came with `SpecialLootModifier`
+    (Enigmatic Eye batch); its dungeon pool entries came with the spellstones batch. The Common
+    Haste dungeon loot came with the Revelation Tomes.
 - Spellstones and scrolls batch (Angel's Blessing, Heart of the Golem, Will of the Ocean, Eye of
   the Nebula, Pearl of the Void, The Cube; Gift of the Heaven, Fabulous Scroll, Scroll of a
   Thousand Curses, Scroll of Avarice, Cosmic Scroll):
@@ -682,3 +683,21 @@ Sections are added here as each Minecraft version / loader is ported.
     counter quotes, the Ender Dragon hit quote (Monster Charm hurt hook, worn or not, as
     upstream) and the Relic of Testing narrator reset are wired in.
   - `WITH_DRAGONS` is not wired yet: it plays after the Abyssal Heart drop, which is not ported.
+- `EnigmaticEye` (Inscrutable Eye): the narrator flag from `TransientPlayerData` becomes
+  `NarratorData`, so upstream's `needsSync` is dropped. Forge's `BLOCK_REACH` becomes
+  `EnigmaticAttributes.BLOCK_REACH`.
+- `Insignia` (Charming Insignia): Curios calls go through the platform accessory service.
+  Upstream's `RenderNameTagEvent` handlers become two port-only client mixins:
+  `MixinEntityRenderer` (HEAD of `renderNameTag`, draws the Insignia's custom name instead) and
+  `MixinLivingEntityRenderer` (HEAD of `shouldShowName`, shows your own nameplate while the
+  Insignia's tag display is on). `renderInsigniaNameplate` moved from `SuperpositionHandler` to
+  the client-only `InsigniaClient`; Forge's `isNameplateInRenderDistance` becomes vanilla's
+  64-block check. The desert pyramid Insignia loot in `EnigmaticEventHandler` is commented out
+  upstream and is not ported.
+- `SpecialLootModifier` (one-time Inscrutable Eye from the first vanilla chest, one Bottle of
+  Ichor per player, Celestial Fruit in the first End city chest, Heart of the Earth from
+  suspicious blocks): Forge's global loot modifier becomes a plain class called by the
+  port-only `MixinLootTable` (RETURN of the private `getRandomItems(LootContext)`, which chest
+  and suspicious-block loot use). Vanilla tables do not know their id, so an identity map from
+  table to id is rebuilt in Fabric's `LootTableEvents.ALL_LOADED`. The loot modifier codec and
+  `data/forge/loot_modifiers` JSON are dropped.
