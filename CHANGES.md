@@ -542,3 +542,14 @@ Sections are added here as each Minecraft version / loader is ported.
   - `BerserkEmblem`: Curios slot hooks go through the accessory service (Trinkets). Its damage
     boost and resistance terms are in `EnigmaticEventHandler.onLivingHurt` and `onPlayerHurt`.
     `SuperpositionHandler.getMissingHealthPool` is ported with it.
+  - `GuardianHeart`: the guardian-curse particle packet is `PacketGenericParticleEffect`, sent
+    through the network service. Piglin anger calls go through invoker mixins (`AccessorPiglinAi`,
+    new `AccessorPiglinBruteAi`) instead of access transformers. `SuperpositionHandler`
+    `getClosestEntity`, `doesObserveEntity` and `getRandomNegative` are ported with it. Upstream's
+    `LivingChangeTargetEvent` Guardian check lives in `MixinMob` (head of `Mob.setTarget`). The
+    Elder Guardian drop pool includes the Heart again.
+  - `TheTwist`: the knockback bonus and the cancel for non-cursed wielders are in
+    `EnigmaticEventHandler.onLivingAttack` (Fabric `ALLOW_DAMAGE`; upstream cancels in
+    `LivingHurtEvent`). The boss bonus and the Cursed Ring debuff bypass are in `onLivingHurt`.
+    `KNOCKBACK_THAT_BASTARD` and `AGERED_GUARDIANS` are cleared on server stop, as upstream's
+    `performCleanup` does.

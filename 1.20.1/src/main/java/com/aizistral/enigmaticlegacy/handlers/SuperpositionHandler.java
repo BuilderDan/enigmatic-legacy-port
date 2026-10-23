@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -225,6 +226,36 @@ public class SuperpositionHandler {
 	public static ItemStack getCurioStack(LivingEntity entity, Item curio) {
 		// Port: Curios lookup replaced by the accessory service (Trinkets on Fabric).
 		return Services.ACCESSORIES.findFirst(entity, stack -> stack.is(curio));
+	}
+
+	public static <T extends LivingEntity> T getClosestEntity(List<? extends T> entities, Predicate<LivingEntity> predicate, double x, double y, double z) {
+		double d0 = -1.0D;
+		T t = null;
+
+		for (T t1 : entities) {
+			if (predicate.test(t1)) {
+				double d1 = t1.distanceToSqr(x, y, z);
+				if (d0 == -1.0D || d1 < d0) {
+					d0 = d1;
+					t = t1;
+				}
+			}
+		}
+
+		return t;
+	}
+
+	public static boolean doesObserveEntity(Player player, LivingEntity entity) {
+		Vec3 vector3d = player.getViewVector(1.0F).normalize();
+		Vec3 vector3d1 = new Vec3(entity.getX() - player.getX(), entity.getEyeY() - player.getEyeY(), entity.getZ() - player.getZ());
+		double d0 = vector3d1.length();
+		vector3d1 = vector3d1.normalize();
+		double d1 = vector3d.dot(vector3d1);
+		return d1 > 1.0D - 0.025D / d0 ? player.hasLineOfSight(entity) : false;
+	}
+
+	public static double getRandomNegative() {
+		return (Math.random()-0.5)*2.0;
 	}
 
 	public static AABB getBoundingBoxAroundEntity(final Entity entity, final double radius) {

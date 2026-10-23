@@ -5,16 +5,21 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.aizistral.enigmaticlegacy.handlers.EnigmaticEventHandler;
 import com.aizistral.enigmaticlegacy.handlers.SuperpositionHandler;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobType;
+import net.minecraft.world.entity.monster.ElderGuardian;
+import net.minecraft.world.entity.monster.Guardian;
 import net.minecraft.world.entity.player.Player;
 
 /**
  * Port-only. Stands in for upstream's LivingChangeTargetEvent handler: arthropods won't
- * target a player holding The Acknowledgment enchanted with Bane of Arthropods.
+ * target a player holding The Acknowledgment enchanted with Bane of Arthropods, and Guardians
+ * won't target a cursed bearer of the Heart of the Guardian unless that player hit them first.
  */
 @Mixin(Mob.class)
 public abstract class MixinMob {
@@ -25,6 +30,19 @@ public abstract class MixinMob {
 		if (target instanceof Player player && self.getMobType() == MobType.ARTHROPOD
 				&& SuperpositionHandler.hasAntiInsectAcknowledgement(player)) {
 			info.cancel();
+			return;
+		}
+
+		if (target instanceof Player player && self instanceof Guardian guardian && self.getClass() != ElderGuardian.class) {
+			if (SuperpositionHandler.hasItem(player, EnigmaticItems.GUARDIAN_HEART) && SuperpositionHandler.isTheCursedOne(player)) {
+				boolean isBlacklisted = EnigmaticEventHandler.AGERED_GUARDIANS.containsEntry(player, guardian);
+
+				if (self.getLastHurtByMob() != player && !isBlacklisted) {
+					info.cancel();
+				} else if (!isBlacklisted) {
+					EnigmaticEventHandler.AGERED_GUARDIANS.put(player, guardian);
+				}
+			}
 		}
 	}
 }

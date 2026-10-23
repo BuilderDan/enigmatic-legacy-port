@@ -10,6 +10,7 @@
 		"AccessorMob",
 		"AccessorMobEffectInstance",
 		"AccessorPiglinAi",
+		"AccessorPiglinBruteAi",
 		"AccessorPlayer",
 		"MixinAbstractArrow",
 		"MixinAbstractFurnaceBlockEntity",

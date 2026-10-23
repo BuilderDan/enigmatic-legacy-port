@@ -25,6 +25,7 @@ import com.aizistral.enigmaticlegacy.items.AngelBlessing;
 import com.aizistral.enigmaticlegacy.items.AvariceScroll;
 import com.aizistral.enigmaticlegacy.items.CursedScroll;
 import com.aizistral.enigmaticlegacy.items.BerserkEmblem;
+import com.aizistral.enigmaticlegacy.items.TheTwist;
 import com.aizistral.enigmaticlegacy.items.EyeOfNebula;
 import com.aizistral.enigmaticlegacy.items.OceanStone;
 import com.aizistral.enigmaticlegacy.items.VoidPearl;
@@ -158,6 +159,8 @@ public class EnigmaticEventHandler {
 	public static final ThreadLocal<Integer> ENCHANTING_BONUS = new ThreadLocal<>();
 	public static final Map<Player, Float> LAST_HEALTH = new WeakHashMap<>();
 	public static final Random THEY_SEE_ME_ROLLIN = new Random();
+	public static final Map<LivingEntity, Float> KNOCKBACK_THAT_BASTARD = new WeakHashMap<>();
+	public static final Multimap<Player, Guardian> AGERED_GUARDIANS = ArrayListMultimap.create();
 
 	/**
 	 * Port: was part of the Forge {@code LivingAttackEvent} handler. Fabric calls it from
@@ -198,6 +201,23 @@ public class EnigmaticEventHandler {
 
 						return false;
 					}
+		}
+
+		if (source.getDirectEntity() instanceof Player player && source.is(DamageTypes.PLAYER_ATTACK)) {
+			// Port: upstream cancels a non-cursed player's Twist hit in LivingHurtEvent; ALLOW_DAMAGE is the cancel point here.
+			if (player.getMainHandItem().is(EnigmaticItems.THE_TWIST) && !SuperpositionHandler.isTheCursedOne(player))
+				return false;
+
+			float knockbackPower = 1F;
+
+			// Port: the Infinitum, Ender Slayer and Cosmic Scroll knockback terms follow with those items.
+			if (player.getMainHandItem().is(EnigmaticItems.THE_TWIST) && SuperpositionHandler.isTheCursedOne(player)) {
+				knockbackPower += TheTwist.knockbackBonus.getValue().asModifier(false);
+			}
+
+			if (knockbackPower > 1) {
+				KNOCKBACK_THAT_BASTARD.put(entity, (entity instanceof Phantom ? (knockbackPower*1.5F) : knockbackPower));
+			}
 		}
 
 		if (entity instanceof Player player) {
@@ -491,6 +511,8 @@ public class EnigmaticEventHandler {
 		SuperpositionHandler.clearSpellstoneCooldowns();
 		FireImmunityData.clear();
 		POSTMORTAL_POSESSIONS.clear();
+		AGERED_GUARDIANS.clear();
+		KNOCKBACK_THAT_BASTARD.clear();
 		EnigmaticItems.HEAVEN_SCROLL.flyMap.clear();
 		EnigmaticItems.FABULOUS_SCROLL.flyMap.clear();
 		EnigmaticItems.THE_CUBE.clearLocationCache();
@@ -941,8 +963,10 @@ public class EnigmaticEventHandler {
 	 */
 	public static float onLivingHurt(LivingEntity victim, DamageSource source, float amount) {
 		if (source.getEntity() instanceof Player attacker) {
-			// Port: upstream's Twist, Infinitum and Eldritch Pan exemptions dropped, those items are not ported.
-			if ((victim instanceof Monster || victim instanceof EnderDragon) && SuperpositionHandler.isTheCursedOne(attacker)) {
+			// Port: upstream's Infinitum and Eldritch Pan exemptions dropped, those items are not ported.
+			boolean bypass = source.getDirectEntity() == attacker && attacker.getMainHandItem().is(EnigmaticItems.THE_TWIST);
+
+			if (!bypass && (victim instanceof Monster || victim instanceof EnderDragon) && SuperpositionHandler.isTheCursedOne(attacker)) {
 				amount *= CursedRing.monsterDamageDebuff.getValue().asModifierInverted();
 			}
 
@@ -957,6 +981,11 @@ public class EnigmaticEventHandler {
 			}
 
 			amount += damageBoost;
+
+			if (source.getDirectEntity() == attacker && source.is(DamageTypes.PLAYER_ATTACK) && attacker.getMainHandItem().is(EnigmaticItems.THE_TWIST)
+					&& SuperpositionHandler.isTheCursedOne(attacker) && OmniconfigHandler.isBossOrPlayer(victim)) {
+				amount += amount * TheTwist.bossDamageBonus.getValue().asModifier(false);
+			}
 
 			if (SuperpositionHandler.hasCurio(attacker, EnigmaticItems.EYE_OF_NEBULA) && SuperpositionHandler.isMagic(source)) {
 				amount *= EyeOfNebula.magicBoost.getValue().asModifier(true);
@@ -1200,8 +1229,8 @@ public class EnigmaticEventHandler {
 		} else if (killed instanceof ElderGuardian) {
 			addDrop(killed, drops, getRandomSizeStack(Items.PRISMARINE_CRYSTALS, 4, 16));
 			addDrop(killed, drops, getRandomSizeStack(Items.PRISMARINE_SHARD, 7, 28));
-			// Port: upstream's Guardian Heart option dropped, that item is not ported.
 			addOneOf(killed, drops,
+					new ItemStack(EnigmaticItems.GUARDIAN_HEART, 1),
 					new ItemStack(Items.HEART_OF_THE_SEA, 1),
 					new ItemStack(Items.ENCHANTED_GOLDEN_APPLE, 1),
 					new ItemStack(Items.ENDER_EYE, 1),
@@ -1279,6 +1308,12 @@ public class EnigmaticEventHandler {
 	 * MixinLivingEntity at the head of knockback, where Forge fires the event.
 	 */
 	public static double onLivingKnockback(LivingEntity entity, double strength) {
+		Float knockbackPower = KNOCKBACK_THAT_BASTARD.remove(entity);
+
+		if (knockbackPower != null) {
+			strength *= knockbackPower;
+		}
+
 		if (entity instanceof Player && SuperpositionHandler.hasCurio(entity, EnigmaticItems.CURSED_RING)) {
 			strength *= CursedRing.knockbackDebuff.getValue().asModifier();
 		}
