@@ -103,7 +103,7 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 | Will of the Ocean (ocean_stone) | - | - | - | - (key: thunderstorm for XP; breathe underwater, air bar hidden, night vision, fast swim, no attribute lines in tooltip; extra fire damage taken) | - |
 | Eye of the Nebula (eye_of_nebula) | - | - | - | - (key: teleport behind target, next hit empowered; magic resist; chance to phase away from hits; no ender pearl damage) | - |
 | Pearl of the Void (void_pearl) | - | - | - | - (no hunger, no air, effect immunity; hits wither; mobs in darkness nearby take damage; chance to survive lethal hit) | - |
-| The Cube (the_cube) | - | - | - | - (key: random teleport across dimensions; all passive buffs in tooltip; lethal hit leaves 1 HP or revives via active) | - |
+| The Cube (the_cube) | - | - | - | - (hidden recipe; key: random teleport across dimensions; all passive buffs in tooltip; lethal hit leaves 1 HP or revives via active) | - |
 | Gift of the Heaven (heaven_scroll) | - | - | - | - (flight in survival, drains XP) | - |
 | Fabulous Scroll (fabulous_scroll) | - | - | - | - (flight drains XP, free within an active beacon's range; no mining penalty while flying) | - |
 | Scroll of a Thousand Curses (cursed_scroll) | - | - | - | - (cursed-only; inactive until the Cursed Ring) | - |
@@ -117,8 +117,9 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 | Soul Crystal (soul_crystal) | - | - | - | - (with soul loss on, death drops a crystal and lowers max health 10% per lost crystal; picking it up or using it restores the health; rejoining and respawning keep the penalty; `soul_archive.json` appears in the world folder) | - |
 | Bulwark of Blazing Pride (infernal_shield) | - | - | - | - (cursed-only block; blocks from the front, wearing down its durability; axes never disable it; x1.5 damage taken from behind while blocking; removes Blazing Strength on hit; obsidian repairs; Unbreaking at the table) | - |
 | The Infinitum (the_infinitum) | - | - | - | - (worthy wielder: extra knockback, bonus damage to bosses and players, 10% lifesteal, chance to survive a lethal hit, ignores invulnerability; blade opens after holding ~5 ticks; unworthy hit is cancelled and debuffs the wielder) | - |
-| Amulet of Ascension (ascension_amulet) | - | - | - | - (creative-only until the hidden recipe is ported; worn: the modifiers of every amulet color at once; cannot be worn with an Enigmatic Amulet; on death the Extradimensional Vessel keeps the drops like the Enigmatic Amulet's) | - |
-| The Testament of Contempt (eldritch_amulet) | - | - | - | - (creative-only until the hidden recipe is ported; worthy-only equip; +3 attack damage; 15% lifesteal; looked-at entities within 3 blocks get Slowness II, Mining Fatigue II and Weakness II; on death keeps inventory, armor, offhand and accessories, except Curse of Vanishing items) | - |
+| Amulet of Ascension (ascension_amulet) | - | - | - | - (hidden recipe; worn: the modifiers of every amulet color at once; cannot be worn with an Enigmatic Amulet; on death the Extradimensional Vessel keeps the drops like the Enigmatic Amulet's) | - |
+| The Testament of Contempt (eldritch_amulet) | - | - | - | - (hidden recipe; worthy-only equip; +3 attack damage; 15% lifesteal; looked-at entities within 3 blocks get Slowness II, Mining Fatigue II and Weakness II; on death keeps inventory, armor, offhand and accessories, except Curse of Vanishing items) | - |
+| Hidden recipes (crafting_shaped_hidden) | - | - | - | - (crafting table: The Cube, Amulet of Ascension (keeps the Enigmatic Amulet's color and inscription), The Testament of Contempt, Cosmic Scroll (needs a blessed Cosmic Heart); each shows on its Acknowledgment page) | - |
 
 Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).

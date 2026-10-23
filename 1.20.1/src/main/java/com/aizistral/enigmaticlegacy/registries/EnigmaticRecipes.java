@@ -9,6 +9,7 @@ import com.aizistral.enigmaticlegacy.crafting.BindToPlayerRecipe;
 import com.aizistral.enigmaticlegacy.crafting.BlessedShapedRecipe;
 import com.aizistral.enigmaticlegacy.crafting.CursedShapedRecipe;
 import com.aizistral.enigmaticlegacy.crafting.EnchantmentTransposingRecipe;
+import com.aizistral.enigmaticlegacy.crafting.HiddenRecipe;
 import com.aizistral.enigmaticlegacy.crafting.MendingMixtureRepairRecipe;
 import com.aizistral.enigmaticlegacy.crafting.OblivionStoneCombineRecipe;
 import com.aizistral.enigmaticlegacy.crafting.ShapelessNoReturnRecipe;
@@ -23,6 +24,7 @@ import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
+import net.minecraft.world.level.block.Blocks;
 
 public class EnigmaticRecipes extends AbstractRegistry<RecipeSerializer<?>> {
 	private static final EnigmaticRecipes INSTANCE = new EnigmaticRecipes();
@@ -39,8 +41,8 @@ public class EnigmaticRecipes extends AbstractRegistry<RecipeSerializer<?>> {
 	@ObjectHolder(value = MODID + ":bind_to_player", registryName = "recipe_serializer")
 	public static RecipeSerializer<BindToPlayerRecipe> BIND_TO_PLAYER;
 
-	// Port: crafting_shaped_hidden (HiddenRecipe) is not registered yet; it needs the Enigmatic
-	// Amulet, Ascension Amulet and Cosmic Scroll. Its recipe JSONs are skipped by is_enabled.
+	@ObjectHolder(value = MODID + ":crafting_shaped_hidden", registryName = "recipe_serializer")
+	public static RecipeSerializer<HiddenRecipe> HIDDEN_SHAPED;
 
 	@ObjectHolder(value = MODID + ":shapeless_no_return_craft", registryName = "recipe_serializer")
 	public static RecipeSerializer<ShapelessRecipe> SHAPELESS_NO_RETURN;
@@ -57,6 +59,7 @@ public class EnigmaticRecipes extends AbstractRegistry<RecipeSerializer<?>> {
 		this.register("enchantment_transposing", () -> EnchantmentTransposingRecipe.SERIALIZER);
 		this.register("void_stone_combine", () -> OblivionStoneCombineRecipe.SERIALIZER);
 		this.register("bind_to_player", () -> BindToPlayerRecipe.SERIALIZER);
+		this.register("crafting_shaped_hidden", () -> HiddenRecipe.SERIALIZER);
 		// Port: kept as upstream wrote it. ShapelessNoReturnRecipe.Serializer resolves to the
 		// inherited vanilla ShapelessRecipe.Serializer (upstream's nested class is named
 		// "Serialize"), so these recipes still return container items like vanilla ones.
@@ -95,6 +98,44 @@ public class EnigmaticRecipes extends AbstractRegistry<RecipeSerializer<?>> {
 		}
 
 		BrewingRecipeRegistry.addRecipe(new ValidationBrewingRecipe(Ingredient.of(EnigmaticItems.RECALL_POTION, EnigmaticItems.TWISTED_POTION, EnigmaticItems.ULTIMATE_POTION_LINGERING, EnigmaticItems.COMMON_POTION_LINGERING), null));
+	}
+
+	/**
+	 * Port: upstream adds these in EnigmaticLegacy's onLoadComplete, right after the brewing
+	 * recipes; here they are called from the Fabric setup next to registerBrewingRecipes.
+	 */
+	public static void registerHiddenRecipes() {
+		if (OmniconfigHandler.isItemEnabled(EnigmaticItems.THE_CUBE)) {
+			HiddenRecipe.addRecipe(new ItemStack(EnigmaticItems.THE_CUBE),
+					new ItemStack(EnigmaticItems.GOLEM_HEART), new ItemStack(EnigmaticItems.COSMIC_HEART), new ItemStack(EnigmaticItems.BLAZING_CORE),
+					new ItemStack(EnigmaticItems.ANGEL_BLESSING), new ItemStack(Blocks.OBSIDIAN), new ItemStack(EnigmaticItems.EYE_OF_NEBULA),
+					new ItemStack(EnigmaticItems.OCEAN_STONE), new ItemStack(EnigmaticItems.COSMIC_HEART), new ItemStack(EnigmaticItems.VOID_PEARL)
+					);
+		}
+
+		if (OmniconfigHandler.isItemEnabled(EnigmaticItems.ASCENSION_AMULET)) {
+			HiddenRecipe.addRecipe(new ItemStack(EnigmaticItems.ASCENSION_AMULET),
+					new ItemStack(Items.AMETHYST_SHARD), new ItemStack(EnigmaticItems.ASTRAL_DUST), new ItemStack(Items.AMETHYST_SHARD),
+					new ItemStack(EnigmaticItems.ETHERIUM_INGOT), new ItemStack(EnigmaticItems.ENIGMATIC_AMULET), new ItemStack(EnigmaticItems.ETHERIUM_INGOT),
+					new ItemStack(Items.DRAGON_BREATH), new ItemStack(EnigmaticItems.COSMIC_HEART), new ItemStack(Items.DRAGON_BREATH)
+					);
+		}
+
+		if (OmniconfigHandler.isItemEnabled(EnigmaticItems.ELDRITCH_AMULET)) {
+			HiddenRecipe.addRecipe(new ItemStack(EnigmaticItems.ELDRITCH_AMULET),
+					new ItemStack(EnigmaticItems.EVIL_ESSENCE), new ItemStack(EnigmaticItems.ABYSSAL_HEART), new ItemStack(EnigmaticItems.EVIL_ESSENCE),
+					new ItemStack(Items.NETHERITE_INGOT), new ItemStack(EnigmaticItems.ASCENSION_AMULET), new ItemStack(Items.NETHERITE_INGOT),
+					new ItemStack(EnigmaticItems.TWISTED_HEART), new ItemStack(Items.NETHER_STAR), new ItemStack(EnigmaticItems.TWISTED_HEART)
+					);
+		}
+
+		if (OmniconfigHandler.isItemEnabled(EnigmaticItems.COSMIC_SCROLL)) {
+			HiddenRecipe.addRecipe(new ItemStack(EnigmaticItems.COSMIC_SCROLL),
+					new ItemStack(EnigmaticItems.ASTRAL_DUST), new ItemStack(Items.ENCHANTED_GOLDEN_APPLE), new ItemStack(EnigmaticItems.ASTRAL_DUST),
+					new ItemStack(EnigmaticItems.ETHERIUM_INGOT), new ItemStack(EnigmaticItems.DARKEST_SCROLL), new ItemStack(EnigmaticItems.ETHERIUM_INGOT),
+					new ItemStack(EnigmaticItems.ASTRAL_DUST), new ItemStack(EnigmaticItems.COSMIC_HEART), new ItemStack(EnigmaticItems.ASTRAL_DUST)
+					);
+		}
 	}
 
 }

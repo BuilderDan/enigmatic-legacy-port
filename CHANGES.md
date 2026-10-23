@@ -132,12 +132,8 @@ Sections are added here as each Minecraft version / loader is ported.
 - Magnetic Ring and Dislocation Ring: upstream skipped items whose Forge entity
   persistent data held `PreventRemoteMovement` (a cross-mod convention). Fabric entities
   have no such data map, so that check is dropped and those items are pulled too.
-- `EnigmaticRecipes`: 6 of the 8 recipe serializers are ported (mending_mixture_repair,
-  enchantment_transposing, bind_to_player, shapeless_no_return_craft,
-  crafting_shaped_cursed, crafting_shaped_blessed), registered into vanilla's
-  `RECIPE_SERIALIZER` registry. Not yet ported: `void_stone_combine` (needs the Void Stone)
-  and `crafting_shaped_hidden` (needs the Enigmatic Amulet, Ascension Amulet and Cosmic
-  Scroll); recipes of those two types do not load until then.
+- `EnigmaticRecipes`: all 8 recipe serializers are ported, registered into vanilla's
+  `RECIPE_SERIALIZER` registry.
 - `BlessedShapedRecipe` and `CursedShapedRecipe`: Forge's `getRecipeWidth()` /
   `getRecipeHeight()` replaced by vanilla's `getWidth()` / `getHeight()` (same values).
 - `shapeless_no_return_craft`: upstream registers `ShapelessNoReturnRecipe.Serializer`,
@@ -642,13 +638,17 @@ Sections are added here as each Minecraft version / loader is ported.
     dropped (the port's accessory tooltips do not list modifiers). `EnigmaticAmulet.hasColor`
     returns true for every color while it is worn. `onConfirmedDeath` records it (worn or
     carried) in `POSTMORTAL_POSESSIONS`, and the Extradimensional Vessel counts it like the
-    Enigmatic Amulet (`hadEnigmaticAmulet`). Its recipe type, `crafting_shaped_hidden`, is not
-    ported yet, so for now it is creative-only.
+    Enigmatic Amulet (`hadEnigmaticAmulet`).
   - `EldritchAmulet` (The Testament of Contempt): `storeInventory` saves stacks with vanilla
     `ItemStack.save` instead of Forge's `serializeNBT`; upstream's `getAttributesTooltip`
     override is dropped. For a worthy wearer, `onConfirmedDeath` stores the main inventory,
     armor and offhand (minus Curse of Vanishing items) instead of the Eternal Binding armor,
     and `onPlayerClone` restores them and skips the bound-armor restore. Curios'
     `DropRulesEvent` becomes an `AccessoryDrops` rule that keeps every accessory without Curse
-    of Vanishing. The 15% lifesteal is in `onLivingDamage`. Like the Ascension Amulet it is
-    creative-only until `crafting_shaped_hidden` is ported.
+    of Vanishing. The 15% lifesteal is in `onLivingDamage`.
+- `HiddenRecipe` (`crafting_shaped_hidden`: The Cube, Amulet of Ascension, The Testament of
+  Contempt, Cosmic Scroll): upstream adds the four recipes in `onLoadComplete`; the port adds
+  them in `EnigmaticRecipes.registerHiddenRecipes`, called from the Fabric setup. `assemble`
+  skips the amulet NBT copy when the input amulet has no NBT (upstream would crash). `getRecipe`
+  uses `BuiltInRegistries.ITEM` instead of `ForgeRegistries.ITEMS`. `HiddenRecipeProcessor`
+  (The Acknowledgment's hidden-recipe pages) is copied unchanged.

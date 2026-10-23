@@ -109,6 +109,7 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.ENIGMATIC_ITEM);
 		EnigmaticRecipes.init();
 		EnigmaticRecipes.registerBrewingRecipes();
+		EnigmaticRecipes.registerHiddenRecipes();
 		EnigmaticTabs.init();
 		TrinketsAccessorySlots.init();
 		// Port: upstream onCurioDrops (Curios DropRulesEvent).
