@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
 
@@ -168,6 +169,7 @@ public class EnigmaticEventHandler {
 	public static final Random THEY_SEE_ME_ROLLIN = new Random();
 	public static final Map<LivingEntity, Float> KNOCKBACK_THAT_BASTARD = new WeakHashMap<>();
 	public static final Map<Player, AABB> DESOLATION_BOXES = new WeakHashMap<>();
+	public static final Map<Player, Integer> LAST_SOUL_COMPASS_UPDATE = new WeakHashMap<>();
 	public static final Multimap<Player, Guardian> AGERED_GUARDIANS = ArrayListMultimap.create();
 
 	/**
@@ -475,6 +477,33 @@ public class EnigmaticEventHandler {
 			DESOLATION_BOXES.remove(player);
 		}
 
+		if (SuperpositionHandler.hasItem(player, EnigmaticItems.SOUL_COMPASS)) {
+			Integer lastUpdate = LAST_SOUL_COMPASS_UPDATE.get(player);
+
+			if (lastUpdate == null || player.tickCount - lastUpdate > 10) {
+				var optional = SuperpositionHandler.updateSoulCompass(player);
+
+				optional.ifPresent(tuple -> {
+					BlockPos pos = tuple.getB();
+
+					if (player.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) < 256) {
+						player.level().getChunkAt(pos);
+
+						UUID id = tuple.getA();
+						int radius = 3;
+						AABB box = new AABB(pos.getX() - radius, pos.getY() - radius, pos.getZ() - radius,
+								pos.getX() + radius, pos.getY() + radius, pos.getZ() + radius);
+						List<PermanentItemEntity> list = player.level().getEntitiesOfClass(PermanentItemEntity.class, box,
+								entity -> entity.getUUID().equals(id));
+
+						if (list.size() <= 0) {
+							SoulArchive.getInstance().removeItem(id);
+						}
+					}
+				});
+			}
+		}
+
 		FireImmunityData fireData = FireImmunityData.get(player);
 		fireData.setTimer(fireData.getTimer() - (player.isOnFire() ? 100 : 200));
 
@@ -574,6 +603,7 @@ public class EnigmaticEventHandler {
 		POSTMORTAL_POSESSIONS.clear();
 		AGERED_GUARDIANS.clear();
 		KNOCKBACK_THAT_BASTARD.clear();
+		LAST_SOUL_COMPASS_UPDATE.clear();
 		EnigmaticItems.HEAVEN_SCROLL.flyMap.clear();
 		EnigmaticItems.FABULOUS_SCROLL.flyMap.clear();
 		EnigmaticItems.THE_CUBE.clearLocationCache();

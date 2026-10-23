@@ -20,6 +20,7 @@ import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketGenericParticleEffect;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncFireImmunity;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketUpdateCompass;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncForbiddenFruit;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncPlayTime;
 import com.aizistral.enigmaticlegacy.items.GolemHeart;
@@ -49,6 +50,7 @@ import com.aizistral.omniconfig.packets.PacketSyncOptions;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -127,8 +129,14 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 				((PersistentData) newPlayer).enigmaticlegacy$setPersistedTag(
 						((PersistentData) oldPlayer).enigmaticlegacy$getPersistedTag().copy()));
 		// Port: upstream reapplies the lost-soul max health penalty in its PlayerEvent.Clone handler.
-		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) ->
-				EnigmaticItems.SOUL_CRYSTAL.updatePlayerSoulMap(newPlayer));
+		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
+			EnigmaticItems.SOUL_CRYSTAL.updatePlayerSoulMap(newPlayer);
+			// Port: upstream onPlayerRespawn (PlayerRespawnEvent).
+			EnigmaticEventHandler.LAST_SOUL_COMPASS_UPDATE.remove(newPlayer);
+		});
+		// Port: upstream onPlayerTravel (PlayerChangedDimensionEvent).
+		ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) ->
+				EnigmaticEventHandler.LAST_SOUL_COMPASS_UPDATE.remove(player));
 		ServerTickEvents.END_SERVER_TICK.register(server -> {
 			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
 				EnigmaticEventHandler.onPlayerTick(player);
@@ -154,6 +162,8 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		var network = Services.NETWORK;
 		network.register(PacketSyncPlayTime.class, PacketDirection.TO_CLIENT, PacketSyncPlayTime::encode,
 				PacketSyncPlayTime::decode, PacketSyncPlayTime::handle);
+		network.register(PacketUpdateCompass.class, PacketDirection.TO_CLIENT, PacketUpdateCompass::encode,
+				PacketUpdateCompass::decode, PacketUpdateCompass::handle);
 		network.register(PacketSyncFireImmunity.class, PacketDirection.TO_CLIENT, PacketSyncFireImmunity::encode,
 				PacketSyncFireImmunity::decode, PacketSyncFireImmunity::handle);
 		network.register(PacketSyncForbiddenFruit.class, PacketDirection.TO_CLIENT, PacketSyncForbiddenFruit::encode,

@@ -588,3 +588,10 @@ Sections are added here as each Minecraft version / loader is ported.
     is fed by `AttackEntityCallback` and drops `ticksSinceLastSwing`; its registry is cleared in
     `onServerStopped`. The hit cancel for non-cursed holders is in `ALLOW_DAMAGE`; the End XP
     conversion clears the drop list instead of cancelling the drops event.
+  - `SoulCompass` (Wayfinder of the Damned): `@OnlyIn` removed; `registerVariants` runs from
+    `EnigmaticLegacyFabricClient`. `SuperpositionHandler.hasExactStack` checks the three
+    inventory lists instead of Forge's `compartments`. `updateSoulCompass` sends
+    `PacketUpdateCompass` through the platform network. `SoulArchive.synchronize` keeps the
+    server from `initialize` instead of `ServerLifecycleHooks`, and keeps upstream's `hasCurio`
+    check. `LAST_SOUL_COMPASS_UPDATE` is cleared on respawn (`AFTER_RESPAWN`), dimension change
+    (`AFTER_PLAYER_CHANGE_WORLD`) and server stop.

@@ -41,6 +41,7 @@ name, model and tooltip. Results go to the log with a `[devcheck]` prefix. With
 | 2026-10-22 | 90 | 91 | 0 | Added Enchanter's Pearl (lapis-free double-roll enchanting mixin, charm slot bonus). |
 | 2026-10-22 | 91 | 92 | 0 | Added The Burden of Desolation (natural-spawn block mixin; refmap target verified). |
 | 2026-10-23 | 92 | 93 | 0 | Added The Ender Slayer (End-dweller damage/knockback, teleport block, XP-for-drops in the End; mixins applied). |
+| 2026-10-23 | 93 | 94 | 0 | Added the Soul Compass (Wayfinder of the Damned; compass packet, item properties). |
 
 ## Manual checklist
 

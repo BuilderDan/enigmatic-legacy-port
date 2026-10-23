@@ -12,6 +12,7 @@ import java.util.UUID;
 
 import com.aizistral.enigmaticlegacy.EnigmaticLegacy;
 import com.aizistral.enigmaticlegacy.entities.PermanentItemEntity;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -32,6 +33,7 @@ import net.minecraft.world.level.storage.LevelResource;
 public class SoulArchive {
 	private static final Type SOUL_RECORDS_TYPE = new TypeToken<List<SoulData>>(){}.getType();
 	private static SoulArchive instance;
+	private static MinecraftServer server;
 	private final File saveFile;
 	private final Multimap<ResourceKey<Level>, SoulData> data = HashMultimap.create();
 
@@ -112,8 +114,12 @@ public class SoulArchive {
 	}
 
 	private void synchronize() {
-		// Port: TODO upstream refreshes the Soul Compass of every player wearing one here
-		// (SuperpositionHandler.updateSoulCompass). The Soul Compass is not ported yet.
+		// Port: upstream reads the server from ServerLifecycleHooks; initialize stores it here.
+		server.getPlayerList().getPlayers().forEach(player -> {
+			if (SuperpositionHandler.hasCurio(player, EnigmaticItems.SOUL_COMPASS)) {
+				SuperpositionHandler.updateSoulCompass(player);
+			}
+		});
 	}
 
 	public void addItem(PermanentItemEntity item) {
@@ -145,6 +151,7 @@ public class SoulArchive {
 	}
 
 	public static void initialize(MinecraftServer server) {
+		SoulArchive.server = server;
 		instance = new SoulArchive(server.getWorldPath(LevelResource.ROOT).toFile());
 		instance.load();
 	}

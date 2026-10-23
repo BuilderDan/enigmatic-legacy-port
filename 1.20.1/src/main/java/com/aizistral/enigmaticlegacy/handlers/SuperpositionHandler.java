@@ -34,6 +34,7 @@ import com.aizistral.enigmaticlegacy.objects.PersistentData;
 import com.aizistral.enigmaticlegacy.objects.Vector3;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketUpdateCompass;
 import com.aizistral.enigmaticlegacy.platform.Services;
 import com.aizistral.enigmaticlegacy.platform.network.TargetPoint;
 import com.aizistral.omniconfig.Configuration;
@@ -54,6 +55,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -213,6 +215,29 @@ public class SuperpositionHandler {
 		}
 
 		return false;
+	}
+
+	public static boolean hasExactStack(Player player, ItemStack stack) {
+		// Port: same three lists as hasItem.
+		Inventory inventory = player.getInventory();
+		for (List<ItemStack> list : List.of(inventory.items, inventory.armor, inventory.offhand)) {
+			for (ItemStack itemstack : list) {
+				if (itemstack == stack)
+					return true;
+			}
+		}
+
+		return false;
+	}
+
+	public static Optional<Tuple<UUID, BlockPos>> updateSoulCompass(ServerPlayer player) {
+		var optional = SoulArchive.getInstance().findNearest(player.level(), player.blockPosition());
+		boolean noValid = optional.isEmpty();
+		BlockPos pos = noValid ? BlockPos.ZERO : optional.get().getB();
+
+		Services.NETWORK.sendToPlayer(player, new PacketUpdateCompass(pos.getX(), pos.getY(), pos.getZ(), noValid));
+		EnigmaticEventHandler.LAST_SOUL_COMPASS_UPDATE.put(player, player.tickCount);
+		return optional;
 	}
 
 	public static boolean hasCurio(LivingEntity entity, Item curio) {

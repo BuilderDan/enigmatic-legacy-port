@@ -73,6 +73,7 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 		// Port: upstream EnigmaticAmulet.registerVariants (FMLClientSetupEvent).
 		ItemProperties.register(EnigmaticItems.ENIGMATIC_AMULET, new ResourceLocation(EnigmaticLegacy.MODID, "enigmatic_amulet_color"),
 				(stack, world, entity, seed) -> ItemNBTHelper.getFloat(stack, EnigmaticAmulet.amuletColorTag, 0F));
+		EnigmaticItems.SOUL_COMPASS.registerVariants();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
