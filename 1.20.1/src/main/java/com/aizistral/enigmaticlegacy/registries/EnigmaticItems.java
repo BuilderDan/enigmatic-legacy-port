@@ -16,6 +16,7 @@ import com.aizistral.enigmaticlegacy.items.TwistedMirror;
 import com.aizistral.enigmaticlegacy.items.BerserkEmblem;
 import com.aizistral.enigmaticlegacy.items.GuardianHeart;
 import com.aizistral.enigmaticlegacy.items.TheTwist;
+import com.aizistral.enigmaticlegacy.items.EnderSlayer;
 import com.aizistral.enigmaticlegacy.items.DeceptionAmulet;
 import com.aizistral.enigmaticlegacy.items.EnchanterPearl;
 import com.aizistral.enigmaticlegacy.items.DesolationRing;
@@ -186,6 +187,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ConfigurableItem("The Twist")
 	@ObjectHolder(value = MODID + ":the_twist", registryName = "item")
 	public static TheTwist THE_TWIST;
+
+	@ConfigurableItem("The Ender Slayer")
+	@ObjectHolder(value = MODID + ":ender_slayer", registryName = "item")
+	public static EnderSlayer ENDER_SLAYER;
 
 	@ConfigurableItem
 	@ObjectHolder(value = MODID + ":unwitnessed_amulet", registryName = "item")
@@ -560,6 +565,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("berserk_charm", BerserkEmblem::new);
 		this.register("guardian_heart", GuardianHeart::new);
 		this.register("the_twist", TheTwist::new);
+		this.register("ender_slayer", EnderSlayer::new);
 		this.register("unwitnessed_amulet", UnwitnessedAmulet::new);
 		this.register("deception_amulet", DeceptionAmulet::new);
 		this.register("animal_guidebook", PetGuidebook::new);

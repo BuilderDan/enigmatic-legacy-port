@@ -84,6 +84,12 @@ public abstract class MixinLivingEntity {
 		return speed * (float) EnigmaticAttributes.getMultiplier((LivingEntity) (Object) this, EnigmaticAttributes.SWIM_SPEED);
 	}
 
+	/** Forge fires LivingTickEvent at the head of tick. */
+	@Inject(method = "tick", at = @At("HEAD"))
+	private void enigmaticlegacy$onLivingTick(CallbackInfo info) {
+		EnigmaticEventHandler.onLivingTick((LivingEntity) (Object) this);
+	}
+
 	/** Forge fires MobEffectEvent.Applicable at the head of canBeAffected; DENY returns false. */
 	@Inject(method = "canBeAffected", at = @At("HEAD"), cancellable = true)
 	private void enigmaticlegacy$onPotionApplicable(MobEffectInstance effect, CallbackInfoReturnable<Boolean> info) {

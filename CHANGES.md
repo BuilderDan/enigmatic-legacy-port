@@ -531,14 +531,14 @@ Sections are added here as each Minecraft version / loader is ported.
     their items are ported: the Guardian Heart choice from Elder Guardians and the Abyssal Heart
     drop from the Ender Dragon.
   - Monster damage debuff: upstream's Twist, Infinitum and Eldritch Pan exemptions are dropped
-    (items not ported). Also not ported yet: Ender Slayer, Unholy Stone lava, the
+    (items not ported). Also not ported yet: Unholy Stone lava, the
     KNOCKBACK_THAT_BASTARD flag, the playtime counter (IPlaytimeCounter), harvest checks and the
     cursed main menu flag (`setCurrentWorldCursed` is a no-op).
 - Twisted Mirror and Emblem of Bloodstained Valor (`BerserkEmblem`):
   - `TwistedMirror`: `EnigmaticLegacy.PROXY.isInVanillaDimension` is replaced with
     `SuperpositionHandler.isInVanillaDimension`. Upstream's commented-out use-duration variant is
     not carried over. The 400-tick mirror cooldown that Ender Slayer puts on players it hits
-    follows with Ender Slayer.
+    is in `EnigmaticEventHandler.onLivingHurt`.
   - `BerserkEmblem`: Curios slot hooks go through the accessory service (Trinkets). Its damage
     boost and resistance terms are in `EnigmaticEventHandler.onLivingHurt` and `onPlayerHurt`.
     `SuperpositionHandler.getMissingHealthPool` is ported with it.
@@ -577,3 +577,14 @@ Sections are added here as each Minecraft version / loader is ported.
     box. Upstream also cleared `DESOLATION_BOXES` on server stop; the port relies on its
     `WeakHashMap` keys and the per-tick removal. The death-handler lava-pool destruction is not
     ported yet.
+  - `EnderSlayer` (The Ender Slayer): `@OnlyIn` removed. The Slayer and Torrent enchantment
+    terms are dropped (enchantments not ported). Forge's `getPersistentData()` on mobs is the
+    port-only `EntityPersistentData`, kept by `MixinEntity` and saved under
+    `"enigmaticlegacy:data"`. Forge's `EntityTeleportEvent.EnderEntity` is replaced by HEAD
+    mixins on `EnderMan.teleport(DDD)Z` (port-only `MixinEnderMan`) and
+    `Shulker.teleportSomewhere` (`MixinShulker`, reading `EntityPersistentData`). The
+    `ELTeleportBlock` countdown runs from a `LivingEntity.tick` HEAD inject
+    (`EnigmaticEventHandler.onLivingTick`, Forge's `LivingTickEvent`). `RegisteredMeleeAttack`
+    is fed by `AttackEntityCallback` and drops `ticksSinceLastSwing`; its registry is cleared in
+    `onServerStopped`. The hit cancel for non-cursed holders is in `ALLOW_DAMAGE`; the End XP
+    conversion clears the drop list instead of cancelling the drops event.

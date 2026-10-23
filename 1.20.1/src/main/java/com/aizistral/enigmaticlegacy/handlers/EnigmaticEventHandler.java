@@ -48,6 +48,10 @@ import com.aizistral.enigmaticlegacy.platform.network.TargetPoint;
 import com.aizistral.enigmaticlegacy.mixin.AccessorMobEffectInstance;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticEffects;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
+import net.minecraft.world.entity.ExperienceOrb;
+import com.aizistral.enigmaticlegacy.objects.RegisteredMeleeAttack;
+import com.aizistral.enigmaticlegacy.objects.EntityPersistentData;
+import com.aizistral.enigmaticlegacy.items.EnderSlayer;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticPotions;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticSounds;
 import com.aizistral.enigmaticlegacy.triggers.BeheadingTrigger;
@@ -211,15 +215,20 @@ public class EnigmaticEventHandler {
 		}
 
 		if (source.getDirectEntity() instanceof Player player && source.is(DamageTypes.PLAYER_ATTACK)) {
-			// Port: upstream cancels a non-cursed player's Twist hit in LivingHurtEvent; ALLOW_DAMAGE is the cancel point here.
-			if (player.getMainHandItem().is(EnigmaticItems.THE_TWIST) && !SuperpositionHandler.isTheCursedOne(player))
+			// Port: upstream cancels a non-cursed player's Twist and Ender Slayer hits in LivingHurtEvent; ALLOW_DAMAGE is the cancel point here.
+			if ((player.getMainHandItem().is(EnigmaticItems.THE_TWIST) || player.getMainHandItem().is(EnigmaticItems.ENDER_SLAYER))
+					&& !SuperpositionHandler.isTheCursedOne(player))
 				return false;
 
 			float knockbackPower = 1F;
 
-			// Port: the Infinitum, Ender Slayer and Cosmic Scroll knockback terms follow with those items.
+			// Port: the Infinitum and Cosmic Scroll knockback terms follow with those items.
 			if (player.getMainHandItem().is(EnigmaticItems.THE_TWIST) && SuperpositionHandler.isTheCursedOne(player)) {
 				knockbackPower += TheTwist.knockbackBonus.getValue().asModifier(false);
+			} else if (player.getMainHandItem().is(EnigmaticItems.ENDER_SLAYER) && SuperpositionHandler.isTheCursedOne(player)) {
+				if (EnigmaticItems.ENDER_SLAYER.isEndDweller(entity)) {
+					knockbackPower += EnderSlayer.endKnockbackBonus.getValue().asModifier(false);
+				}
 			}
 
 			if (knockbackPower > 1) {
@@ -536,8 +545,29 @@ public class EnigmaticEventHandler {
 		}
 	}
 
+	/**
+	 * Port: stands in for upstream's LivingTickEvent subscriber (onPlayerTick), Ender Slayer part.
+	 * Called by MixinLivingEntity at the head of tick.
+	 */
+	public static void onLivingTick(LivingEntity entity) {
+		if (!(entity instanceof EnderMan || entity instanceof Shulker) || !entity.isAlive() || entity.level().isClientSide)
+			return;
+
+		CompoundTag data = EntityPersistentData.get(entity);
+		int cooldown = data.getInt("ELTeleportBlock");
+
+		if (cooldown > 0) {
+			if (--cooldown > 0) {
+				data.putInt("ELTeleportBlock", cooldown);
+			} else {
+				data.remove("ELTeleportBlock");
+			}
+		}
+	}
+
 	/** Port-only: drops per-player state kept in static maps when the server stops. */
 	public static void onServerStopped() {
+		RegisteredMeleeAttack.clearRegistry();
 		EnigmaticItems.ENIGMATIC_ITEM.flightMap.clear();
 		SuperpositionHandler.clearSpellstoneCooldowns();
 		FireImmunityData.clear();
@@ -1018,6 +1048,38 @@ public class EnigmaticEventHandler {
 				amount += amount * TheTwist.bossDamageBonus.getValue().asModifier(false);
 			}
 
+			if (source.getDirectEntity() == attacker && source.is(DamageTypes.PLAYER_ATTACK) && attacker.getMainHandItem().is(EnigmaticItems.ENDER_SLAYER)
+					&& SuperpositionHandler.isTheCursedOne(attacker)) {
+				if (attacker instanceof ServerPlayer) {
+					if (victim instanceof ServerPlayer targetPlayer) {
+						targetPlayer.getCooldowns().addCooldown(Items.ENDER_PEARL, 400);
+						targetPlayer.getCooldowns().addCooldown(EnigmaticItems.RECALL_POTION, 400);
+						targetPlayer.getCooldowns().addCooldown(EnigmaticItems.TWISTED_MIRROR, 400);
+
+						if (SuperpositionHandler.hasCurio(targetPlayer, EnigmaticItems.EYE_OF_NEBULA)
+								|| SuperpositionHandler.hasCurio(targetPlayer, EnigmaticItems.THE_CUBE)) {
+							SuperpositionHandler.setSpellstoneCooldown(targetPlayer, 400);
+						}
+					}
+
+					if (victim instanceof EnderMan || victim instanceof Shulker) {
+						EntityPersistentData.get(victim).putInt("ELTeleportBlock", 400);
+					}
+				}
+
+				if (EnigmaticItems.ENDER_SLAYER.isEndDweller(victim)) {
+					if (attacker.level().dimension().equals(Level.END)) {
+						if (victim instanceof EnderMan && RegisteredMeleeAttack.getRegisteredAttackStregth(attacker) >= 1F) {
+							amount = (amount + 100F) * 10F;
+						}
+
+						EntityPersistentData.get(victim).putBoolean("EnderSlayerVictim", true);
+					}
+
+					amount += amount * EnderSlayer.endDamageBonus.getValue().asModifier(false);
+				}
+			}
+
 			if (SuperpositionHandler.hasCurio(attacker, EnigmaticItems.EYE_OF_NEBULA) && SuperpositionHandler.isMagic(source)) {
 				amount *= EyeOfNebula.magicBoost.getValue().asModifier(true);
 			}
@@ -1117,7 +1179,7 @@ public class EnigmaticEventHandler {
 	public static void onLivingDrops(LivingEntity entity, DamageSource source, Collection<ItemEntity> drops,
 			int lootingLevel, boolean recentlyHit) {
 		onLivingDropsNormal(entity, source, drops, lootingLevel, recentlyHit);
-		onLivingDropsLowest(entity, source, drops);
+		onLivingDropsLowest(entity, source, drops, recentlyHit);
 	}
 
 	/** Upstream onLivingDrops (NORMAL), Pact of Infinite Avarice and Axe of Executioner parts. */
@@ -1173,7 +1235,24 @@ public class EnigmaticEventHandler {
 	 * Upstream onLivingDropsLowest: Escape Scroll, Extradimensional Vessel, Soul Crystal and soul
 	 * loss parts. The Eldritch Pan part follows with that item.
 	 */
-	private static void onLivingDropsLowest(LivingEntity entity, DamageSource source, Collection<ItemEntity> drops) {
+	private static void onLivingDropsLowest(LivingEntity entity, DamageSource source, Collection<ItemEntity> drops,
+			boolean recentlyHit) {
+		// Ender Slayer XP conversion. Port: clearing the list stands in for upstream's event cancel.
+		if (recentlyHit && source.getEntity() instanceof Player killer && SuperpositionHandler.isTheCursedOne(killer)
+				&& entity instanceof EnderMan
+				&& entity.level().dimension().equals(Level.END)
+				&& EntityPersistentData.get(entity).getBoolean("EnderSlayerVictim")) {
+			for (ItemEntity drop : drops) {
+				if (drop.getItem().is(Items.ENDER_PEARL)) {
+					entity.level().addFreshEntity(new ExperienceOrb(entity.level(), entity.getX(), entity.getY(), entity.getZ(), 10));
+				} else if (drop.getItem().is(Items.ENDER_EYE)) {
+					entity.level().addFreshEntity(new ExperienceOrb(entity.level(), entity.getX(), entity.getY(), entity.getZ(), 20));
+				}
+			}
+
+			drops.clear();
+		}
+
 		if (entity instanceof ServerPlayer player) {
 			CompoundTag deathLocation = new CompoundTag();
 			deathLocation.putDouble("x", player.getX());

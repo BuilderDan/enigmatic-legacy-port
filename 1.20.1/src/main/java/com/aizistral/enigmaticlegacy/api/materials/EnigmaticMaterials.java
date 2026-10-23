@@ -6,6 +6,7 @@ import com.aizistral.enigmaticlegacy.config.EtheriumConfigHandler;
 
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.block.Blocks;
 
 /**
  * Tools material provider.
@@ -18,6 +19,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 
 public enum EnigmaticMaterials implements Tier {
 	FORBIDDEN_AXE(0, 2000, 6.0F, 3.0F, 16, () -> Ingredient.EMPTY),
+	ENDER_SLAYER(0, 2000, 6.0F, 3.0F, 16, () -> Ingredient.of(Blocks.OBSIDIAN)),
 	ETHERIUM(5, 3000, 8.0F, 5.0F, 32, () -> EtheriumConfigHandler.instance().getRepairMaterial());
 
 	private final int harvestLevel;

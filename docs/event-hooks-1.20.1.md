@@ -18,14 +18,14 @@ the first rows unblock the most items.
 | LootingLevelEvent | Mixin: `EnchantmentHelper.getMobLooting` RETURN; add `getLootingLevel` to the accessory API (done; verify) | Monster Charm, Avarice Scroll |
 | LivingDamageEvent | Mixin: `@WrapOperation` on `CombatTracker.recordDamage` in `actuallyHurt` of both `LivingEntity` and `Player` (Player overrides it); calls `onLivingDamage` | Cursed Ring (verify which items); done for Enigmatic Amulet (BLACK lifesteal) |
 | LivingAttackEvent | `ServerLivingEntityEvents.ALLOW_DAMAGE` (already used; spellstone immunities done) | Angel's Blessing, Ocean Stone (Blazing Core done) |
-| LivingTickEvent | Mixin: `LivingEntity.tick` TAIL (players: `ServerTickEvents` loop is cheaper) | Ocean Stone, Eye of Nebula, Heaven Scroll |
+| LivingTickEvent | Mixin: `LivingEntity.tick` HEAD (done for Ender Slayer, `onLivingTick`; players: `ServerTickEvents` loop is cheaper) | Ocean Stone, Eye of Nebula, Heaven Scroll |
 | LivingHealEvent | Mixin: `LivingEntity.heal` `@ModifyVariable` on amount | Cursed Ring, Forbidden Fruit |
 | LivingKnockBackEvent | Mixin: `LivingEntity.knockback` HEAD | Golem Heart |
 | LivingChangeTargetEvent | Mixin: `Mob.setTarget` HEAD (cancellable) | Ring of the Seven Curses (neutral mobs) |
 | PlayerEvent.BreakSpeed / HarvestCheck | Mixin: `Player.getDestroySpeed` RETURN / `Player.hasCorrectToolForDrops` | Mining Charm, Etherium tools |
-| AttackEntityEvent | `AttackEntityCallback` | Forbidden Axe, Berserk Emblem |
+| AttackEntityEvent | `AttackEntityCallback` (done for Ender Slayer, `RegisteredMeleeAttack`) | Forbidden Axe, Berserk Emblem |
 | ProjectileImpactEvent | Mixin: `@WrapWithCondition` on `onHit` in `tick` of `AbstractArrow`, `AbstractHurtingProjectile` and `ThrowableProjectile`; calls `onProjectileImpact` (true cancels) | Angel's Blessing (deflect); done for Enigmatic Amulet (VIOLET deflection) |
-| EntityTeleportEvent.EnderPearl / EnderEntity | Mixin: `ThrownEnderpearl.onHit` / `EnderMan.teleport` | Eye of Nebula, curses |
+| EntityTeleportEvent.EnderPearl / EnderEntity | Mixin: `ThrownEnderpearl.onHit` / `EnderMan.teleport(DDD)Z` and `Shulker.teleportSomewhere` HEAD (done for Ender Slayer) | Eye of Nebula, curses |
 | MobEffectEvent.Applicable | Mixin: `LivingEntity.canBeAffected` HEAD, cancellable (done for Heart of Creation) | Ocean Stone |
 | MobSpawnEvent.FinalizeSpawn | Mixin: `Mob.finalizeSpawn` TAIL | curses (stronger mobs) |
 | LootTableLoadEvent | `LootTableEvents.MODIFY` (End city done; verify in a chest) | Potion of Recall (End city), lore fragments, all loot injection |

@@ -23,6 +23,7 @@
 		"MixinEnchantment",
 		"MixinEnchantmentHelper",
 		"MixinEnchantmentMenu",
+		"MixinEnderMan",
 		"MixinEntity",
 		"MixinLivingEntity",
 		"MixinMob",
@@ -34,6 +35,7 @@
 		"MixinServerGamePacketListenerImpl",
 		"MixinServerPlayer",
 		"MixinServerPlayerGameMode",
+		"MixinShulker",
 		"MixinThrowableProjectile",
 		"MixinThrownEnderPearl"
 	],

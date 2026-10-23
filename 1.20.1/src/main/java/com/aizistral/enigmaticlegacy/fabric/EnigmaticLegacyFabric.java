@@ -12,6 +12,7 @@ import com.aizistral.enigmaticlegacy.handlers.SoulArchive;
 import com.aizistral.enigmaticlegacy.fabric.platform.TrinketsAccessorySlots;
 import com.aizistral.enigmaticlegacy.objects.EnabledCondition;
 import com.aizistral.enigmaticlegacy.objects.PersistentData;
+import com.aizistral.enigmaticlegacy.objects.RegisteredMeleeAttack;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketForceArrowRotations;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketHandleItemPickup;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketFlameParticles;
@@ -58,6 +59,8 @@ import com.aizistral.enigmaticlegacy.packets.server.PacketSpellstoneKey;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticEntities;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticMenus;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
+import net.minecraft.world.InteractionResult;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -135,6 +138,14 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> GolemHeart.buildArmorExclusions());
 		ServerLifecycleEvents.SERVER_STARTING.register(SoulArchive::initialize);
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> EnigmaticEventHandler.onServerStopped());
+		// Port: stands in for upstream's AttackEntityEvent subscriber in RegisteredMeleeAttack.
+		AttackEntityCallback.EVENT.register((player, world, hand, entity, hit) -> {
+			if (!world.isClientSide) {
+				RegisteredMeleeAttack.registerAttack(player);
+			}
+
+			return InteractionResult.PASS;
+		});
 		LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) ->
 				EnigmaticEventHandler.onLootTablesLoaded(id, tableBuilder::pool));
 	}
