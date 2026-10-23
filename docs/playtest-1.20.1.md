@@ -140,8 +140,8 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 | Star Fabric (star_fabric) | - | - | - | - (epic name color, light 10, drops itself) | - |
 | Cosmic Cake (cosmic_cake) | - | - | - | - (eat slices: effects per upstream; tooltip; cutout model; a bitten cake regrows one slice per random tick) | - |
 | End Anchor (end_anchor) | - | - | - | - (charge with ender pearls up to 4, comparator output; light scales with charge; right-click with charge sets spawn (default: any dimension not blacklisted; EndExclusiveMode: End only), where it cannot it explodes; dispenser charges it; die: respawn on the anchor and use a charge; anchor gone or empty: normal respawn; end portal renderer on its faces; tooltip) | - |
-
-Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
-(`isTheCursedOne` always returns false for now).
+| Commands (system) | - | - | - | - (op: `/haveadv <advancement>` tab-completes and says whether you have it; `/getringtime`, `/getnoringtime` report ticks and percent; `/setringtime`, `/setnoringtime <player> <ticks>` change them; level 4 needed for the ring-time ones) | - |
+| Enchanting advancement (system) | - | - | - | - (opening an enchanting table grants `book/enchantments/generic`; the Acknowledgment entry unlocks) | - |
+| Projectile deflection (fishing hook, llama spit, shulker bullet) | - | - | - | - (with the deflecting amulet worn, these are deflected like arrows; without it, they hit as normal; a fishing rod still hooks mobs) | - |
 
 ## Notes

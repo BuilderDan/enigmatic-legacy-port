@@ -135,7 +135,7 @@ Sections are added here as each Minecraft version / loader is ported.
   Forge's `ScreenEvent.Init.Post`. The `CuriosScreen` checks are dropped (Trinkets uses the
   vanilla inventory screen), the gui position comes from a port-only
   `AccessorAbstractContainerScreen` mixin, and the creative inventory tab check uses vanilla
-  `isInventoryOpen()`. The Quark mini-button shift is not ported.
+  `isInventoryOpen()`. The Quark mini-button shift is dropped (Quark has no Fabric version).
 - Magnetic Ring and Dislocation Ring: upstream skipped items whose Forge entity
   persistent data held `PreventRemoteMovement` (a cross-mod convention). Fabric entities
   have no such data map, so that check is dropped and those items are pulled too.
@@ -161,9 +161,8 @@ Sections are added here as each Minecraft version / loader is ported.
   overload `makesPiglinsNeutral(ItemStack, LivingEntity)` is dropped, since the ring is never
   worn as armor.
 - `api/items/IEldritch`: copied unchanged from upstream.
-- Heart of the Abyss (`AbyssalHeart`): the shift tooltip (the worthy-ones indicator) is
-  empty until the Cursed Ring is ported. The Ender Dragon does not drop it yet: upstream's
-  `MixinEnderDragon` is not ported.
+- Heart of the Abyss (`AbyssalHeart`): same as upstream. The Ender Dragon drop comes from
+  `MixinEnderDragon` (see the permadeath batch).
 - Dev only, port-only: `DevSelfCheck` also checks that `MixinPiglinAi` applied (piglins
   take the Exquisite Ring as barter currency).
 - `handlers/EnigmaticEventHandler`: upstream's Forge event subscriber is ported piece by
@@ -219,7 +218,7 @@ Sections are added here as each Minecraft version / loader is ported.
     looting bonus. The damage source and target passed to `getLootingLevel` are null there.
   - Behavior change: the `BonusLooting` and `DoubleXP` config options are honored. Upstream
     ignores both (always +1 looting, always double XP) while the tooltip follows them.
-  - The Quote played when hitting the Ender Dragon is skipped; quotes are not ported.
+  - The Quote played when hitting the Ender Dragon (`POOR_CREATURE`) plays from the same hook.
 - Scroll of Ageless Wisdom (`XPScroll`, `helpers/ExperienceHelper`, `registries/EnigmaticSounds`,
   `packets/server/PacketXPScrollKey`, `handlers/EnigmaticKeybindHandler`):
   - `ExperienceHelper` drops upstream's Forge `PlayerXpEvent` objects, which were built but
@@ -384,7 +383,7 @@ Sections are added here as each Minecraft version / loader is ported.
     `@ModifyVariable` on `LivingEntity.heal`; the hunger-bar texture swap is a `@WrapOperation`
     on the food-bar `blit` calls in `Gui.renderPlayerHealth` (only the shank background is
     redrawn). Food is held at 20 with no saturation in the player tick.
-  - Not ported yet: the Cursed Scroll heal boost in `onHeal`, the Forbidden Fruit bastion loot. The
+  - The Cursed Scroll heal boost in `onHeal` and the Forbidden Fruit bastion loot are ported. The
     Bottle of Ichor special loot and its `LootedIchorBottle` flag came with `SpecialLootModifier`
     (Enigmatic Eye batch); its dungeon pool entries came with the spellstones batch. The Common
     Haste dungeon loot came with the Revelation Tomes.
@@ -417,10 +416,9 @@ Sections are added here as each Minecraft version / loader is ported.
   - New packets `PacketCosmicRevive`, `PacketPlayerMotion`, `PacketPlayerSetlook` use the port's
     network service.
   - Scroll of Avarice: the Forge `makesPiglinsNeutral` override is dropped; the Curios-style
-    `IAccessoryItem.makesPiglinsNeutral` override stays. Its effects stay dormant until the Ring of Seven
-    Curses is ported, as for every cursed-only item.
-  - Not ported yet: Pearl of the Void's Animal Guidebook check (Tomes batch), and the Ring of
-    Seven Curses part of `getCurseAmount`.
+    `IAccessoryItem.makesPiglinsNeutral` override stays.
+  - Pearl of the Void's Animal Guidebook check and the Ring of Seven Curses part of
+    `getCurseAmount` are ported.
 - Etherium batch (Etherium Ore, Pickaxe, Waraxe, Shovel, Broadsword, Scythe, Armor):
   - `EnigmaticMaterials.ETHERIUM` (level 5) is not registered with Forge's
     `TierSortingRegistry`. Vanilla 1.20.1 compares tiers by `getLevel()`, so no registry is
@@ -496,8 +494,7 @@ Sections are added here as each Minecraft version / loader is ported.
     always runs in the client's own JVM). Upstream's ScreenEvent.Init re-show of the permadeath
     screen becomes a Fabric `ScreenEvents.AFTER_INIT` hook. `MixinWorldListEntry` is the same
     as upstream. `EnigmaticTransience` uses JetBrains `@Nullable` instead of `javax.annotation`.
-  - Not ported yet: Soul Compass updates and the Cursed Ring check in soul-loss mode 0
-    (treated as "no ring" for now).
+  - Soul Compass updates and the Cursed Ring check in soul-loss mode 0 are ported.
 - The Acknowledgment and the Revelation Tomes (Tattered, Withered, Corrupted):
   - `TheAcknowledgment`: vanilla `getEnchantmentValue()` and `getDefaultAttributeModifiers(slot)`
     instead of Forge's stack-aware overloads. Forge's `isBookEnchantable` and
@@ -539,8 +536,9 @@ Sections are added here as each Minecraft version / loader is ported.
   - Special drops are split out of `onLivingDrops` into `addCursedRingDrops`. Left out until
     its item is ported: the Guardian Heart choice from Elder Guardians. The Abyssal Heart drop
     from the Ender Dragon (`MixinEnderDragon`, `IAbyssalHeartBearer`) is the same as upstream.
-  - Monster damage debuff: upstream's Twist, Infinitum and Eldritch Pan exemptions are kept. Also not ported yet: Unholy Stone lava, the
-    KNOCKBACK_THAT_BASTARD flag, the playtime counter (IPlaytimeCounter), and harvest checks.
+  - Monster damage debuff: upstream's Twist, Infinitum and Eldritch Pan exemptions are kept.
+    Unholy Stone lava, the KNOCKBACK_THAT_BASTARD flag, the playtime counter (`IPlaytimeCounter`,
+    a Cardinal Components component) and the harvest checks are ported.
 - Twisted Mirror and Emblem of Bloodstained Valor (`BerserkEmblem`):
   - `TwistedMirror`: `EnigmaticLegacy.PROXY.isInVanillaDimension` is replaced with
     `SuperpositionHandler.isInVanillaDimension`. Upstream's commented-out use-duration variant is
@@ -630,8 +628,8 @@ Sections are added here as each Minecraft version / loader is ported.
     drop rules once per stack. It empties the ring slots before the drops instead of adding a
     DESTROY override; `SuperpositionHandler.destroyCurio` clears every matching slot (upstream's
     Curios loop skipped the last slot). `Level.NETHER` replaces the proxy's Nether key. The
-    `DestroyedCursedRing` flag is stored, but the respawn quote (`Quote.RING_DESTRUCTION`) is a
-    TODO until quotes are ported.
+    `DestroyedCursedRing` flag is stored and the respawn quote (`Quote.RING_DESTRUCTION`) plays
+    as upstream.
   - Bulwark of Blazing Pride (`InfernalShield`): Forge's `canPerformAction(SHIELD_BLOCK)` has no
     Fabric equivalent; vanilla blocking only needs `UseAnim.BLOCK`. The item implements
     `Equipable` (offhand), because Forge sends shield-capable items to the offhand for mobs and
@@ -772,7 +770,9 @@ Sections are added here as each Minecraft version / loader is ported.
   worked; the port injects at HEAD and cancels.
 - Firework rockets: the violet amulet's projectile deflection now also covers rockets
   (port-only `MixinFireworkRocketEntity`, standing in for Forge's `ProjectileImpactEvent`).
-  Fishing hooks, llama spit and shulker bullets are still not hooked.
+  Fishing hooks, llama spit and shulker bullets are hooked the same way (port-only
+  `MixinFishingHook`, `MixinLlamaSpit`, `MixinShulkerBullet`, each a `@WrapWithCondition` on the
+  `onHit` call).
 - The poison death save (`isPoisonHurt`, set by `MixinMobEffect`) is checked in the port's
   `ALLOW_DEATH` handler, which stands in for Forge's `LivingDeathEvent`.
 
@@ -789,3 +789,13 @@ Sections are added here as each Minecraft version / loader is ported.
     on login), guarded by the same `enigmaticlegacy.patchouliforce` persistent tag.
   - The landing-page renderer field is `@Unique` and renamed `enigmaticlegacy$renderer`.
   - `PacketAnvilField` is not ported: upstream's handler does nothing with it.
+
+- Commands (`/haveadv`, `/getringtime`, `/setringtime`, `/getnoringtime`, `/setnoringtime`):
+  upstream's `RegisterCommandsEvent` handler is registered through Fabric's
+  `CommandRegistrationCallback`; the command code is the same. `AccessorAdvancementCommands` is
+  copied unchanged. `SuperpositionHandler.getNoSufferingTime` is added as upstream.
+- `PacketEnchantingGUI` (opening an enchanting table grants the `book/enchantments/generic`
+  advancement): sent from a client `ScreenEvents.AFTER_INIT` hook on `EnchantmentScreen`.
+  Upstream's Quark matrix enchanter check is dropped (Quark has no Fabric version).
+- Dev only, port-only: `DevSelfCheck` also checks the fishing hook, llama spit and shulker bullet
+  mixins and that `AccessorAdvancementCommands` returns the advancement suggestions.

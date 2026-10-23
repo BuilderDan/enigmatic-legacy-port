@@ -1,5 +1,19 @@
 package com.aizistral.enigmaticlegacy.handlers;
 
+import com.aizistral.enigmaticlegacy.mixin.AccessorAdvancementCommands;
+import com.aizistral.enigmaticlegacy.api.capabilities.IPlaytimeCounter;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSourceStack;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.arguments.LongArgumentType;
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.Command;
 import com.aizistral.enigmaticlegacy.api.quack.IAbyssalHeartBearer;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticBlocks;
 import net.minecraft.server.level.ServerLevel;
@@ -213,6 +227,120 @@ public class EnigmaticEventHandler {
 	public static final Map<Player, AABB> DESOLATION_BOXES = new WeakHashMap<>();
 	public static final Map<Player, Integer> LAST_SOUL_COMPASS_UPDATE = new WeakHashMap<>();
 	public static final Multimap<Player, Guardian> AGERED_GUARDIANS = ArrayListMultimap.create();
+
+	/**
+	 * Port: was the Forge {@code RegisterCommandsEvent} handler. Fabric calls it from
+	 * {@code CommandRegistrationCallback}.
+	 */
+	public static void onCommandRegistry(CommandDispatcher<CommandSourceStack> dispatcher) {
+		LiteralArgumentBuilder<CommandSourceStack> builder = Commands.literal("haveadv").requires((source) -> {
+			return source.hasPermission(2);
+		});
+
+		builder.then(Commands.argument("advancement", ResourceLocationArgument.id())
+				.suggests(AccessorAdvancementCommands.getAdvancementSuggestions())
+				.executes(source -> {
+					ServerPlayer player = source.getSource().getPlayerOrException();
+					Advancement adv = ResourceLocationArgument.getAdvancement(source, "advancement");
+
+					if (adv != null) {
+						boolean have = SuperpositionHandler.hasAdvancement(player, adv.getId());
+						MutableComponent reply = Component.literal("Advancement exists, and you "
+								+ (have ? "do" : "don't") + " have it.");
+						source.getSource().sendSuccess(() -> reply.withStyle(have ? ChatFormatting.GREEN
+								: ChatFormatting.RED), true);
+						return 1;
+					} else {
+						MutableComponent reply = Component.literal("Advancement does not exist.");
+						source.getSource().sendFailure(reply);
+						return 0;
+					}
+				}));
+
+		dispatcher.register(builder);
+
+		builder = Commands.literal("getringtime").requires((source) -> source.hasPermission(4))
+				.then(Commands.argument("player", EntityArgument.player())
+						.executes(EnigmaticEventHandler::handleGetRingTime));
+
+		dispatcher.register(builder);
+
+		builder = Commands.literal("setringtime").requires((source) -> source.hasPermission(4))
+				.then(Commands.argument("player", EntityArgument.player())
+						.then(Commands.argument("ticks", LongArgumentType.longArg(0))
+								.executes(EnigmaticEventHandler::handleSetRingTime)));
+
+		dispatcher.register(builder);
+
+		builder = Commands.literal("setnoringtime").requires((source) -> source.hasPermission(4))
+				.then(Commands.argument("player", EntityArgument.player())
+						.then(Commands.argument("ticks", LongArgumentType.longArg(0))
+								.executes(EnigmaticEventHandler::handleSetNoRingTime)));
+
+		dispatcher.register(builder);
+
+		builder = Commands.literal("getnoringtime").requires((source) -> source.hasPermission(4))
+				.then(Commands.argument("player", EntityArgument.player())
+						.executes(EnigmaticEventHandler::handleGetNoRingTime));
+
+		dispatcher.register(builder);
+	}
+
+	private static int handleGetNoRingTime(CommandContext<CommandSourceStack> source) throws CommandSyntaxException {
+		ServerPlayer player = EntityArgument.getPlayer(source, "player");
+		IPlaytimeCounter counter =  IPlaytimeCounter.get(player);
+		String name = player.getDisplayName().getString();
+		long time = counter.getTimeWithoutCurses();
+		String percent = SuperpositionHandler.getNoSufferingTime(player);
+
+		Component reply =  Component.literal(name + " is not bearing the Seven Curses for " + time
+				+ " ticks, or " + percent + " of their time in this world.").withStyle(ChatFormatting.GREEN);
+		source.getSource().sendSuccess(() -> reply, true);
+		return Command.SINGLE_SUCCESS;
+	}
+
+	private static int handleSetNoRingTime(CommandContext<CommandSourceStack> source) throws CommandSyntaxException {
+		ServerPlayer player = EntityArgument.getPlayer(source, "player");
+		long ticks = LongArgumentType.getLong(source, "ticks");
+		IPlaytimeCounter counter =  IPlaytimeCounter.get(player);
+		String name = player.getDisplayName().getString();
+
+		counter.setTimeWithoutCurses(ticks);
+		ticks = counter.getTimeWithoutCurses();
+
+		Component reply =  Component.literal(name + "'s time without Seven Curses was set to " + ticks
+				+ " ticks.").withStyle(ChatFormatting.GREEN);
+		source.getSource().sendSuccess(() -> reply, true);
+		return Command.SINGLE_SUCCESS;
+	}
+
+	private static int handleGetRingTime(CommandContext<CommandSourceStack> source) throws CommandSyntaxException {
+		ServerPlayer player = EntityArgument.getPlayer(source, "player");
+		IPlaytimeCounter counter =  IPlaytimeCounter.get(player);
+		String name = player.getDisplayName().getString();
+		long time = counter.getTimeWithCurses();
+		String percent = SuperpositionHandler.getSufferingTime(player);
+
+		Component reply =  Component.literal(name + " is bearing the Seven Curses for " + time
+				+ " ticks, or " + percent + " of their time in this world.").withStyle(ChatFormatting.GREEN);
+		source.getSource().sendSuccess(() -> reply, true);
+		return Command.SINGLE_SUCCESS;
+	}
+
+	private static int handleSetRingTime(CommandContext<CommandSourceStack> source) throws CommandSyntaxException {
+		ServerPlayer player = EntityArgument.getPlayer(source, "player");
+		long ticks = LongArgumentType.getLong(source, "ticks");
+		IPlaytimeCounter counter =  IPlaytimeCounter.get(player);
+		String name = player.getDisplayName().getString();
+
+		counter.setTimeWithCurses(ticks);
+		ticks = counter.getTimeWithCurses();
+
+		Component reply =  Component.literal(name + "'s time with Seven Curses was set to " + ticks
+				+ " ticks.").withStyle(ChatFormatting.GREEN);
+		source.getSource().sendSuccess(() -> reply, true);
+		return Command.SINGLE_SUCCESS;
+	}
 
 	/**
 	 * Port: was part of the Forge {@code LivingAttackEvent} handler. Fabric calls it from
@@ -956,8 +1084,6 @@ public class EnigmaticEventHandler {
 				int amplifier = 1 + player.getEffect(EnigmaticEffects.GROWING_BLOODLUST).getAmplifier();
 				lifesteal += amount * (GrowingBloodlustEffect.lifestealBoost.getValue() * amplifier);
 			}
-
-			// TODO: Pact of Infinite Avarice term.
 
 			if (lifesteal > 0) {
 				player.heal(lifesteal);

@@ -165,6 +165,10 @@ public final class DevSelfCheck {
 		problems += checkMixinApplied("net.minecraft.world.level.levelgen.PhantomSpawner", "onHandlePhantomSpawns");
 		problems += checkMixinApplied("net.minecraft.world.effect.MobEffect", "onHurt");
 		problems += checkMixinApplied("net.minecraft.world.entity.projectile.FireworkRocketEntity", "onProjectileImpact");
+		problems += checkMixinApplied("net.minecraft.world.entity.projectile.FishingHook", "onProjectileImpact");
+		problems += checkMixinApplied("net.minecraft.world.entity.projectile.LlamaSpit", "onProjectileImpact");
+		problems += checkMixinApplied("net.minecraft.world.entity.projectile.ShulkerBullet", "onProjectileImpact");
+		problems += checkAdvancementSuggestions();
 		problems += checkPlayerAttributes();
 		LOGGER.info("[devcheck] Done: {} problem(s)", problems);
 	}
@@ -262,6 +266,20 @@ public final class DevSelfCheck {
 			LOGGER.error("[devcheck] player attribute check failed", ex);
 			return 1;
 		}
+	}
+
+	/** The /haveadv command reads its suggestions through this accessor. */
+	private static int checkAdvancementSuggestions() {
+		try {
+			if (com.aizistral.enigmaticlegacy.mixin.AccessorAdvancementCommands.getAdvancementSuggestions() != null) {
+				LOGGER.info("[devcheck] advancement suggestions accessor ok");
+				return 0;
+			}
+			LOGGER.error("[devcheck] advancement suggestions accessor returned null");
+		} catch (Throwable ex) {
+			LOGGER.error("[devcheck] advancement suggestions accessor failed", ex);
+		}
+		return 1;
 	}
 
 	/**

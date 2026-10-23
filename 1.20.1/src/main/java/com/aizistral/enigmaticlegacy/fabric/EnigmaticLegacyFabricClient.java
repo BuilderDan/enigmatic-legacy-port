@@ -6,6 +6,8 @@ import com.aizistral.enigmaticlegacy.gui.ToggleMagnetEffectsButton;
 import com.aizistral.enigmaticlegacy.packets.server.PacketEnderRingKey;
 import com.aizistral.enigmaticlegacy.packets.server.PacketToggleMagnetEffects;
 import com.aizistral.enigmaticlegacy.platform.Services;
+import com.aizistral.enigmaticlegacy.packets.server.PacketEnchantingGUI;
+import net.minecraft.client.gui.screens.inventory.EnchantmentScreen;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -118,10 +120,14 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 
 	/**
 	 * Port: upstream EnigmaticEventHandler.onInventoryGuiInit (ScreenEvent.Init.Post). The Quark
-	 * mini-button shift and the PacketEnchantingGUI send are not ported.
+	 * mini-button shift and Quark matrix enchanter check are dropped (Quark has no Fabric version).
 	 */
 	private static void registerInventoryButtons() {
 		ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
+			if (screen instanceof EnchantmentScreen) {
+				Services.NETWORK.sendToServer(new PacketEnchantingGUI());
+			}
+
 			if (!(screen instanceof InventoryScreen || screen instanceof CreativeModeInventoryScreen))
 				return;
 

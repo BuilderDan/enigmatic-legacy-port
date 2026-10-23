@@ -794,6 +794,15 @@ public class SuperpositionHandler {
 			return percent + "%";
 	}
 
+	public static String getNoSufferingTime(@Nullable Player player) {
+		double percent = 100 * (1.0 - getSufferingFraction(player));
+
+		if (percent - Math.floor(percent) == 0)
+			return (int) percent + "%";
+		else
+			return percent + "%";
+	}
+
 	public static double roundToPlaces(double value, int places) {
 		if (places < 0)
 			throw new IllegalArgumentException();

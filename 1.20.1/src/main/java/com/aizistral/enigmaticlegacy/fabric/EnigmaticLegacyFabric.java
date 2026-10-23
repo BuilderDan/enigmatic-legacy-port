@@ -43,6 +43,7 @@ import com.aizistral.enigmaticlegacy.packets.server.PacketEnderRingKey;
 import com.aizistral.enigmaticlegacy.packets.server.PacketToggleMagnetEffects;
 import com.aizistral.enigmaticlegacy.packets.server.PacketXPScrollKey;
 import com.aizistral.enigmaticlegacy.packets.server.PacketInkwellField;
+import com.aizistral.enigmaticlegacy.packets.server.PacketEnchantingGUI;
 import com.aizistral.enigmaticlegacy.platform.Services;
 import com.aizistral.enigmaticlegacy.platform.accessory.AccessoryDrops;
 import com.aizistral.enigmaticlegacy.platform.accessory.DropRule;
@@ -68,6 +69,7 @@ import com.aizistral.enigmaticlegacy.triggers.UseUnholyGrailTrigger;
 import com.aizistral.omniconfig.packets.PacketSyncOptions;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
@@ -197,6 +199,7 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		ServerLifecycleEvents.SERVER_STARTING.register(server -> GolemHeart.buildArmorExclusions());
 		ServerLifecycleEvents.SERVER_STARTING.register(SoulArchive::initialize);
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> EnigmaticEventHandler.onServerStopped());
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> EnigmaticEventHandler.onCommandRegistry(dispatcher));
 		// Port: stands in for upstream's AttackEntityEvent subscriber in RegisteredMeleeAttack.
 		AttackEntityCallback.EVENT.register((player, world, hand, entity, hit) -> {
 			if (!world.isClientSide) {
@@ -246,6 +249,8 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 				PacketXPScrollKey::decode, PacketXPScrollKey::handle);
 		network.register(PacketInkwellField.class, PacketDirection.TO_SERVER, PacketInkwellField::encode,
 				PacketInkwellField::decode, PacketInkwellField::handle);
+		network.register(PacketEnchantingGUI.class, PacketDirection.TO_SERVER, PacketEnchantingGUI::encode,
+				PacketEnchantingGUI::decode, PacketEnchantingGUI::handle);
 		network.register(PacketWitherParticles.class, PacketDirection.TO_CLIENT, PacketWitherParticles::encode,
 				PacketWitherParticles::decode, PacketWitherParticles::handle);
 		network.register(PacketSpellstoneKey.class, PacketDirection.TO_SERVER, PacketSpellstoneKey::encode,
