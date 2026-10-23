@@ -154,6 +154,8 @@ public final class DevSelfCheck {
 		problems += checkMixinApplied("net.minecraft.world.item.ItemStack", "beginTooltip", "endTooltip");
 		problems += checkMixinApplied("net.minecraft.world.level.block.entity.BeaconBlockEntity", "enigmaticlegacy$getLevels");
 		problems += checkMixinApplied("net.minecraft.world.inventory.ResultSlot", "enigmaticlegacy$checkTakeAchievements");
+		problems += checkMixinApplied("net.minecraft.world.entity.boss.enderdragon.EnderDragon", "onTickDeath", "dropAbyssalHeart");
+		problems += checkMixinApplied("net.minecraft.client.gui.screens.worldselection.WorldSelectionList$WorldListEntry", "getAltInfo", "onJoinWorld");
 		problems += checkPlayerAttributes();
 		LOGGER.info("[devcheck] Done: {} problem(s)", problems);
 	}

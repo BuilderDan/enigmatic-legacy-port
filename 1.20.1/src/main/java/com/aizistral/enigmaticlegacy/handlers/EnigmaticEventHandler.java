@@ -1,5 +1,6 @@
 package com.aizistral.enigmaticlegacy.handlers;
 
+import com.aizistral.enigmaticlegacy.api.quack.IAbyssalHeartBearer;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticBlocks;
 import net.minecraft.server.level.ServerLevel;
 import java.util.ArrayList;
@@ -58,6 +59,7 @@ import com.aizistral.enigmaticlegacy.mixin.AccessorAbstractArrow;
 import com.aizistral.enigmaticlegacy.objects.Perhaps;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketCosmicRevive;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketForceArrowRotations;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketPermadeath;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayerMotion;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
@@ -1064,10 +1066,17 @@ public class EnigmaticEventHandler {
 	}
 
 	/**
-	 * Port: the first-join gift part of upstream's {@code PlayerLoggedInEvent} handler. Fabric
+	 * Port: the first-join gift and permadeath parts of upstream's {@code PlayerLoggedInEvent} handler. Fabric
 	 * calls it from {@code ServerPlayConnectionEvents.JOIN}.
 	 */
 	public static void onPlayerJoin(ServerPlayer player) {
+		if (SuperpositionHandler.isPermanentlyDead(player)) {
+			Services.NETWORK.sendToPlayer(player, new PacketPermadeath());
+			SuperpositionHandler.setCurrentWorldFractured(true);
+		} else {
+			SuperpositionHandler.setCurrentWorldFractured(false);
+		}
+
 		EnigmaticItems.FORBIDDEN_FRUIT.syncConsumedFruit(player);
 		MagnetRing.syncMagnetEffects(player);
 		EnigmaticItems.COSMIC_SCROLL.onPlayerJoin(player);
@@ -1625,7 +1634,7 @@ public class EnigmaticEventHandler {
 	}
 
 	/**
-	 * Port: the quote part of upstream's onPlayerRespawn (PlayerRespawnEvent).
+	 * Port: the quote and cursed-world parts of upstream's onPlayerRespawn (PlayerRespawnEvent).
 	 * Fabric calls it from {@code ServerPlayerEvents.AFTER_RESPAWN}.
 	 */
 	public static void onPlayerRespawnQuotes(ServerPlayer player, boolean endConquered) {
@@ -1640,6 +1649,8 @@ public class EnigmaticEventHandler {
 					Quote.getRandom(Quote.DEATH_QUOTES).playIfUnlocked(player, 10);
 				}
 			}
+
+			SuperpositionHandler.setCurrentWorldCursed(SuperpositionHandler.isTheCursedOne(player));
 		}
 	}
 
@@ -1716,7 +1727,16 @@ public class EnigmaticEventHandler {
 				addDrop(entity, drops, new ItemStack(Items.EMERALD, 1));
 			}
 
-			// Port: upstream's Abyssal Heart drop from the Ender Dragon is skipped (IAbyssalHeartBearer not ported).
+			if (entity instanceof EnderDragon) {
+				if (SuperpositionHandler.isTheWorthyOne(killer)) {
+					int heartsGained = SuperpositionHandler.getPersistentInteger(killer, "AbyssalHeartsGained", 0);
+
+					if (heartsGained < 5) {
+						((IAbyssalHeartBearer) entity).dropAbyssalHeart(killer);
+					}
+				}
+			}
+
 			if (CursedRing.enableSpecialDrops.getValue()) {
 				addCursedRingDrops(entity, drops);
 			}
@@ -1873,8 +1893,10 @@ public class EnigmaticEventHandler {
 				SoulArchive.getInstance().addItem(droppedSoulCrystal);
 			}
 
-			// Port: TODO upstream sends PacketPermadeath and marks the world fractured when
-			// SuperpositionHandler.isPermanentlyDead(player); the permadeath screen is not ported yet.
+			if (SuperpositionHandler.isPermanentlyDead(player)) {
+				Services.NETWORK.sendToPlayer(player, new PacketPermadeath());
+				SuperpositionHandler.setCurrentWorldFractured(true);
+			}
 
 			ResourceLocation soulLossAdvancement = new ResourceLocation(EnigmaticLegacy.MODID, "book/soul_loss");
 

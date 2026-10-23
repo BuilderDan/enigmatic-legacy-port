@@ -24,6 +24,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import com.aizistral.enigmaticlegacy.mixin.AccessorLargeFireball;
 import com.aizistral.enigmaticlegacy.items.EldritchPan;
 import java.util.List;
+import java.io.File;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
@@ -40,6 +41,7 @@ import com.aizistral.enigmaticlegacy.config.ConfigHolders;
 import com.aizistral.enigmaticlegacy.config.OmniconfigHandler;
 import com.aizistral.enigmaticlegacy.helpers.AdvancedSpawnLocationHelper;
 import com.aizistral.enigmaticlegacy.objects.DimensionalPosition;
+import com.aizistral.enigmaticlegacy.objects.EnigmaticTransience;
 import com.aizistral.enigmaticlegacy.objects.PersistentData;
 import com.aizistral.enigmaticlegacy.objects.Vector3;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
@@ -85,6 +87,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -712,10 +715,42 @@ public class SuperpositionHandler {
 		return false;
 	}
 
-	// Port: upstream writes the cursed flag to EnigmaticTransience (the main menu's cursed
-	// splash). That file and its title screen hook are not ported, so this is a no-op for now.
+	// Port: upstream also checks that the singleplayer profile name matches the client's
+	// username. An integrated server always runs in the client's own JVM, so that check
+	// (and its client proxy call) is dropped.
+	public static Optional<MinecraftServer> getSingleplayerServer() {
+		MinecraftServer server = Services.PLATFORM.getServer();
+
+		if (server != null && server.isSingleplayer())
+			return Optional.of(server);
+		else
+			return Optional.empty();
+	}
+
 	public static void setCurrentWorldCursed(boolean cursed) {
-		// TODO port EnigmaticTransience
+		getSingleplayerServer().ifPresent(server -> {
+			File saveFolder = server.getWorldPath(LevelResource.ROOT).toFile();
+			EnigmaticTransience transience = EnigmaticTransience.read(saveFolder);
+			transience.setCursed(cursed);
+			transience.write(saveFolder);
+		});
+	}
+
+	public static void setCurrentWorldFractured(boolean fractured) {
+		getSingleplayerServer().ifPresent(server -> {
+			File saveFolder = server.getWorldPath(LevelResource.ROOT).toFile();
+			EnigmaticTransience transience = EnigmaticTransience.read(saveFolder);
+			transience.setPermanentlyDead(fractured);
+			transience.write(saveFolder);
+		});
+	}
+
+	public static boolean isWorldCursed(File world) {
+		return EnigmaticTransience.read(world).isCursed();
+	}
+
+	public static boolean isWorldFractured(File world) {
+		return EnigmaticTransience.read(world).isPermanentlyDead();
 	}
 
 	public static double getSufferingFraction(@Nullable Player player) {

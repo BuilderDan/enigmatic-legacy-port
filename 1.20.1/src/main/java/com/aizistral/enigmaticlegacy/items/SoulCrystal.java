@@ -76,9 +76,7 @@ public class SoulCrystal extends ItemBase implements IPermanentCrystal, Vanishab
 	}
 
 	public void setLostCrystals(Player player, int lost) {
-		// Port: TODO upstream calls SuperpositionHandler.setCurrentWorldFractured(lost >= 10) here,
-		// which marks the singleplayer world for the permadeath screen (EnigmaticTransience).
-		// That system is not ported yet.
+		SuperpositionHandler.setCurrentWorldFractured(lost >= 10);
 		SuperpositionHandler.setPersistentInteger(player, "enigmaticlegacy.lostsoulfragments", lost);
 		this.updatePlayerSoulMap(player);
 	}

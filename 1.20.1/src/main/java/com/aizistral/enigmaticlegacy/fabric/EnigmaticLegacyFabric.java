@@ -32,6 +32,7 @@ import com.aizistral.enigmaticlegacy.handlers.SuperpositionHandler;
 import net.fabricmc.fabric.api.entity.event.v1.EntityElytraEvents;
 import net.minecraft.world.item.ItemStack;
 import com.aizistral.enigmaticlegacy.items.GolemHeart;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketPermadeath;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayerMotion;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayerSetlook;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketCosmicRevive;
@@ -245,6 +246,8 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 				PacketSpellstoneKey::decode, PacketSpellstoneKey::handle);
 		network.register(PacketForceArrowRotations.class, PacketDirection.TO_CLIENT, PacketForceArrowRotations::encode,
 				PacketForceArrowRotations::decode, PacketForceArrowRotations::handle);
+		network.register(PacketPermadeath.class, PacketDirection.TO_CLIENT, PacketPermadeath::encode,
+				PacketPermadeath::decode, PacketPermadeath::handle);
 		network.register(PacketPlayerMotion.class, PacketDirection.TO_CLIENT, PacketPlayerMotion::encode,
 				PacketPlayerMotion::decode, PacketPlayerMotion::handle);
 		network.register(PacketPlayerSetlook.class, PacketDirection.TO_CLIENT, PacketPlayerSetlook::encode,

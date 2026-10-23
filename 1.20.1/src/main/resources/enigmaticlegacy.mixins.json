@@ -27,6 +27,7 @@
 		"MixinEnchantment",
 		"MixinEnchantmentHelper",
 		"MixinEnchantmentMenu",
+		"MixinEnderDragon",
 		"MixinEnderEyeItem",
 		"MixinEnderMan",
 		"MixinEnterBlockTrigger",
@@ -58,7 +59,8 @@
 		"MixinItemRenderer",
 		"MixinItemStack",
 		"MixinLivingEntityRenderer",
-		"MixinMultiPlayerGameMode"
+		"MixinMultiPlayerGameMode",
+		"MixinWorldListEntry"
 	],
 	"injectors": {
 		"defaultRequire": 1

@@ -487,9 +487,17 @@ Sections are added here as each Minecraft version / loader is ported.
     the logical server (null check added).
   - The lost-soul health penalty is reapplied on join and on Fabric's
     `ServerPlayerEvents.AFTER_RESPAWN` (upstream: `PlayerEvent.Clone`).
-  - Not ported yet: the permadeath screen and "fractured world" flag at 10 lost crystals
-    (`PacketPermadeath`, `EnigmaticTransience`), Soul Compass updates, and the Cursed Ring
-    check in soul-loss mode 0 (treated as "no ring" for now).
+  - Permadeath ("fractured world" at 10 lost crystals, `EnigmaticTransience`,
+    `PacketPermadeath`): upstream's `ClientProxy.displayPermadeathScreen` and the world-list
+    helpers (`getAltInfo`, `getSaveFolder`) move to the port-only client class
+    `PermadeathClient`, since Fabric has no `@OnlyIn` stripping. `PermadeathScreen` loses its
+    `@OnlyIn`. `getSingleplayerServer()` uses the port's platform server and drops upstream's
+    check that the singleplayer profile name matches the client username (an integrated server
+    always runs in the client's own JVM). Upstream's ScreenEvent.Init re-show of the permadeath
+    screen becomes a Fabric `ScreenEvents.AFTER_INIT` hook. `MixinWorldListEntry` is the same
+    as upstream. `EnigmaticTransience` uses JetBrains `@Nullable` instead of `javax.annotation`.
+  - Not ported yet: Soul Compass updates and the Cursed Ring check in soul-loss mode 0
+    (treated as "no ring" for now).
 - The Acknowledgment and the Revelation Tomes (Tattered, Withered, Corrupted):
   - `TheAcknowledgment`: vanilla `getEnchantmentValue()` and `getDefaultAttributeModifiers(slot)`
     instead of Forge's stack-aware overloads. Forge's `isBookEnchantable` and
@@ -529,11 +537,10 @@ Sections are added here as each Minecraft version / loader is ported.
   - Auto-equip runs in the player tick (upstream: PlayerTickEvent inventory loop), main inventory
     only.
   - Special drops are split out of `onLivingDrops` into `addCursedRingDrops`. Left out until
-    their items are ported: the Guardian Heart choice from Elder Guardians and the Abyssal Heart
-    drop from the Ender Dragon.
+    its item is ported: the Guardian Heart choice from Elder Guardians. The Abyssal Heart drop
+    from the Ender Dragon (`MixinEnderDragon`, `IAbyssalHeartBearer`) is the same as upstream.
   - Monster damage debuff: upstream's Twist, Infinitum and Eldritch Pan exemptions are kept. Also not ported yet: Unholy Stone lava, the
-    KNOCKBACK_THAT_BASTARD flag, the playtime counter (IPlaytimeCounter), harvest checks and the
-    cursed main menu flag (`setCurrentWorldCursed` is a no-op).
+    KNOCKBACK_THAT_BASTARD flag, the playtime counter (IPlaytimeCounter), and harvest checks.
 - Twisted Mirror and Emblem of Bloodstained Valor (`BerserkEmblem`):
   - `TwistedMirror`: `EnigmaticLegacy.PROXY.isInVanillaDimension` is replaced with
     `SuperpositionHandler.isInVanillaDimension`. Upstream's commented-out use-duration variant is
@@ -693,7 +700,7 @@ Sections are added here as each Minecraft version / loader is ported.
     `isEndConquered`); Nether/End arrival quotes from AFTER_PLAYER_CHANGE_WORLD. The Wither kill
     counter quotes, the Ender Dragon hit quote (Monster Charm hurt hook, worn or not, as
     upstream) and the Relic of Testing narrator reset are wired in.
-  - `WITH_DRAGONS` is not wired yet: it plays after the Abyssal Heart drop, which is not ported.
+  - `WITH_DRAGONS` plays from `MixinEnderDragon` when the dragon finishes dying, as upstream.
 - `EnigmaticEye` (Inscrutable Eye): the narrator flag from `TransientPlayerData` becomes
   `NarratorData`, so upstream's `needsSync` is dropped. Forge's `BLOCK_REACH` becomes
   `EnigmaticAttributes.BLOCK_REACH`.

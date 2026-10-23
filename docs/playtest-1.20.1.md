@@ -141,3 +141,4 @@ Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).
 
 ## Notes
+| 2026-10-23 | 112 | 115 | 1 | Permadeath / world transience (fractured and cursed world flags, permadeath screen, world list lock and alt info line) and the Abyssal Heart drop with the With Dragons quote; `EnderDragon` and `WorldSelectionList$WorldListEntry` mixin handlers merge. Same Enigmatic Eye false positive. Needs in-world test: lose all soul crystals, check the world list lock; kill the dragon as the Worthy One. |

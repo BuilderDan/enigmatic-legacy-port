@@ -1,5 +1,6 @@
 package com.aizistral.enigmaticlegacy.fabric;
 
+import com.aizistral.enigmaticlegacy.gui.PermadeathScreen;
 import com.aizistral.enigmaticlegacy.gui.EnderChestInventoryButton;
 import com.aizistral.enigmaticlegacy.gui.ToggleMagnetEffectsButton;
 import com.aizistral.enigmaticlegacy.packets.server.PacketEnderRingKey;
@@ -93,10 +94,23 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 		EnigmaticElytra.clientBoostHandler = EnigmaticElytraClient::handleBoosting;
 		registerKeybinds();
 		registerInventoryButtons();
+		registerPermadeathScreenLock();
 		registerItemProperties();
 		registerRenderers();
 		SeparateTransformsModel.register();
 		DevSelfCheck.register();
+	}
+
+	/**
+	 * Port: the PermadeathScreen part of upstream EnigmaticEventHandler.onAnvilOpen (ScreenEvent.Init).
+	 * While the permadeath screen is active, any other screen that opens is replaced by it.
+	 */
+	private static void registerPermadeathScreenLock() {
+		ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
+			if (PermadeathScreen.active != null && screen != PermadeathScreen.active) {
+				client.setScreen(PermadeathScreen.active);
+			}
+		});
 	}
 
 	/**
