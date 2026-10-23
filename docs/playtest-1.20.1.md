@@ -117,6 +117,7 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 | Soul Crystal (soul_crystal) | - | - | - | - (with soul loss on, death drops a crystal and lowers max health 10% per lost crystal; picking it up or using it restores the health; rejoining and respawning keep the penalty; `soul_archive.json` appears in the world folder) | - |
 | Bulwark of Blazing Pride (infernal_shield) | - | - | - | - (cursed-only block; blocks from the front, wearing down its durability; axes never disable it; x1.5 damage taken from behind while blocking; removes Blazing Strength on hit; obsidian repairs; Unbreaking at the table) | - |
 | The Infinitum (the_infinitum) | - | - | - | - (worthy wielder: extra knockback, bonus damage to bosses and players, 10% lifesteal, chance to survive a lethal hit, ignores invulnerability; blade opens after holding ~5 ticks; unworthy hit is cancelled and debuffs the wielder) | - |
+| Amulet of Ascension (ascension_amulet) | - | - | - | - (creative-only until the hidden recipe is ported; worn: the modifiers of every amulet color at once; cannot be worn with an Enigmatic Amulet; on death the Extradimensional Vessel keeps the drops like the Enigmatic Amulet's) | - |
 
 Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).

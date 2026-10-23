@@ -705,7 +705,7 @@ public class EnigmaticEventHandler {
 	 * Port: was upstream's {@code onConfirmedDeath} ({@code LivingDeathEvent}, LOWEST). Called by
 	 * MixinServerPlayer at the head of {@code ServerPlayer.die}, where totems and ALLOW_DEATH
 	 * have already had their chance, so the death is final. Upstream's canceled-event branch is
-	 * not needed. The Ascension Amulet and cursed-item parts follow with those items.
+	 * not needed. The cursed-item parts follow with those items.
 	 */
 	public static void onConfirmedDeath(ServerPlayer player, DamageSource source) {
 		// Port: upstream's onProbableDeath (LivingDeathEvent, HIGHEST).
@@ -715,9 +715,10 @@ public class EnigmaticEventHandler {
 
 		SuperpositionHandler.setPersistentBoolean(player, "DeathFromEntity", source.getEntity() instanceof LivingEntity);
 
-		// TODO: Ascension Amulet branch (else-if) when that item is ported.
 		if (SuperpositionHandler.hasCurio(player, EnigmaticItems.ENIGMATIC_AMULET) || SuperpositionHandler.hasItem(player, EnigmaticItems.ENIGMATIC_AMULET)) {
 			POSTMORTAL_POSESSIONS.put(player, EnigmaticItems.ENIGMATIC_AMULET);
+		} else if (SuperpositionHandler.hasCurio(player, EnigmaticItems.ASCENSION_AMULET) || SuperpositionHandler.hasItem(player, EnigmaticItems.ASCENSION_AMULET)) {
+			POSTMORTAL_POSESSIONS.put(player, EnigmaticItems.ASCENSION_AMULET);
 		}
 
 		if (SuperpositionHandler.hasItem(player, EnigmaticItems.CURSED_STONE)) {
@@ -1534,7 +1535,7 @@ public class EnigmaticEventHandler {
 
 			boolean hadCursedRing = POSTMORTAL_POSESSIONS.containsEntry(player, EnigmaticItems.CURSED_RING);
 
-			if (POSTMORTAL_POSESSIONS.containsEntry(player, EnigmaticItems.ENIGMATIC_AMULET) && !drops.isEmpty() && EnigmaticItems.ENIGMATIC_AMULET.isVesselEnabled()) {
+			if (hadEnigmaticAmulet(player) && !drops.isEmpty() && EnigmaticItems.ENIGMATIC_AMULET.isVesselEnabled()) {
 				ItemStack soulCrystal = SuperpositionHandler.canDropSoulCrystal(player, hadCursedRing) ? EnigmaticItems.SOUL_CRYSTAL.createCrystalFrom(player) : null;
 				ItemStack storageCrystal = EnigmaticItems.STORAGE_CRYSTAL.storeDropsOnCrystal(drops, player, soulCrystal);
 				PermanentItemEntity droppedStorageCrystal = new PermanentItemEntity(dimPoint.world, dimPoint.getPosX(), dimPoint.getPosY() + 1.5, dimPoint.getPosZ(), storageCrystal);
@@ -1728,6 +1729,10 @@ public class EnigmaticEventHandler {
 		int chance = ForbiddenAxe.beheadingBase.getValue().asPercentage()
 				+ ForbiddenAxe.beheadingBonus.getValue().asPercentage() * lootingLevel;
 		return new Perhaps(Math.min(chance, 100)).roll();
+	}
+
+	private static boolean hadEnigmaticAmulet(Player player) {
+		return POSTMORTAL_POSESSIONS.containsEntry(player, EnigmaticItems.ENIGMATIC_AMULET) || POSTMORTAL_POSESSIONS.containsEntry(player, EnigmaticItems.ASCENSION_AMULET);
 	}
 
 }

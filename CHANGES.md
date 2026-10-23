@@ -352,7 +352,7 @@ Sections are added here as each Minecraft version / loader is ported.
     VIOLET deflection), with `AccessorAbstractArrow` replacing `AccessorAbstractArrowEntity`;
     the first-join gift runs on `ServerPlayConnectionEvents.JOIN` (`onPlayerJoin`). Only the
     amulet's terms of these upstream handlers are ported (Angel's Blessing and The Cube
-    deflection, Ascension Amulet, Unwitnessed Amulet conversion and the Extradimensional Vessel
+    deflection, Unwitnessed Amulet conversion and the Extradimensional Vessel
     with saved XP come with their items; until then the amulet drops like any other item on
     death, and its vessel tooltip and configs have no effect). Fishing hooks, llama spit,
     shulker bullets and firework rockets are not hooked yet, so they are never deflected.
@@ -638,3 +638,9 @@ Sections are added here as each Minecraft version / loader is ported.
     counters move from upstream's `ClientProxy` to port-only `client/InfinitumClient`, advanced
     from `END_CLIENT_TICK` once per world tick instead of a client `LivingTickEvent`, and
     cleared on disconnect. The Acknowledgment's custom-name rendering for it is not ported.
+  - `AscensionAmulet` (Amulet of Ascension): upstream's `getAttributesTooltip` override is
+    dropped (the port's accessory tooltips do not list modifiers). `EnigmaticAmulet.hasColor`
+    returns true for every color while it is worn. `onConfirmedDeath` records it (worn or
+    carried) in `POSTMORTAL_POSESSIONS`, and the Extradimensional Vessel counts it like the
+    Enigmatic Amulet (`hadEnigmaticAmulet`). Its recipe type, `crafting_shaped_hidden`, is not
+    ported yet, so for now it is creative-only.
