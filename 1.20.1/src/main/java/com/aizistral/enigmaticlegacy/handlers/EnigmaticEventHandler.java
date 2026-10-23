@@ -17,6 +17,7 @@ import com.aizistral.enigmaticlegacy.entities.PermanentItemEntity;
 import com.aizistral.enigmaticlegacy.helpers.ItemNBTHelper;
 import com.aizistral.enigmaticlegacy.helpers.PotionHelper;
 import com.aizistral.enigmaticlegacy.items.EnigmaticAmulet;
+import com.aizistral.enigmaticlegacy.items.EnigmaticElytra;
 import com.aizistral.enigmaticlegacy.items.EnigmaticAmulet.AmuletColor;
 import com.aizistral.enigmaticlegacy.items.ForbiddenAxe;
 import com.aizistral.enigmaticlegacy.items.HunterGuidebook;
@@ -661,6 +662,9 @@ public class EnigmaticEventHandler {
 				player.removeEffect(MobEffects.HUNGER);
 			}
 		}
+
+		// Port: upstream boosted the Majestic Elytra at PlayerTickEvent START.
+		EnigmaticElytra.onServerPlayerTick(player);
 	}
 
 	/**

@@ -23,6 +23,11 @@ import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncFireImmunity;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketUpdateCompass;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncForbiddenFruit;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncPlayTime;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncElytraBoosting;
+import com.aizistral.enigmaticlegacy.packets.server.PacketUpdateElytraBoosting;
+import com.aizistral.enigmaticlegacy.handlers.SuperpositionHandler;
+import net.fabricmc.fabric.api.entity.event.v1.EntityElytraEvents;
+import net.minecraft.world.item.ItemStack;
 import com.aizistral.enigmaticlegacy.items.GolemHeart;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayerMotion;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayerSetlook;
@@ -117,6 +122,19 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		AccessoryDrops.register((entity, stack) -> entity instanceof ServerPlayer player
 				&& EnigmaticEventHandler.POSTMORTAL_POSESSIONS.containsEntry(player, EnigmaticItems.ELDRITCH_AMULET)
 				&& EnchantmentHelper.getItemEnchantmentLevel(Enchantments.VANISHING_CURSE, stack) <= 0 ? DropRule.ALWAYS_KEEP : null);
+		// Port: Forge's IForgeItem canElytraFly/elytraFlightTick (and Caelus' flight attribute).
+		EntityElytraEvents.CUSTOM.register((entity, tickElytra) -> {
+			ItemStack stack = SuperpositionHandler.getEnigmaticElytra(entity);
+
+			if (stack != null && EnigmaticItems.ENIGMATIC_ELYTRA.canElytraFly(stack, entity)) {
+				if (tickElytra) {
+					EnigmaticItems.ENIGMATIC_ELYTRA.elytraFlightTick(stack, entity, entity.getFallFlyingTicks());
+				}
+				return true;
+			}
+
+			return false;
+		});
 		EnabledCondition.register();
 		PlayerPlaytimeCounter.registerStats();
 		registerPackets();
@@ -213,5 +231,9 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 				PacketPlayerSetlook::decode, PacketPlayerSetlook::handle);
 		network.register(PacketCosmicRevive.class, PacketDirection.TO_CLIENT, PacketCosmicRevive::encode,
 				PacketCosmicRevive::decode, PacketCosmicRevive::handle);
+		network.register(PacketUpdateElytraBoosting.class, PacketDirection.TO_SERVER, PacketUpdateElytraBoosting::encode,
+				PacketUpdateElytraBoosting::decode, PacketUpdateElytraBoosting::handle);
+		network.register(PacketSyncElytraBoosting.class, PacketDirection.TO_CLIENT, PacketSyncElytraBoosting::encode,
+				PacketSyncElytraBoosting::decode, PacketSyncElytraBoosting::handle);
 	}
 }

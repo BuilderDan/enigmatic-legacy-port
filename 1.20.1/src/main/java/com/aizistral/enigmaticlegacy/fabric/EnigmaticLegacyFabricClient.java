@@ -13,6 +13,9 @@ import net.minecraft.world.item.ItemStack;
 
 import com.aizistral.enigmaticlegacy.client.BlazingCoreClient;
 import com.aizistral.enigmaticlegacy.client.InfinitumClient;
+import com.aizistral.enigmaticlegacy.client.EnigmaticElytraClient;
+import com.aizistral.enigmaticlegacy.client.renderers.EnigmaticElytraLayer;
+import com.aizistral.enigmaticlegacy.items.EnigmaticElytra;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketCosmicRevive;
 import com.aizistral.enigmaticlegacy.config.OmniconfigSync;
 import com.aizistral.enigmaticlegacy.fabric.platform.client.FabricClientNetwork;
@@ -63,10 +66,13 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 			OmniconfigSync.onClientLoggedOut();
 			BlazingCoreClient.onDisconnect();
 			InfinitumClient.onDisconnect();
+			EnigmaticElytraClient.onDisconnect();
 		});
 		ClientTickEvents.END_CLIENT_TICK.register(BlazingCoreClient::onClientTick);
 		ClientTickEvents.END_CLIENT_TICK.register(InfinitumClient::onClientTick);
 		ClientTickEvents.END_CLIENT_TICK.register(PacketCosmicRevive::onClientTick);
+		ClientTickEvents.END_CLIENT_TICK.register(EnigmaticElytraClient::onClientTick);
+		EnigmaticElytra.clientBoostHandler = EnigmaticElytraClient::handleBoosting;
 		registerKeybinds();
 		registerItemProperties();
 		registerRenderers();
@@ -97,6 +103,11 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((entityType, entityRenderer, registrationHelper, context) -> {
 			if (entityType == EntityType.PLAYER) {
 				registrationHelper.register(new ShieldAuraLayer((LivingEntityRenderer) entityRenderer, context.getModelSet()));
+			}
+
+			// Port: upstream adds EnigmaticElytraLayer to players and armor stands in AddLayers.
+			if (entityType == EntityType.PLAYER || entityType == EntityType.ARMOR_STAND) {
+				registrationHelper.register(new EnigmaticElytraLayer((LivingEntityRenderer) entityRenderer, context.getModelSet()));
 			}
 		});
 

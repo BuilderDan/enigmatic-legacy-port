@@ -652,3 +652,13 @@ Sections are added here as each Minecraft version / loader is ported.
   skips the amulet NBT copy when the input amulet has no NBT (upstream would crash). `getRecipe`
   uses `BuiltInRegistries.ITEM` instead of `ForgeRegistries.ITEMS`. `HiddenRecipeProcessor`
   (The Acknowledgment's hidden-recipe pages) is copied unchanged.
+- `EnigmaticElytra` (Majestic Elytra): Fabric API's `EntityElytraEvents.CUSTOM` replaces Forge's
+  `canElytraFly`/`elytraFlightTick` and Caelus' flight attribute; it accepts the elytra in the
+  chest slot or the back accessory slot. The item implements `Equipable` for the chest slot and
+  equip sound. Upstream's `TransientPlayerData` boost flag becomes `ElytraBoostData` (port-only),
+  and the new `PacketSyncElytraBoosting` sends it to tracking players and the player, so others
+  see the boost particles. The client boost goes through a static hook set by
+  `EnigmaticElytraClient` instead of the PROXY. The server boost runs from the end-of-tick player
+  loop (`onPlayerTick`); upstream ran it at PlayerTickEvent START. A `CapeLayer` mixin replaces
+  Caelus' `RenderCapeEvent`, and `EnigmaticElytraLayer` is added to players and armor stands with
+  `LivingEntityFeatureRendererRegistrationCallback`.

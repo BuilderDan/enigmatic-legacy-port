@@ -68,6 +68,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.EnchantedBookItem;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -262,6 +263,20 @@ public class SuperpositionHandler {
 	public static ItemStack getCurioStack(LivingEntity entity, Item curio) {
 		// Port: Curios lookup replaced by the accessory service (Trinkets on Fabric).
 		return Services.ACCESSORIES.findFirst(entity, stack -> stack.is(curio));
+	}
+
+	public static boolean hasEnigmaticElytra(LivingEntity living) {
+		return getEnigmaticElytra(living) != null;
+	}
+
+	@Nullable
+	public static ItemStack getEnigmaticElytra(LivingEntity living) {
+		ItemStack stack = living.getItemBySlot(EquipmentSlot.CHEST);
+
+		if (stack.is(EnigmaticItems.ENIGMATIC_ELYTRA))
+			return stack;
+		else
+			return getCurioStack(living, EnigmaticItems.ENIGMATIC_ELYTRA);
 	}
 
 	public static <T extends LivingEntity> T getClosestEntity(List<? extends T> entities, Predicate<LivingEntity> predicate, double x, double y, double z) {

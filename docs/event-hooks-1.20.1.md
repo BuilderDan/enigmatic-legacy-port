@@ -46,7 +46,8 @@ the first rows unblock the most items.
 | Client: RenderGuiOverlayEvent.Pre (experience bar) | Mixin: `Gui.renderExperienceBar` HEAD, cancellable (done for Blazing Core) | Blazing Core heat bar |
 | Client: ViewportEvent.RenderFog | Mixin: `FogRenderer.setupFog` TAIL (done for Blazing Core) | Blazing Core, Molten Heart effect |
 | Client: RenderGuiOverlayEvent.Pre | `HudRenderCallback` (cannot cancel vanilla; mixin if needed) | curse HUD |
-| Client: RenderNameTagEvent, RenderCapeEvent | Mixins in `EntityRenderer` / `CapeLayer` | cosmetic, low priority |
+| Client: RenderNameTagEvent, RenderCapeEvent | Mixins in `EntityRenderer` / `CapeLayer` (CapeLayer done for the Majestic Elytra) | cosmetic, low priority |
+| Forge item hooks: `canElytraFly`, `elytraFlightTick` (and Caelus) | `EntityElytraEvents.CUSTOM` (done for the Majestic Elytra) | Majestic Elytra |
 | Forge item hooks: `canPerformAction(SHIELD_BLOCK)`, shield durability, axe disabling | Mixins: `LivingEntity.isDamageSourceBlocked` HEAD, `Player.disableShield` HEAD, `@ModifyExpressionValue` in `Player.hurtCurrentlyUsedShield`; the item implements `Equipable` (offhand) (done for the Bulwark of Blazing Pride) | Bulwark of Blazing Pride, Eldritch Pan |
 | Mod-specific: SummonedEntityEvent, EnterBlockEvent, DropRulesEvent, EndPortalActivatedEvent, LivingGetProjectileEvent | Upstream's own events; port with their item | per item (DropRulesEvent: `AccessoryDrops` rule, done for Eternal Binding) |
 
