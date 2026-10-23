@@ -89,6 +89,7 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 		EnigmaticItems.ENIGMATIC_EYE.registerVariants();
 		// Port: upstream ClientProxy.registerBlockingProperty (FMLClientSetupEvent).
 		registerBlockingProperty(EnigmaticItems.INFERNAL_SHIELD);
+		registerBlockingProperty(EnigmaticItems.ELDRITCH_PAN);
 		// Port: upstream ClientProxy (FMLClientSetupEvent).
 		ItemProperties.register(EnigmaticItems.THE_INFINITUM, new ResourceLocation(EnigmaticLegacy.MODID, "the_infinitum_open"),
 				InfinitumClient::getOpenProperty);

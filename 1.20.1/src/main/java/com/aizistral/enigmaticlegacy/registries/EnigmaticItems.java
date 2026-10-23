@@ -9,6 +9,7 @@ import com.aizistral.enigmaticlegacy.api.generic.ModRegistry;
 import com.aizistral.enigmaticlegacy.api.generic.ObjectHolder;
 import com.aizistral.enigmaticlegacy.items.AbyssalHeart;
 import com.aizistral.enigmaticlegacy.items.InfernalShield;
+import com.aizistral.enigmaticlegacy.items.EldritchPan;
 import com.aizistral.enigmaticlegacy.items.AstralDust;
 import com.aizistral.enigmaticlegacy.items.AstralPotato;
 import com.aizistral.enigmaticlegacy.items.BlazingCore;
@@ -265,6 +266,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ConfigurableItem
 	@ObjectHolder(value = MODID + ":quote_player", registryName = "item")
 	public static QuotePlayer QUOTE_PLAYER;
+
+	@ConfigurableItem("Eldritch Frying Pan")
+	@ObjectHolder(value = MODID + ":eldritch_pan", registryName = "item")
+	public static EldritchPan ELDRITCH_PAN;
 
 	@ConfigurableItem("Mending Mixture")
 	@ObjectHolder(value = MODID + ":mending_mixture", registryName = "item")
@@ -632,6 +637,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("enigmatic_eye", EnigmaticEye::new);
 		this.register("insignia", Insignia::new);
 		this.register("quote_player", QuotePlayer::new);
+		this.register("eldritch_pan", EldritchPan::new);
 	}
 
 	/** Port: forces class loading, which registers the items. */

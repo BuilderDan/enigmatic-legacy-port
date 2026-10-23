@@ -14,6 +14,15 @@ import com.aizistral.enigmaticlegacy.items.generic.ItemSpellstoneCurio;
 import com.aizistral.enigmaticlegacy.items.CursedRing;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticEnchantments;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.food.FoodData;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.ItemParticleOption;
+import net.minecraft.world.entity.projectile.LargeFireball;
+import net.minecraft.world.entity.projectile.Projectile;
+import com.aizistral.enigmaticlegacy.mixin.AccessorLargeFireball;
+import com.aizistral.enigmaticlegacy.items.EldritchPan;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -64,6 +73,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
@@ -563,6 +573,20 @@ public class SuperpositionHandler {
 		return returnedStack;
 	}
 
+	public static boolean cannotHunger(@Nullable Player player) {
+		boolean noHunger = false;
+
+		if (player != null) {
+			if (EnigmaticItems.FORBIDDEN_FRUIT.haveConsumedFruit(player)) {
+				noHunger = true;
+			} else if (player.level().getDifficulty() == Difficulty.PEACEFUL) {
+				noHunger = true;
+			}
+		}
+
+		return noHunger;
+	}
+
 	public static boolean isTheCursedOne(Player player) {
 		return Services.ACCESSORIES.isEquipped(player, EnigmaticItems.CURSED_RING);
 	}
@@ -590,7 +614,7 @@ public class SuperpositionHandler {
 	}
 
 	// Port: upstream's CallbackInfoReturnable parameter was unused and is dropped. Its piercing
-	// arrow check is forced off upstream, so it is left out. The Eldritch Pan branch is not ported yet.
+	// arrow check is forced off upstream, so it is left out.
 	public static boolean onDamageSourceBlocking(LivingEntity blocker, ItemStack useItem, DamageSource source) {
 		if (blocker instanceof Player player && useItem != null) {
 			if (!isActuallyReallyBlocking(blocker))
@@ -631,6 +655,51 @@ public class SuperpositionHandler {
 										EnigmaticEventHandler.KNOCKBACK_THAT_BASTARD.remove(living);
 									}
 								}
+							}
+
+							return true;
+						}
+					}
+				}
+			} else if (useItem.getItem() instanceof EldritchPan) {
+				Entity projectile = source.getDirectEntity();
+
+				if (!(projectile instanceof Projectile))
+					return false;
+
+				if (!source.is(DamageTypeTags.BYPASSES_SHIELD)) {
+					Vec3 sourcePos = source.getSourcePosition();
+
+					if (sourcePos != null) {
+						Vec3 lookVec = blocker.getViewVector(1.0F);
+						Vec3 sourceToSelf = sourcePos.vectorTo(blocker.position()).normalize();
+						sourceToSelf = new Vec3(sourceToSelf.x, 0.0D, sourceToSelf.z);
+
+						if (sourceToSelf.dot(lookVec) < 0.0D) {
+							projectile.kill();
+
+							FoodData data = player.getFoodData();
+							data.eat(4, 0.5F);
+
+							player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+									SoundEvents.PLAYER_BURP, SoundSource.PLAYERS, 0.5F,
+									player.level().random.nextFloat() * 0.1F + 0.9F);
+
+							player.gameEvent(GameEvent.EAT);
+
+							if (projectile instanceof LargeFireball fireball) {
+								// Port: Forge's access transformer -> AccessorLargeFireball.
+								((AccessorLargeFireball) fireball).enigmaticlegacy$setExplosionPower(0);
+							}
+
+							if (player.level() instanceof ServerLevel level) {
+								Vec3 angle = player.getLookAngle();
+								angle.multiply(1, 0, 1).normalize().multiply(0.5, 0.5, 0.5);
+
+								level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM,
+										new ItemStack(Items.FIRE_CHARGE)), player.getX() + angle.x,
+										player.getY() + player.getEyeHeight() - 0.1, player.getZ() + angle.z,
+										10, 0.3D, 0.3D, 0.3D, 0.03D);
 							}
 
 							return true;

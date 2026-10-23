@@ -1,5 +1,6 @@
 package com.aizistral.enigmaticlegacy.handlers;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,12 @@ import com.aizistral.enigmaticlegacy.entities.PermanentItemEntity;
 import com.aizistral.enigmaticlegacy.helpers.ItemNBTHelper;
 import com.aizistral.enigmaticlegacy.helpers.PotionHelper;
 import com.aizistral.enigmaticlegacy.items.EnigmaticAmulet;
+import net.minecraft.world.item.crafting.SmeltingRecipe;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.SimpleContainer;
+import com.aizistral.enigmaticlegacy.items.EldritchPan;
+import com.aizistral.enigmaticlegacy.effects.GrowingHungerEffect;
+import com.aizistral.enigmaticlegacy.effects.GrowingBloodlustEffect;
 import com.aizistral.enigmaticlegacy.items.EnigmaticElytra;
 import com.aizistral.enigmaticlegacy.items.EnigmaticAmulet.AmuletColor;
 import com.aizistral.enigmaticlegacy.items.ForbiddenAxe;
@@ -245,6 +252,10 @@ public class EnigmaticEventHandler {
 				player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS,         100, 3, false, true));
 				return false;
 			}
+
+			// Port: and for an unworthy player's Eldritch Pan hit.
+			if (player.getMainHandItem().is(EnigmaticItems.ELDRITCH_PAN) && !SuperpositionHandler.isTheWorthyOne(player))
+				return false;
 
 			float knockbackPower = 1F;
 
@@ -554,8 +565,8 @@ public class EnigmaticEventHandler {
 	}
 
 	/**
-	 * Port: was the Heart of Creation part of the Forge {@code PlayerTickEvent} handler (server
-	 * side). Fabric calls it for each player from {@code ServerTickEvents.END_SERVER_TICK}.
+	 * Port: was the Heart of Creation and Growing Hunger parts of the Forge {@code PlayerTickEvent}
+	 * handler (server side). Fabric calls it for each player from {@code ServerTickEvents.END_SERVER_TICK}.
 	 */
 	public static void onPlayerTick(ServerPlayer player) {
 		if (SuperpositionHandler.hasSpellstoneCooldown(player)) {
@@ -563,6 +574,36 @@ public class EnigmaticEventHandler {
 		}
 
 		EnigmaticItems.ENIGMATIC_ITEM.handleEnigmaticFlight(player);
+
+		/*
+		 * Handle Growing Hunger application.
+		 */
+
+		if (player.getMainHandItem().is(EnigmaticItems.ELDRITCH_PAN)) {
+			int currentTicks = EldritchPan.HOLDING_DURATIONS.getOrDefault(player, 0);
+
+			if (SuperpositionHandler.cannotHunger(player)) {
+				int bloodlustAmplifier = currentTicks / GrowingBloodlustEffect.ticksPerLevel.getValue();
+
+				bloodlustAmplifier = Math.min(bloodlustAmplifier, 9);
+
+				player.addEffect(new MobEffectInstance(EnigmaticEffects.GROWING_BLOODLUST,
+						MobEffectInstance.INFINITE_DURATION, bloodlustAmplifier, true, true));
+			} else {
+				int hungerAmplifier = currentTicks / GrowingHungerEffect.ticksPerLevel.getValue();
+
+				hungerAmplifier = Math.min(hungerAmplifier, 9);
+
+				player.addEffect(new MobEffectInstance(EnigmaticEffects.GROWING_HUNGER,
+						MobEffectInstance.INFINITE_DURATION, hungerAmplifier, true, true));
+			}
+
+			EldritchPan.HOLDING_DURATIONS.put(player, currentTicks + 1);
+		} else {
+			EldritchPan.HOLDING_DURATIONS.put(player, 0);
+			player.removeEffect(EnigmaticEffects.GROWING_HUNGER);
+			player.removeEffect(EnigmaticEffects.GROWING_BLOODLUST);
+		}
 
 		if (SuperpositionHandler.hasCurio(player, EnigmaticItems.DESOLATION_RING) && SuperpositionHandler.isTheWorthyOne(player)) {
 			DESOLATION_BOXES.put(player, SuperpositionHandler.getBoundingBoxAroundEntity(player, 128));
@@ -886,10 +927,52 @@ public class EnigmaticEventHandler {
 				lifesteal += amount * 0.15F;
 			}
 
-			// TODO: Pact of Infinite Avarice, Eldritch Pan and Growing Bloodlust terms.
+			if (player.getMainHandItem().is(EnigmaticItems.ELDRITCH_PAN) && SuperpositionHandler.isTheWorthyOne(player)) {
+				lifesteal += amount * EldritchPan.lifeSteal.getValue();
+			}
+
+			if (player.hasEffect(EnigmaticEffects.GROWING_BLOODLUST)) {
+				int amplifier = 1 + player.getEffect(EnigmaticEffects.GROWING_BLOODLUST).getAmplifier();
+				lifesteal += amount * (GrowingBloodlustEffect.lifestealBoost.getValue() * amplifier);
+			}
+
+			// TODO: Pact of Infinite Avarice term.
 
 			if (lifesteal > 0) {
 				player.heal(lifesteal);
+			}
+
+			float hungersteal = 0F;
+
+			if (player.getMainHandItem().is(EnigmaticItems.ELDRITCH_PAN) && SuperpositionHandler.isTheWorthyOne(player)) {
+				hungersteal += EldritchPan.hungerSteal.getValue();
+			}
+
+			if (hungersteal > 0) {
+				boolean noHunger = SuperpositionHandler.cannotHunger(player);
+
+				if (entity instanceof ServerPlayer victim) {
+					FoodData victimFood = victim.getFoodData();
+					FoodData attackerFood = player.getFoodData();
+
+					int foodSteal = Math.min((int) Math.ceil(hungersteal), victimFood.getFoodLevel());
+					float saturationSteal = Math.min(hungersteal / 5F, victimFood.getSaturationLevel());
+
+					victimFood.setSaturation(victimFood.getSaturationLevel() - saturationSteal);
+					victimFood.setFoodLevel(victimFood.getFoodLevel() - foodSteal);
+
+					if (noHunger) {
+						player.heal((float) foodSteal / 2);
+					} else {
+						attackerFood.eat(foodSteal, saturationSteal);
+					}
+				} else {
+					if (noHunger) {
+						player.heal(hungersteal / 2);
+					} else {
+						player.getFoodData().eat((int) Math.ceil(hungersteal), hungersteal / 5F);
+					}
+				}
 			}
 		}
 	}
@@ -1275,9 +1358,9 @@ public class EnigmaticEventHandler {
 	 */
 	public static float onLivingHurt(LivingEntity victim, DamageSource source, float amount) {
 		if (source.getEntity() instanceof Player attacker) {
-			// Port: upstream's Eldritch Pan exemption dropped, that item is not ported.
 			boolean bypass = source.getDirectEntity() == attacker && (attacker.getMainHandItem().is(EnigmaticItems.THE_TWIST)
-					|| attacker.getMainHandItem().is(EnigmaticItems.THE_INFINITUM));
+					|| attacker.getMainHandItem().is(EnigmaticItems.THE_INFINITUM)
+					|| attacker.getMainHandItem().is(EnigmaticItems.ELDRITCH_PAN));
 
 			if (!bypass && (victim instanceof Monster || victim instanceof EnderDragon) && SuperpositionHandler.isTheCursedOne(attacker)) {
 				amount *= CursedRing.monsterDamageDebuff.getValue().asModifierInverted();
@@ -1433,6 +1516,19 @@ public class EnigmaticEventHandler {
 
 			SuperpositionHandler.setPersistentInteger(player, "TimesKilledWither", killedWither);
 		}
+
+		if (source.getDirectEntity() instanceof ServerPlayer attacker) {
+			ItemStack weapon = attacker.getMainHandItem();
+
+			if (weapon.is(EnigmaticItems.ELDRITCH_PAN)) {
+				ResourceLocation killedType = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
+
+				if (EldritchPan.addKillIfNotPresent(weapon, killedType)) {
+					attacker.sendSystemMessage(Component.translatable("message.enigmaticlegacy.eldritch_pan_buff")
+							.withStyle(ChatFormatting.GOLD));
+				}
+			}
+		}
 	}
 
 	/**
@@ -1569,10 +1665,37 @@ public class EnigmaticEventHandler {
 
 	/**
 	 * Upstream onLivingDropsLowest: Escape Scroll, Extradimensional Vessel, Soul Crystal and soul
-	 * loss parts. The Eldritch Pan part follows with that item.
+	 * loss parts, plus the Eldritch Pan cooking.
 	 */
 	private static void onLivingDropsLowest(LivingEntity entity, DamageSource source, Collection<ItemEntity> drops,
 			boolean recentlyHit) {
+		Level level = entity.level();
+
+		/*
+		 * Eldritch Pan cooking logic.
+		 */
+
+		if (source.getDirectEntity() instanceof ServerPlayer player)
+			if (SuperpositionHandler.isTheWorthyOne(player))
+				if (player.getMainHandItem().is(EnigmaticItems.ELDRITCH_PAN)
+						|| player.getOffhandItem().is(EnigmaticItems.ELDRITCH_PAN))
+					for (ItemEntity drop : new ArrayList<>(drops)) {
+						ItemStack stack = drop.getItem();
+						Optional<SmeltingRecipe> optional = level.getRecipeManager().getRecipeFor(
+								RecipeType.SMELTING, new SimpleContainer(stack), level);
+
+						optional.ifPresent(recipe -> {
+							ItemStack result = recipe.getResultItem(level.registryAccess());
+
+							if (!result.isEmpty()) {
+								ItemStack cooked = result.copyWithCount(stack.getCount() * result.getCount());
+
+								drops.remove(drop);
+								addDrop(entity, drops, cooked);
+							}
+						});
+					}
+
 		// Ender Slayer XP conversion. Port: clearing the list stands in for upstream's event cancel.
 		if (recentlyHit && source.getEntity() instanceof Player killer && SuperpositionHandler.isTheCursedOne(killer)
 				&& entity instanceof EnderMan

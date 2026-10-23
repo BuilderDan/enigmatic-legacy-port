@@ -132,3 +132,4 @@ Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).
 
 ## Notes
+| Voracious Pan (eldritch_pan) | - | - | - | - (hidden recipe; worthy-only: unworthy hits are cancelled; blocks like a shield and eats projectiles (food, burp, fire charge puff, large fireballs don't explode); 3 s cooldown when an axe disables it; holding it builds Growing Hunger/Bloodlust; lifesteal and hungersteal; kills of new mob types raise damage/armor (gold chat message); mob drops cooked; enchants as a diamond sword; check in-hand vs inventory model) | - |

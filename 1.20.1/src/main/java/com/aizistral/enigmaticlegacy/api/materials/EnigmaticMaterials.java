@@ -3,6 +3,7 @@ package com.aizistral.enigmaticlegacy.api.materials;
 import java.util.function.Supplier;
 
 import com.aizistral.enigmaticlegacy.config.EtheriumConfigHandler;
+import com.aizistral.enigmaticlegacy.items.EldritchPan;
 
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -20,6 +21,7 @@ import net.minecraft.world.level.block.Blocks;
 public enum EnigmaticMaterials implements Tier {
 	FORBIDDEN_AXE(0, 2000, 6.0F, 3.0F, 16, () -> Ingredient.EMPTY),
 	ENDER_SLAYER(0, 2000, 6.0F, 3.0F, 16, () -> Ingredient.of(Blocks.OBSIDIAN)),
+	ELDRITCH_PAN(0, 4000, 6.0F, 3.0F, 24, EldritchPan::getRepairMaterial),
 	ETHERIUM(5, 3000, 8.0F, 5.0F, 32, () -> EtheriumConfigHandler.instance().getRepairMaterial());
 
 	private final int harvestLevel;

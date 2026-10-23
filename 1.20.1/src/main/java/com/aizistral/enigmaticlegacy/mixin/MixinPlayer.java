@@ -4,11 +4,13 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.aizistral.enigmaticlegacy.handlers.EnigmaticEventHandler;
+import com.aizistral.enigmaticlegacy.items.EldritchPan;
 import com.aizistral.enigmaticlegacy.items.InfernalShield;
 import com.aizistral.enigmaticlegacy.objects.PersistentData;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticAttributes;
@@ -21,6 +23,7 @@ import net.minecraft.world.damagesource.CombatTracker;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -31,7 +34,8 @@ import net.minecraft.world.level.block.state.BlockState;
  * overrides it without calling super, so MixinLivingEntity's hook does not reach players), and
  * for {@code LivingDamageEvent} in the same method.
  * Also holds the player's persistent data (Forge's {@code PlayerPersisted} compound), and makes
- * the Bulwark of Blazing Pride count as a shield where Forge checks canPerformAction(SHIELD_BLOCK).
+ * the Bulwark of Blazing Pride and the Voracious Pan count as shields where Forge checks
+ * canPerformAction(SHIELD_BLOCK) or uses the blocking item.
  */
 @Mixin(Player.class)
 public abstract class MixinPlayer implements PersistentData {
@@ -79,7 +83,15 @@ public abstract class MixinPlayer implements PersistentData {
 			target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/world/item/Item;)Z"))
 	private boolean enigmaticlegacy$damageInfernalShield(boolean isShield) {
 		ItemStack useItem = ((Player) (Object) this).getUseItem();
-		return isShield || useItem.getItem() instanceof InfernalShield;
+		return isShield || useItem.getItem() instanceof InfernalShield || useItem.getItem() instanceof EldritchPan;
+	}
+
+	/** Vanilla puts Items.SHIELD on cooldown; Forge uses the blocking item. Only the pan needs it here. */
+	@ModifyArg(method = "disableShield", at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/world/item/ItemCooldowns;addCooldown(Lnet/minecraft/world/item/Item;I)V"))
+	private Item enigmaticlegacy$panCooldown(Item item) {
+		ItemStack useItem = ((Player) (Object) this).getUseItem();
+		return useItem.getItem() instanceof EldritchPan ? useItem.getItem() : item;
 	}
 
 	@Inject(method = "addAdditionalSaveData", at = @At("RETURN"))

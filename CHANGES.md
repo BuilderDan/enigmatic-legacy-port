@@ -380,7 +380,7 @@ Sections are added here as each Minecraft version / loader is ported.
     `@ModifyVariable` on `LivingEntity.heal`; the hunger-bar texture swap is a `@WrapOperation`
     on the food-bar `blit` calls in `Gui.renderPlayerHealth` (only the shank background is
     redrawn). Food is held at 20 with no saturation in the player tick.
-  - Not ported yet: the Cursed Scroll heal boost in `onHeal`, Eldritch Pan's `cannotHunger` check, the Forbidden Fruit bastion loot. The
+  - Not ported yet: the Cursed Scroll heal boost in `onHeal`, the Forbidden Fruit bastion loot. The
     Bottle of Ichor special loot and its `LootedIchorBottle` flag came with `SpecialLootModifier`
     (Enigmatic Eye batch); its dungeon pool entries came with the spellstones batch. The Common
     Haste dungeon loot came with the Revelation Tomes.
@@ -527,8 +527,7 @@ Sections are added here as each Minecraft version / loader is ported.
   - Special drops are split out of `onLivingDrops` into `addCursedRingDrops`. Left out until
     their items are ported: the Guardian Heart choice from Elder Guardians and the Abyssal Heart
     drop from the Ender Dragon.
-  - Monster damage debuff: upstream's Twist, Infinitum and Eldritch Pan exemptions are dropped
-    (items not ported). Also not ported yet: Unholy Stone lava, the
+  - Monster damage debuff: upstream's Twist, Infinitum and Eldritch Pan exemptions are kept. Also not ported yet: Unholy Stone lava, the
     KNOCKBACK_THAT_BASTARD flag, the playtime counter (IPlaytimeCounter), harvest checks and the
     cursed main menu flag (`setCurrentWorldCursed` is a no-op).
 - Twisted Mirror and Emblem of Bloodstained Valor (`BerserkEmblem`):
@@ -621,8 +620,7 @@ Sections are added here as each Minecraft version / loader is ported.
     `Items.SHIELD`, Forge any shield). Upstream's `isDamageSourceBlocked` mixin is in
     `MixinLivingEntity`; `IProperShieldUser.isActuallyReallyBlocking` becomes
     `SuperpositionHandler.isActuallyReallyBlocking`, and `onDamageSourceBlocking` drops the
-    unused callback parameter, the piercing-arrow check (forced off upstream) and the Eldritch
-    Pan branch (not ported yet). The Unbreaking `canApplyAtEnchantingTable` override is dropped
+    unused callback parameter and the piercing-arrow check (forced off upstream). The Unbreaking `canApplyAtEnchantingTable` override is dropped
     (vanilla's BREAKABLE category already allows it); `getEnchantmentValue` uses vanilla's
     signature without a stack. The `blocking` item property is registered in
     `EnigmaticLegacyFabricClient`. Blazing Strength removal and the x1.5 damage when hit from
@@ -703,3 +701,18 @@ Sections are added here as each Minecraft version / loader is ported.
   `data/forge/loot_modifiers` JSON are dropped.
 - `QuotePlayer` (Quote Player, creative/debug item): copied unchanged except Forge's `@OnlyIn`
   markers and an unused `java.awt.TextComponent` import.
+- `EldritchPan` (Voracious Pan): Forge's `getAttributeModifiers(slot, stack)` becomes
+  `FabricItem.getAttributeModifiers(stack, slot)`. Forge's `canPerformAction` (shield actions),
+  `isBookEnchantable` and `canApplyAtEnchantingTable` (enchants as a diamond sword) become
+  `MixinPlayer.isBlocking`/`disableShield`, `MixinEnchantment.canEnchant` and
+  `MixinEnchantmentHelper.getAvailableEnchantmentResults`. Vanilla `disableShield` puts
+  `Items.SHIELD` on cooldown, Forge the blocking item; a `@ModifyArg` puts the pan itself on
+  cooldown. Mob axes do not disable the pan (vanilla `Mob.maybeDisableShield` checks
+  `Items.SHIELD`). The projectile-eating branch of `onDamageSourceBlocking` sets a large
+  fireball's `explosionPower` through the port-only `AccessorLargeFireball` (Forge used an access
+  transformer). Growing Hunger/Bloodlust runs in `onPlayerTick`; lifesteal, hungersteal, the
+  unworthy-hit cancel (ALLOW_DAMAGE), kill tracking (`onEntityKilled`) and drop cooking
+  (`onLivingDropsLowest`) are wired at the same sites as upstream.
+  - Known gap: the pan models use Forge's `forge:separate_transforms` loader (separate in-hand
+    and inventory models), which Fabric ignores. The same applies to the Infernal Shield, The
+    Infinitum, The Cube and the guidebook models. Needs a port-side model loader.

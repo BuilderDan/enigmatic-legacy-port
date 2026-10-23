@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.aizistral.enigmaticlegacy.handlers.EnigmaticEventHandler;
+import com.aizistral.enigmaticlegacy.items.EldritchPan;
 import com.aizistral.enigmaticlegacy.items.TheAcknowledgment;
 import com.aizistral.enigmaticlegacy.platform.Services;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticEnchantments;
@@ -16,6 +17,7 @@ import com.aizistral.enigmaticlegacy.registries.EnigmaticEnchantments;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
@@ -31,6 +33,9 @@ import net.minecraft.world.item.enchantment.Enchantments;
  * <p>
  * Also adds the Ring of the Seven Curses enchanting bonus that MixinEnchantmentMenu works out
  * (Forge's EnchantmentLevelSetEvent, which fires right after getEnchantmentCost).
+ * <p>
+ * Also stands in for EldritchPan's canApplyAtEnchantingTable override: the table offers the pan
+ * what it would offer a diamond sword.
  * <p>
  * Also the upstream hasBindingCurse inject: Curse of Eternal Binding counts as Curse of Binding.
  */
@@ -50,6 +55,13 @@ public abstract class MixinEnchantmentHelper {
 		Integer bonus = EnigmaticEventHandler.ENCHANTING_BONUS.get();
 		if (bonus != null && bonus != 0) {
 			info.setReturnValue(info.getReturnValueI() + bonus);
+		}
+	}
+
+	@Inject(method = "getAvailableEnchantmentResults", at = @At("HEAD"), cancellable = true)
+	private static void enigmaticlegacy$panAsSword(int level, ItemStack stack, boolean treasure, CallbackInfoReturnable<List<EnchantmentInstance>> info) {
+		if (stack.getItem() instanceof EldritchPan) {
+			info.setReturnValue(EnchantmentHelper.getAvailableEnchantmentResults(level, new ItemStack(Items.DIAMOND_SWORD), treasure));
 		}
 	}
 
