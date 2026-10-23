@@ -630,3 +630,11 @@ Sections are added here as each Minecraft version / loader is ported.
     signature without a stack. The `blocking` item property is registered in
     `EnigmaticLegacyFabricClient`. Blazing Strength removal and the x1.5 damage when hit from
     behind run in `onPlayerHurt` (upstream's `LivingHurtEvent`).
+  - `TheInfinitum` (The Infinitum): `@OnlyIn` removed. Upstream's `LivingHurtEvent` cancel for
+    unworthy wielders, with its six debuffs, is in `ALLOW_DAMAGE` like The Twist's. The death
+    save checks only the main hand: upstream checks the main hand twice (probably meant the
+    offhand), so the behavior is the same. Lifesteal stays a flat 10% as upstream, which does
+    not read the `lifestealBonus` config. The `the_infinitum_open` item property and its hold
+    counters move from upstream's `ClientProxy` to port-only `client/InfinitumClient`, advanced
+    from `END_CLIENT_TICK` once per world tick instead of a client `LivingTickEvent`, and
+    cleared on disconnect. The Acknowledgment's custom-name rendering for it is not ported.

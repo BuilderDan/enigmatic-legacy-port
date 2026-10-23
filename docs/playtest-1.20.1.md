@@ -46,6 +46,7 @@ name, model and tooltip. Results go to the log with a `[devcheck]` prefix. With
 | 2026-10-23 | 94 | 94 | 0 | Added the Curse of Eternal Binding (Enchanter Pearl roll, death-keep for armor and trinkets, trinket unequip block). |
 | 2026-10-23 | 94 | 94 | 0 | Added the Cursed Ring lava-pool destruction (Unholy Stone death in a Nether lava pool destroys both rings). |
 | 2026-10-23 | 94 | 95 | 0 | Added the Bulwark of Blazing Pride (shield mixins, blocking property). |
+| 2026-10-23 | 95 | 96 | 0 | Added The Infinitum (worthy-only; knockback, boss damage, lifesteal, death save; open property). |
 
 ## Manual checklist
 
@@ -115,6 +116,7 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 | Extradimensional Vessel (storage_crystal) | - | - | - | - (die wearing the Enigmatic Amulet: drops and XP go into a floating vessel at the death point; only the owner can pick it up unless the config allows others; pickup returns items and XP, plus the soul if one was embedded) | - |
 | Soul Crystal (soul_crystal) | - | - | - | - (with soul loss on, death drops a crystal and lowers max health 10% per lost crystal; picking it up or using it restores the health; rejoining and respawning keep the penalty; `soul_archive.json` appears in the world folder) | - |
 | Bulwark of Blazing Pride (infernal_shield) | - | - | - | - (cursed-only block; blocks from the front, wearing down its durability; axes never disable it; x1.5 damage taken from behind while blocking; removes Blazing Strength on hit; obsidian repairs; Unbreaking at the table) | - |
+| The Infinitum (the_infinitum) | - | - | - | - (worthy wielder: extra knockback, bonus damage to bosses and players, 10% lifesteal, chance to survive a lethal hit, ignores invulnerability; blade opens after holding ~5 ticks; unworthy hit is cancelled and debuffs the wielder) | - |
 
 Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).

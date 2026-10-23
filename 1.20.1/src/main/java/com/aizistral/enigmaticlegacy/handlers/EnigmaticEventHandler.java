@@ -27,6 +27,7 @@ import com.aizistral.enigmaticlegacy.items.AngelBlessing;
 import com.aizistral.enigmaticlegacy.items.AvariceScroll;
 import com.aizistral.enigmaticlegacy.items.CursedScroll;
 import com.aizistral.enigmaticlegacy.items.BerserkEmblem;
+import com.aizistral.enigmaticlegacy.items.TheInfinitum;
 import com.aizistral.enigmaticlegacy.items.TheTwist;
 import net.minecraft.core.NonNullList;
 import com.aizistral.enigmaticlegacy.items.EyeOfNebula;
@@ -230,11 +231,24 @@ public class EnigmaticEventHandler {
 					&& !SuperpositionHandler.isTheCursedOne(player))
 				return false;
 
+			// Port: same for an unworthy player's Infinitum hit, which also curses the wielder.
+			if (player.getMainHandItem().is(EnigmaticItems.THE_INFINITUM) && !SuperpositionHandler.isTheWorthyOne(player)) {
+				player.addEffect(new MobEffectInstance(MobEffects.WITHER,            160, 3, false, true));
+				player.addEffect(new MobEffectInstance(MobEffects.CONFUSION,         500, 3, false, true));
+				player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS,          300, 3, false, true));
+				player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 300, 3, false, true));
+				player.addEffect(new MobEffectInstance(MobEffects.DIG_SLOWDOWN,      300, 3, false, true));
+				player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS,         100, 3, false, true));
+				return false;
+			}
+
 			float knockbackPower = 1F;
 
-			// Port: the Infinitum and Cosmic Scroll knockback terms follow with those items.
+			// Port: the Cosmic Scroll knockback term follows with that item.
 			if (player.getMainHandItem().is(EnigmaticItems.THE_TWIST) && SuperpositionHandler.isTheCursedOne(player)) {
 				knockbackPower += TheTwist.knockbackBonus.getValue().asModifier(false);
+			} else if (player.getMainHandItem().is(EnigmaticItems.THE_INFINITUM) && SuperpositionHandler.isTheWorthyOne(player)) {
+				knockbackPower += TheInfinitum.knockbackBonus.getValue().asModifier(false);
 			} else if (player.getMainHandItem().is(EnigmaticItems.ENDER_SLAYER) && SuperpositionHandler.isTheCursedOne(player)) {
 				if (EnigmaticItems.ENDER_SLAYER.isEndDweller(entity)) {
 					knockbackPower += EnderSlayer.endKnockbackBonus.getValue().asModifier(false);
@@ -505,6 +519,10 @@ public class EnigmaticEventHandler {
 				player.setHealth(1);
 				return false;
 			} else if (SuperpositionHandler.hasCurio(player, EnigmaticItems.VOID_PEARL) && Math.random() <= VoidPearl.undeadProbability.getValue().asMultiplier(false)) {
+				player.setHealth(1);
+				return false;
+			} else if (SuperpositionHandler.isTheWorthyOne(player) && player.getMainHandItem().is(EnigmaticItems.THE_INFINITUM)
+					&& Math.random() <= TheInfinitum.undeadProbability.getValue().asMultiplier(false)) {
 				player.setHealth(1);
 				return false;
 			}
@@ -844,6 +862,10 @@ public class EnigmaticEventHandler {
 			float lifesteal = 0;
 
 			if (EnigmaticItems.ENIGMATIC_AMULET.hasColor(player, AmuletColor.BLACK)) {
+				lifesteal += amount * 0.1F;
+			}
+
+			if (player.getMainHandItem().is(EnigmaticItems.THE_INFINITUM) && SuperpositionHandler.isTheWorthyOne(player)) {
 				lifesteal += amount * 0.1F;
 			}
 
@@ -1236,8 +1258,9 @@ public class EnigmaticEventHandler {
 	 */
 	public static float onLivingHurt(LivingEntity victim, DamageSource source, float amount) {
 		if (source.getEntity() instanceof Player attacker) {
-			// Port: upstream's Infinitum and Eldritch Pan exemptions dropped, those items are not ported.
-			boolean bypass = source.getDirectEntity() == attacker && attacker.getMainHandItem().is(EnigmaticItems.THE_TWIST);
+			// Port: upstream's Eldritch Pan exemption dropped, that item is not ported.
+			boolean bypass = source.getDirectEntity() == attacker && (attacker.getMainHandItem().is(EnigmaticItems.THE_TWIST)
+					|| attacker.getMainHandItem().is(EnigmaticItems.THE_INFINITUM));
 
 			if (!bypass && (victim instanceof Monster || victim instanceof EnderDragon) && SuperpositionHandler.isTheCursedOne(attacker)) {
 				amount *= CursedRing.monsterDamageDebuff.getValue().asModifierInverted();
@@ -1258,6 +1281,11 @@ public class EnigmaticEventHandler {
 			if (source.getDirectEntity() == attacker && source.is(DamageTypes.PLAYER_ATTACK) && attacker.getMainHandItem().is(EnigmaticItems.THE_TWIST)
 					&& SuperpositionHandler.isTheCursedOne(attacker) && OmniconfigHandler.isBossOrPlayer(victim)) {
 				amount += amount * TheTwist.bossDamageBonus.getValue().asModifier(false);
+			}
+
+			if (source.getDirectEntity() == attacker && source.is(DamageTypes.PLAYER_ATTACK) && attacker.getMainHandItem().is(EnigmaticItems.THE_INFINITUM)
+					&& SuperpositionHandler.isTheWorthyOne(attacker) && OmniconfigHandler.isBossOrPlayer(victim)) {
+				amount += amount * TheInfinitum.bossDamageBonus.getValue().asModifier(false);
 			}
 
 			if (source.getDirectEntity() == attacker && source.is(DamageTypes.PLAYER_ATTACK) && attacker.getMainHandItem().is(EnigmaticItems.ENDER_SLAYER)

@@ -16,6 +16,7 @@ import com.aizistral.enigmaticlegacy.items.CursedRing;
 import com.aizistral.enigmaticlegacy.items.TwistedMirror;
 import com.aizistral.enigmaticlegacy.items.BerserkEmblem;
 import com.aizistral.enigmaticlegacy.items.GuardianHeart;
+import com.aizistral.enigmaticlegacy.items.TheInfinitum;
 import com.aizistral.enigmaticlegacy.items.TheTwist;
 import com.aizistral.enigmaticlegacy.items.EnderSlayer;
 import com.aizistral.enigmaticlegacy.items.DeceptionAmulet;
@@ -225,6 +226,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ConfigurableItem("Bulwark of Blazing Pride")
 	@ObjectHolder(value = MODID + ":infernal_shield", registryName = "item")
 	public static InfernalShield INFERNAL_SHIELD;
+
+	@ConfigurableItem("The Infinitum")
+	@ObjectHolder(value = MODID + ":the_infinitum", registryName = "item")
+	public static TheInfinitum THE_INFINITUM;
 
 	@ConfigurableItem("Mending Mixture")
 	@ObjectHolder(value = MODID + ":mending_mixture", registryName = "item")
@@ -584,6 +589,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("enchanter_pearl", EnchanterPearl::new);
 		this.register("desolation_ring", DesolationRing::new);
 		this.register("infernal_shield", InfernalShield::new);
+		this.register("the_infinitum", TheInfinitum::new);
 	}
 
 	/** Port: forces class loading, which registers the items. */

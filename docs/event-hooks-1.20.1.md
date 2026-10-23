@@ -40,7 +40,7 @@ the first rows unblock the most items.
 | PlayerChangedDimensionEvent | `ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD` | Extradimensional Eye (verify), Soul Compass (done) |
 | EntityJoinLevelEvent | `ServerEntityEvents.ENTITY_LOAD` | misc |
 | Client: ItemTooltipEvent | `ItemTooltipCallback` | tooltips on vanilla items |
-| Client: TickEvent.ClientTickEvent | `ClientTickEvents.END_CLIENT_TICK` | keybinds |
+| Client: TickEvent.ClientTickEvent | `ClientTickEvents.END_CLIENT_TICK` (done for The Infinitum hold counters) | keybinds |
 | Client: ScreenEvent.Init | `ScreenEvents.AFTER_INIT` | magnet toggle button (TransientPlayerData task) |
 | Client: RenderTooltipEvent.Color | Mixin: `GuiGraphics.renderTooltipInternal` (verify) | colored tooltip borders |
 | Client: RenderGuiOverlayEvent.Pre (experience bar) | Mixin: `Gui.renderExperienceBar` HEAD, cancellable (done for Blazing Core) | Blazing Core heat bar |

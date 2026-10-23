@@ -12,6 +12,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import com.aizistral.enigmaticlegacy.client.BlazingCoreClient;
+import com.aizistral.enigmaticlegacy.client.InfinitumClient;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketCosmicRevive;
 import com.aizistral.enigmaticlegacy.config.OmniconfigSync;
 import com.aizistral.enigmaticlegacy.fabric.platform.client.FabricClientNetwork;
@@ -61,8 +62,10 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> {
 			OmniconfigSync.onClientLoggedOut();
 			BlazingCoreClient.onDisconnect();
+			InfinitumClient.onDisconnect();
 		});
 		ClientTickEvents.END_CLIENT_TICK.register(BlazingCoreClient::onClientTick);
+		ClientTickEvents.END_CLIENT_TICK.register(InfinitumClient::onClientTick);
 		ClientTickEvents.END_CLIENT_TICK.register(PacketCosmicRevive::onClientTick);
 		registerKeybinds();
 		registerItemProperties();
@@ -77,6 +80,9 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 		EnigmaticItems.SOUL_COMPASS.registerVariants();
 		// Port: upstream ClientProxy.registerBlockingProperty (FMLClientSetupEvent).
 		registerBlockingProperty(EnigmaticItems.INFERNAL_SHIELD);
+		// Port: upstream ClientProxy (FMLClientSetupEvent).
+		ItemProperties.register(EnigmaticItems.THE_INFINITUM, new ResourceLocation(EnigmaticLegacy.MODID, "the_infinitum_open"),
+				InfinitumClient::getOpenProperty);
 	}
 
 	private static void registerBlockingProperty(Item item) {
