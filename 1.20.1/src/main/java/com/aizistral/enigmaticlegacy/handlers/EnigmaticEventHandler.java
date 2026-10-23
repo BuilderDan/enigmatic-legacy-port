@@ -18,6 +18,7 @@ import com.aizistral.enigmaticlegacy.helpers.PotionHelper;
 import com.aizistral.enigmaticlegacy.items.EnigmaticAmulet;
 import com.aizistral.enigmaticlegacy.items.EnigmaticAmulet.AmuletColor;
 import com.aizistral.enigmaticlegacy.items.ForbiddenAxe;
+import com.aizistral.enigmaticlegacy.items.HunterGuidebook;
 import com.aizistral.enigmaticlegacy.items.generic.ItemSpellstoneCurio;
 import com.aizistral.enigmaticlegacy.items.MiningCharm;
 import com.aizistral.enigmaticlegacy.items.BlazingCore;
@@ -73,6 +74,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Creeper;
@@ -173,6 +175,9 @@ public class EnigmaticEventHandler {
 		// Port: upstream EtheriumEventHandler.onEntityAttacked is a separate Forge subscriber.
 		if (!EtheriumEventHandler.onEntityAttacked(entity, source))
 			return false;
+
+		// TODO(port): upstream's Animal Guidebook term (players can't hit protected animals unless
+		// the animal targets them) needs accessor mixins for Mob.targetSelector; see CHANGES.md.
 
 		if (source.getDirectEntity() instanceof Player && source.is(DamageTypes.PLAYER_ATTACK)) {
 			Player player = (Player) source.getDirectEntity();
@@ -975,8 +980,8 @@ public class EnigmaticEventHandler {
 	/**
 	 * Port: the rest of upstream's {@code LivingHurtEvent} handler (attacker terms and the Cube).
 	 * Fabric calls it from MixinLivingEntity and MixinPlayer at the head of {@code actuallyHurt};
-	 * player targets also go through {@link #onPlayerHurt}. The Hunter's Guidebook term follows
-	 * with that item.
+	 * player targets also go through {@link #onPlayerHurt}. Returning 0 stands in for
+	 * {@code event.setCanceled(true)}.
 	 *
 	 * @return the new damage amount.
 	 */
@@ -1012,6 +1017,17 @@ public class EnigmaticEventHandler {
 
 			if (EyeOfNebula.EMPOWERED_PLAYERS.remove(attacker.getUUID())) {
 				amount *= EyeOfNebula.attackEmpower.getValue().asModifier(true);
+			}
+		}
+
+		if (victim instanceof TamableAnimal pet && pet.isTame()) {
+			LivingEntity owner = pet.getOwner();
+
+			if (owner instanceof Player && SuperpositionHandler.hasItem((Player)owner, EnigmaticItems.HUNTER_GUIDEBOOK)) {
+				if (owner.level() == pet.level() && owner.distanceTo(pet) <= HunterGuidebook.effectiveDistance.getValue()) {
+					owner.hurt(source, SuperpositionHandler.hasItem((Player)owner, EnigmaticItems.ANIMAL_GUIDEBOOK) ? (amount*HunterGuidebook.synergyDamageReduction.getValue().asModifierInverted()) : amount);
+					return 0;
+				}
 			}
 		}
 

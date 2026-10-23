@@ -37,6 +37,7 @@ name, model and tooltip. Results go to the log with a `[devcheck]` prefix. With
 | 2026-10-22 | 84 | 86 | 0 | Added Heart of the Guardian and The Twist; all mixins ok. Needs an in-world playtest with the Seven Curses ring worn: guardian aggro, mob-debuff pulse, Twist knockback and boss bonus, and the non-cursed hit cancel. |
 | 2026-10-22 | 86 | 87 | 0 | Added Unwitnessed Amulet (cannot be equipped). In-world check: picking it up should turn it into an Enigmatic Amulet inscribed with the player name and a random (or seeded) color. |
 | 2026-10-22 | 87 | 88 | 0 | Added Amulet of Deception (cursed curio, tooltip only; upstream has no behavior for it, name still says [WIP] as upstream). |
+| 2026-10-22 | 88 | 90 | 0 | Added Guide to Animal Companionship and Guide to Feral Hunt (Cursed Ring neutral-anger skip, Void Pearl darkness skip, pet damage redirected to the Hunter's Guide owner). |
 
 ## Manual checklist
 

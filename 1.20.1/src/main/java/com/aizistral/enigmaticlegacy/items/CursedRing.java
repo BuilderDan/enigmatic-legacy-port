@@ -363,11 +363,14 @@ public class CursedRing extends ItemBaseCurio {
 
 				if (neutral instanceof TamableAnimal tamable && tamable.isTame()) {
 					continue;
+				} else if (SuperpositionHandler.hasItem(player, EnigmaticItems.ANIMAL_GUIDEBOOK)) {
+					if (EnigmaticItems.ANIMAL_GUIDEBOOK.isTamableAnimal(checkedEntity)) {
+						continue;
+					}
 				} else if (neutral instanceof IronGolem golem && golem.isPlayerCreated()) {
 					continue;
 				} else if (neutral instanceof Bee) {
-					// Port: the Animal Guidebook checks are left out until it is ported.
-					if (saveTheBees.getValue()) {
+					if (saveTheBees.getValue() || SuperpositionHandler.hasItem(player, EnigmaticItems.ANIMAL_GUIDEBOOK)) {
 						continue;
 					}
 				}

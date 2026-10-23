@@ -557,3 +557,9 @@ Sections are added here as each Minecraft version / loader is ported.
     `EnigmaticEventHandler.onPlayerTick` (server tick), as in upstream's `PlayerTickEvent`. The
     `getAttributesTooltip` override returned the list unchanged, so it is dropped. The loop walks
     `Inventory.items`, `armor` and `offhand` directly, since `compartments` is private on Fabric.
+  - `PetGuidebook` (Guide to Animal Companionship), `HunterGuidebook` (Guide to Feral Hunt):
+    `@OnlyIn` removed; `ForgeRegistries.ENTITY_TYPES` -> `BuiltInRegistries.ENTITY_TYPE`. The
+    Hunter's Guide pet-damage redirect runs in `EnigmaticEventHandler.onLivingHurt` and returns 0
+    instead of `event.setCanceled(true)`. Not ported yet: upstream's `onLivingAttack` check that
+    stops the player hitting protected animals (needs accessor mixins for `Mob.targetSelector`)
+    and `MixinHoglinTasks`. The Cursed Ring and Void Pearl guidebook checks are restored.
