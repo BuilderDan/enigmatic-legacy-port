@@ -51,6 +51,7 @@
 		"MixinEntityRenderer",
 		"MixinFogRenderer",
 		"MixinGui",
+		"MixinItemRenderer",
 		"MixinItemStack",
 		"MixinLivingEntityRenderer",
 		"MixinMultiPlayerGameMode"

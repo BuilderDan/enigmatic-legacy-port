@@ -78,6 +78,7 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 		registerKeybinds();
 		registerItemProperties();
 		registerRenderers();
+		SeparateTransformsModel.register();
 		DevSelfCheck.register();
 	}
 

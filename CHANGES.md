@@ -713,6 +713,10 @@ Sections are added here as each Minecraft version / loader is ported.
   transformer). Growing Hunger/Bloodlust runs in `onPlayerTick`; lifesteal, hungersteal, the
   unworthy-hit cancel (ALLOW_DAMAGE), kill tracking (`onEntityKilled`) and drop cooking
   (`onLivingDropsLowest`) are wired at the same sites as upstream.
-  - Known gap: the pan models use Forge's `forge:separate_transforms` loader (separate in-hand
-    and inventory models), which Fabric ignores. The same applies to the Infernal Shield, The
-    Infinitum, The Cube and the guidebook models. Needs a port-side model loader.
+- Item models with Forge's `forge:separate_transforms` loader (Voracious Pan, Infernal Shield,
+  The Infinitum, The Cube, The Acknowledgment, The Twist and the guidebooks) show one model in
+  the inventory and another in hand. Fabric has no such loader, so the port-only
+  `SeparateTransformsModel` (a Fabric model loading plugin) reads their `base` and
+  `perspectives` entries and wraps the model; the port-only `MixinItemRenderer` swaps in the
+  model for the current display context (Forge's `BakedModel.applyTransform`). GUI lighting
+  follows the top-level model's `gui_light`, as on Forge. The model JSON files are unchanged.
