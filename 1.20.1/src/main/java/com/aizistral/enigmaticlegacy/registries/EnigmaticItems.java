@@ -21,6 +21,7 @@ import com.aizistral.enigmaticlegacy.items.AscensionAmulet;
 import com.aizistral.enigmaticlegacy.items.EldritchAmulet;
 import com.aizistral.enigmaticlegacy.items.EnigmaticElytra;
 import com.aizistral.enigmaticlegacy.items.TheTwist;
+import com.aizistral.enigmaticlegacy.items.TheJudgement;
 import com.aizistral.enigmaticlegacy.items.EnderSlayer;
 import com.aizistral.enigmaticlegacy.items.DeceptionAmulet;
 import com.aizistral.enigmaticlegacy.items.EnchanterPearl;
@@ -245,6 +246,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ConfigurableItem("Majestic Elytra")
 	@ObjectHolder(value = MODID + ":enigmatic_elytra", registryName = "item")
 	public static EnigmaticElytra ENIGMATIC_ELYTRA;
+
+	@ConfigurableItem("The Judgement")
+	@ObjectHolder(value = MODID + ":the_judgement", registryName = "item")
+	public static Item THE_JUDGEMENT;
 
 	@ConfigurableItem("Mending Mixture")
 	@ObjectHolder(value = MODID + ":mending_mixture", registryName = "item")
@@ -608,6 +613,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("ascension_amulet", AscensionAmulet::new);
 		this.register("eldritch_amulet", EldritchAmulet::new);
 		this.register("enigmatic_elytra", EnigmaticElytra::new);
+		this.register("the_judgement", TheJudgement::new);
 	}
 
 	/** Port: forces class loading, which registers the items. */

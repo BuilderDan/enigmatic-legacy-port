@@ -662,3 +662,4 @@ Sections are added here as each Minecraft version / loader is ported.
   loop (`onPlayerTick`); upstream ran it at PlayerTickEvent START. A `CapeLayer` mixin replaces
   Caelus' `RenderCapeEvent`, and `EnigmaticElytraLayer` is added to players and armor stands with
   `LivingEntityFeatureRendererRegistrationCallback`.
+- `TheJudgement` (The Judgement): copied unchanged except Forge's `@OnlyIn` client markers.

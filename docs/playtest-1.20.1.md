@@ -121,6 +121,7 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 | The Testament of Contempt (eldritch_amulet) | - | - | - | - (hidden recipe; worthy-only equip; +3 attack damage; 15% lifesteal; looked-at entities within 3 blocks get Slowness II, Mining Fatigue II and Weakness II; on death keeps inventory, armor, offhand and accessories, except Curse of Vanishing items) | - |
 | Hidden recipes (crafting_shaped_hidden) | - | - | - | - (crafting table: The Cube, Amulet of Ascension (keeps the Enigmatic Amulet's color and inscription), The Testament of Contempt, Cosmic Scroll (needs a blessed Cosmic Heart); each shows on its Acknowledgment page) | - |
 | Majestic Elytra (enigmatic_elytra) | - | - | - | - (chest or back slot; glides; holding jump while flying boosts with the ender-eye sound and dragon-breath particles, seen by other players too; boosting wears durability faster; repair with etherium; hides the cape; renders on armor stands; right-click equips to chest) | - |
+| The Judgement (the_judgement) | - | - | - | - (creative-only; a hit kills every living entity within 64 blocks of the target; right-click toggles no-drops mode (glint, charge sound), which also deletes nearby items and XP orbs) | - |
 
 Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).
