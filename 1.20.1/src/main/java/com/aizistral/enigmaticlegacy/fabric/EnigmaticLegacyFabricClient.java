@@ -24,6 +24,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import com.aizistral.enigmaticlegacy.client.BlazingCoreClient;
+import com.aizistral.enigmaticlegacy.client.SlotUnlockedToastClient;
 import com.aizistral.enigmaticlegacy.client.InfinitumClient;
 import com.aizistral.enigmaticlegacy.client.EnigmaticElytraClient;
 import com.aizistral.enigmaticlegacy.client.renderers.EnigmaticElytraLayer;
@@ -85,11 +86,13 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 			BlazingCoreClient.onDisconnect();
 			InfinitumClient.onDisconnect();
 			EnigmaticElytraClient.onDisconnect();
+			SlotUnlockedToastClient.onDisconnect();
 		});
 		ClientTickEvents.END_CLIENT_TICK.register(BlazingCoreClient::onClientTick);
 		ClientTickEvents.END_CLIENT_TICK.register(InfinitumClient::onClientTick);
 		ClientTickEvents.END_CLIENT_TICK.register(PacketCosmicRevive::onClientTick);
 		ClientTickEvents.END_CLIENT_TICK.register(EnigmaticElytraClient::onClientTick);
+		ClientTickEvents.END_CLIENT_TICK.register(SlotUnlockedToastClient::onClientTick);
 		QuoteHandler.register();
 		EnigmaticElytra.clientBoostHandler = EnigmaticElytraClient::handleBoosting;
 		registerKeybinds();

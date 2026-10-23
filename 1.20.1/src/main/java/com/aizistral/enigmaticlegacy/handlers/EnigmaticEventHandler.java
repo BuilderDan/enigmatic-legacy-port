@@ -63,6 +63,7 @@ import com.aizistral.enigmaticlegacy.packets.clients.PacketPermadeath;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayerMotion;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketSlotUnlocked;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncFireImmunity;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketWitherParticles;
 import com.aizistral.enigmaticlegacy.platform.Services;
@@ -132,6 +133,7 @@ import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.Items;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
@@ -196,6 +198,8 @@ public class EnigmaticEventHandler {
 	public static final Multimap<Player, Item> POSTMORTAL_POSESSIONS = ArrayListMultimap.create();
 	public static final String NBT_KEY_ENIGMATICGIFT = "enigmaticlegacy.firstjoin";
 	public static final String NBT_KEY_CURSEDGIFT = "enigmaticlegacy.cursedgift";
+	private static final String NBT_KEY_ENABLESPELLSTONE = "enigmaticlegacy.spellstones_enabled";
+	private static final String NBT_KEY_ENABLESCROLL = "enigmaticlegacy.scrolls_enabled";
 
 	/** Port-only: Ring of the Seven Curses enchanting bonus for the table in use, see MixinEnchantmentMenu. */
 	public static final ThreadLocal<Integer> ENCHANTING_BONUS = new ThreadLocal<>();
@@ -1133,6 +1137,59 @@ public class EnigmaticEventHandler {
 
 				SuperpositionHandler.setPersistentBoolean(player, NBT_KEY_CURSEDGIFT, true);
 			}
+
+		/*
+		 * Handlers for fixing missing Curios slots upong joining the world.
+		 */
+
+		if (SuperpositionHandler.hasAdvancement(player, new ResourceLocation(EnigmaticLegacy.MODID, "main/discover_spellstone"))) {
+			SuperpositionHandler.unlockSpecialSlot("spellstone", player);
+			SuperpositionHandler.setPersistentBoolean(player, NBT_KEY_ENABLESPELLSTONE, true);
+		}
+
+		if (SuperpositionHandler.hasAdvancement(player, new ResourceLocation(EnigmaticLegacy.MODID, "main/discover_scroll"))) {
+			SuperpositionHandler.unlockSpecialSlot("scroll", player);
+			SuperpositionHandler.setPersistentBoolean(player, NBT_KEY_ENABLESCROLL, true);
+		}
+	}
+
+	/**
+	 * Port: the slot part of upstream's onAdvancement (AdvancementEvent). Called from
+	 * MixinPlayerAdvancements once the advancement is earned. Upstream's Patchouli book-entry
+	 * packet (book/ advancements) is left out; the guide book is not ported.
+	 */
+	public static void onAdvancement(ServerPlayer player, ResourceLocation advancement) {
+		String id = advancement.toString();
+
+		/*
+		 * Handler for permanently unlocking Curio slots to player once they obtain
+		 * respective advancement.
+		 */
+
+		if (id.equals(EnigmaticLegacy.MODID + ":main/discover_spellstone")) {
+			Services.NETWORK.sendToPlayer(player, new PacketSlotUnlocked("spellstone"));
+			SuperpositionHandler.unlockSpecialSlot("spellstone", player);
+			SuperpositionHandler.setPersistentBoolean(player, NBT_KEY_ENABLESPELLSTONE, true);
+		} else if (id.equals(EnigmaticLegacy.MODID + ":main/discover_scroll")) {
+			Services.NETWORK.sendToPlayer(player, new PacketSlotUnlocked("scroll"));
+			SuperpositionHandler.unlockSpecialSlot("scroll", player);
+			SuperpositionHandler.setPersistentBoolean(player, NBT_KEY_ENABLESCROLL, true);
+		}
+	}
+
+	/**
+	 * Port: the slot part of upstream's onPlayerRespawn (PlayerRespawnEvent). Fabric calls it
+	 * from {@code ServerPlayerEvents.AFTER_RESPAWN}.
+	 */
+	public static void onPlayerRespawnSlots(ServerPlayer player, boolean endConquered) {
+		if (!endConquered && !player.level().getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY)) {
+			if (SuperpositionHandler.hasPersistentTag(player, NBT_KEY_ENABLESCROLL)) {
+				SuperpositionHandler.unlockSpecialSlot("scroll", player);
+			}
+			if (SuperpositionHandler.hasPersistentTag(player, NBT_KEY_ENABLESPELLSTONE)) {
+				SuperpositionHandler.unlockSpecialSlot("spellstone", player);
+			}
+		}
 	}
 
 	/**

@@ -34,6 +34,7 @@ import net.minecraft.world.item.ItemStack;
 import com.aizistral.enigmaticlegacy.items.GolemHeart;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPermadeath;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayerMotion;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketSlotUnlocked;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayerSetlook;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketCosmicRevive;
 import com.aizistral.enigmaticlegacy.packets.server.PacketEnderRingKey;
@@ -176,6 +177,7 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 			EnigmaticEventHandler.LAST_SOUL_COMPASS_UPDATE.remove(newPlayer);
 			// Fabric's alive flag is true exactly when upstream's isEndConquered is.
 			EnigmaticEventHandler.onPlayerRespawnQuotes(newPlayer, alive);
+			EnigmaticEventHandler.onPlayerRespawnSlots(newPlayer, alive);
 		});
 		// Port: upstream onPlayerTravel (PlayerChangedDimensionEvent).
 		ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> {
@@ -246,6 +248,8 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 				PacketSpellstoneKey::decode, PacketSpellstoneKey::handle);
 		network.register(PacketForceArrowRotations.class, PacketDirection.TO_CLIENT, PacketForceArrowRotations::encode,
 				PacketForceArrowRotations::decode, PacketForceArrowRotations::handle);
+		network.register(PacketSlotUnlocked.class, PacketDirection.TO_CLIENT, PacketSlotUnlocked::encode,
+				PacketSlotUnlocked::decode, PacketSlotUnlocked::handle);
 		network.register(PacketPermadeath.class, PacketDirection.TO_CLIENT, PacketPermadeath::encode,
 				PacketPermadeath::decode, PacketPermadeath::handle);
 		network.register(PacketPlayerMotion.class, PacketDirection.TO_CLIENT, PacketPlayerMotion::encode,

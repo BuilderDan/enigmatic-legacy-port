@@ -750,3 +750,13 @@ Sections are added here as each Minecraft version / loader is ported.
   where Fabric fires `ServerPlayerEvents.AFTER_RESPAWN`, so the port's copy fires it itself
   (in place of Forge's `firePlayerRespawnEvent`). The "respawned at an End Anchor" check in the
   event handler gains null checks for a missing respawn position or dimension.
+- Spellstone and scroll slot unlocks (`PacketSlotUnlocked`, `SlotUnlockedToast`): Forge's
+  `AdvancementEvent` becomes a port-only `MixinPlayerAdvancements` on `PlayerAdvancements.award`,
+  where the rewards are granted, so the handler runs once, when "Discover Spellstone" or
+  "Discover Scroll" is earned (upstream's handler also saw progress events, which it ignored for
+  these two). The slot is unlocked through the platform accessory service (Trinkets) instead of
+  Curios. Upstream's Patchouli guide-book entry packet in the same handler is left out (the book
+  is not ported). The toast, its 5-tick queue and the client tick move to the client-only
+  `SlotUnlockedToastClient`; a single counter replaces upstream's per-player `CooldownMap`, and
+  the toast reports its 43-pixel height so stacked toasts do not overlap. The join and respawn
+  re-unlocks run from Fabric's `JOIN` and `AFTER_RESPAWN` hooks (`onPlayerRespawnSlots`).

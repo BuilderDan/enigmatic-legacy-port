@@ -39,6 +39,7 @@
 		"MixinNaturalSpawner",
 		"MixinPiglinAi",
 		"MixinPlayer",
+		"MixinPlayerAdvancements",
 		"MixinPlayerList",
 		"MixinPotionBrewing",
 		"MixinResultSlot",
