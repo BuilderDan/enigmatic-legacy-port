@@ -34,6 +34,8 @@ import net.minecraft.world.item.ItemStack;
 import com.aizistral.enigmaticlegacy.items.GolemHeart;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPermadeath;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayerMotion;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketPatchouliForce;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketSetEntryState;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSlotUnlocked;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayerSetlook;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketCosmicRevive;
@@ -252,6 +254,10 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 				PacketForceArrowRotations::decode, PacketForceArrowRotations::handle);
 		network.register(PacketSlotUnlocked.class, PacketDirection.TO_CLIENT, PacketSlotUnlocked::encode,
 				PacketSlotUnlocked::decode, PacketSlotUnlocked::handle);
+		network.register(PacketSetEntryState.class, PacketDirection.TO_CLIENT, PacketSetEntryState::encode,
+				PacketSetEntryState::decode, PacketSetEntryState::handle);
+		network.register(PacketPatchouliForce.class, PacketDirection.TO_CLIENT, PacketPatchouliForce::encode,
+				PacketPatchouliForce::decode, PacketPatchouliForce::handle);
 		network.register(PacketPermadeath.class, PacketDirection.TO_CLIENT, PacketPermadeath::encode,
 				PacketPermadeath::decode, PacketPermadeath::handle);
 		network.register(PacketPlayerMotion.class, PacketDirection.TO_CLIENT, PacketPlayerMotion::encode,

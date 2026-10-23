@@ -63,6 +63,8 @@ import com.aizistral.enigmaticlegacy.packets.clients.PacketPermadeath;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayerMotion;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketPatchouliForce;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketSetEntryState;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSlotUnlocked;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncFireImmunity;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketWitherParticles;
@@ -201,6 +203,7 @@ public class EnigmaticEventHandler {
 	public static final String NBT_KEY_CURSEDGIFT = "enigmaticlegacy.cursedgift";
 	private static final String NBT_KEY_ENABLESPELLSTONE = "enigmaticlegacy.spellstones_enabled";
 	private static final String NBT_KEY_ENABLESCROLL = "enigmaticlegacy.scrolls_enabled";
+	private static final String NBT_KEY_PATCHOULIFORCE = "enigmaticlegacy.patchouliforce";
 
 	/** Port-only: Ring of the Seven Curses enchanting bonus for the table in use, see MixinEnchantmentMenu. */
 	public static final ThreadLocal<Integer> ENCHANTING_BONUS = new ThreadLocal<>();
@@ -1094,6 +1097,15 @@ public class EnigmaticEventHandler {
 			ForbiddenFruitTrigger.INSTANCE.trigger(player);
 		}
 
+		/*
+		 * Eh, annoying defaults.
+		 */
+
+		if (!SuperpositionHandler.hasPersistentTag(player, NBT_KEY_PATCHOULIFORCE)) {
+			Services.NETWORK.sendToPlayer(player, new PacketPatchouliForce());
+			SuperpositionHandler.setPersistentBoolean(player, NBT_KEY_PATCHOULIFORCE, true);
+		}
+
 		if (OmniconfigHandler.isItemEnabled(EnigmaticItems.ENIGMATIC_AMULET))
 			if (SuperpositionHandler.getPersistentTag(player, NBT_KEY_ENIGMATICGIFT, null) == null) {
 				ItemStack amuletStack = new ItemStack(EnigmaticItems.ENIGMATIC_AMULET);
@@ -1158,12 +1170,19 @@ public class EnigmaticEventHandler {
 	}
 
 	/**
-	 * Port: the slot part of upstream's onAdvancement (AdvancementEvent). Called from
-	 * MixinPlayerAdvancements once the advancement is earned. Upstream's Patchouli book-entry
-	 * packet (book/ advancements) is left out; the guide book is not ported.
+	 * Port: upstream's onAdvancement (AdvancementEvent). Called from MixinPlayerAdvancements
+	 * once the advancement is earned.
 	 */
 	public static void onAdvancement(ServerPlayer player, ResourceLocation advancement) {
 		String id = advancement.toString();
+
+		/*
+		 * Specific handlers for Patchouli book entries.
+		 */
+
+		if (id.startsWith(EnigmaticLegacy.MODID + ":book/")) {
+			Services.NETWORK.sendToPlayer(player, new PacketSetEntryState(false, id.replace("book/", "")));
+		}
 
 		/*
 		 * Handler for permanently unlocking Curio slots to player once they obtain

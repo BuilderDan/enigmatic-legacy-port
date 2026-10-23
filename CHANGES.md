@@ -652,7 +652,7 @@ Sections are added here as each Minecraft version / loader is ported.
     not read the `lifestealBonus` config. The `the_infinitum_open` item property and its hold
     counters move from upstream's `ClientProxy` to port-only `client/InfinitumClient`, advanced
     from `END_CLIENT_TICK` once per world tick instead of a client `LivingTickEvent`, and
-    cleared on disconnect. The Acknowledgment's custom-name rendering for it is not ported.
+    cleared on disconnect.
   - `AscensionAmulet` (Amulet of Ascension): upstream's `getAttributesTooltip` override is
     dropped (the port's accessory tooltips do not list modifiers). `EnigmaticAmulet.hasColor`
     returns true for every color while it is worn. `onConfirmedDeath` records it (worn or
@@ -755,8 +755,7 @@ Sections are added here as each Minecraft version / loader is ported.
   where the rewards are granted, so the handler runs once, when "Discover Spellstone" or
   "Discover Scroll" is earned (upstream's handler also saw progress events, which it ignored for
   these two). The slot is unlocked through the platform accessory service (Trinkets) instead of
-  Curios. Upstream's Patchouli guide-book entry packet in the same handler is left out (the book
-  is not ported). The toast, its 5-tick queue and the client tick move to the client-only
+  Curios. The toast, its 5-tick queue and the client tick move to the client-only
   `SlotUnlockedToastClient`; a single counter replaces upstream's per-player `CooldownMap`, and
   the toast reports its 43-pixel height so stacked toasts do not overlap. The join and respawn
   re-unlocks run from Fabric's `JOIN` and `AFTER_RESPAWN` hooks (`onPlayerRespawnSlots`).
@@ -776,3 +775,17 @@ Sections are added here as each Minecraft version / loader is ported.
   Fishing hooks, llama spit and shulker bullets are still not hooked.
 - The poison death save (`isPoisonHurt`, set by `MixinMobEffect`) is checked in the port's
   `ALLOW_DEATH` handler, which stands in for Forge's `LivingDeathEvent`.
+
+- Patchouli integration (The Acknowledgment guide book):
+  - `PatchouliHelper`, `PacketSetEntryState`, `PacketPatchouliForce`, `AcknowlegmentNameRenderer`,
+    `MixinGuiBook` (trusted links in the book) and `MixinGuiBookLanding` (the held Twist or
+    Infinitum names the book's landing page) are ported as-is on Patchouli Fabric
+    1.20.1-85. The packets are registered TO_CLIENT through the platform network.
+  - `PatchouliHelper` gets the book id from `BuiltInRegistries` instead of `ForgeRegistries` and
+    returns early when the book is not loaded.
+  - The book-entry packet (an earned `enigmaticlegacy:book/...` advancement marks its entry
+    unread) runs from the port's `MixinPlayerAdvancements` route of `onAdvancement`.
+  - The one-time book GUI scale packet is sent from `onPlayerJoin` (upstream: `grantStarterGear`
+    on login), guarded by the same `enigmaticlegacy.patchouliforce` persistent tag.
+  - The landing-page renderer field is `@Unique` and renamed `enigmaticlegacy$renderer`.
+  - `PacketAnvilField` is not ported: upstream's handler does nothing with it.

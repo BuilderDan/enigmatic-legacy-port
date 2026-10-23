@@ -33,7 +33,7 @@ the first rows unblock the most items.
 | EnchantmentLevelSetEvent | Mixin: `EnchantmentMenu.slotsChanged` | Enchanter's Pearl |
 | ItemCraftedEvent | Mixin: `ResultSlot.checkTakeAchievements` | Unholy Grail/curse checks (verify) |
 | FurnaceFuelBurnTimeEvent | `FuelRegistry.INSTANCE.add` | none found yet (Blazing Core does not use it) |
-| AdvancementEvent | Mixin: `PlayerAdvancements.award` at the rewards grant (done, `MixinPlayerAdvancements`) | spellstone and scroll slot unlocks (done); The Acknowledgment |
+| AdvancementEvent | Mixin: `PlayerAdvancements.award` at the rewards grant (done, `MixinPlayerAdvancements`) | spellstone and scroll slot unlocks (done); The Acknowledgment book entries (done) |
 | RegisterCommandsEvent | `CommandRegistrationCallback` | commands |
 | ServerStartedEvent | `ServerLifecycleEvents.SERVER_STARTED` | world data |
 | PlayerLoggedInEvent | `ServerPlayConnectionEvents.JOIN` | config sync; done for Enigmatic Amulet (first-join gift, `onPlayerJoin`) |

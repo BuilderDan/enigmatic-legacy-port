@@ -92,6 +92,7 @@ decided otherwise.
       backends in `fabric/platform/` (Trinkets, Fabric networking, Cardinal Components).
    4. Port game logic and the event handler; port mixins and access widener.
    5. Config (Omniconfig Fabric backend), guide book, client rendering.
+      Guide book (Patchouli) integration done 2026-10-23 (devcheck ok; in-world test pending).
    6. Playtest every item in the dev client (checklist in `docs/playtest-1.20.1.md`).
 2. **1.21.1 Fabric** (NeoForge skipped: Enigmatic Legacy Plus covers it).
 3. **26.3** NeoForge, then Fabric when a trinket API exists.

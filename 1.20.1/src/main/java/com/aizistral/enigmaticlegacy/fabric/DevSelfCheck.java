@@ -144,6 +144,8 @@ public final class DevSelfCheck {
 		problems += checkMixinApplied("net.minecraft.world.entity.player.Player", "addAttributes", "onBreakSpeed", "enigmaticlegacy$setSleepCounter");
 		problems += checkMixinApplied("net.minecraft.world.entity.monster.EnderMan", "enigmaticlegacy$teleportTowards");
 		problems += checkMixinApplied("net.minecraft.world.level.storage.loot.functions.ApplyBonusCount", "addAccessoryFortune");
+		problems += checkMixinApplied("vazkii.patchouli.client.book.gui.GuiBook", "onOpenWebLink");
+		problems += checkMixinApplied("vazkii.patchouli.client.book.gui.GuiBookLanding", "onInit", "onDrawHeader");
 		problems += checkMixinApplied("net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition", "addAccessoryFortune");
 		problems += checkMixinApplied("net.minecraft.server.level.ServerPlayerGameMode", "widenBreakDistance");
 		problems += checkMixinApplied("net.minecraft.server.network.ServerGamePacketListenerImpl", "widenUseDistance");

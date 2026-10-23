@@ -63,6 +63,8 @@
 		"MixinEntityRenderer",
 		"MixinFogRenderer",
 		"MixinGui",
+		"MixinGuiBook",
+		"MixinGuiBookLanding",
 		"MixinItemRenderer",
 		"MixinItemStack",
 		"MixinLivingEntityRenderer",
