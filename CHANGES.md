@@ -701,3 +701,5 @@ Sections are added here as each Minecraft version / loader is ported.
   and suspicious-block loot use). Vanilla tables do not know their id, so an identity map from
   table to id is rebuilt in Fabric's `LootTableEvents.ALL_LOADED`. The loot modifier codec and
   `data/forge/loot_modifiers` JSON are dropped.
+- `QuotePlayer` (Quote Player, creative/debug item): copied unchanged except Forge's `@OnlyIn`
+  markers and an unused `java.awt.TextComponent` import.

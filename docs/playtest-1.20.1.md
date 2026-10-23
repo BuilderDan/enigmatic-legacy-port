@@ -126,6 +126,7 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 | Inscrutable Eye (enigmatic_eye) | - | - | - | - (first vanilla chest a player opens gives a dormant Eye, once per player; right-click wakes it and unlocks the narrator with an intro quote; awake Eye is a charm: +3 block reach; dormant Eye cannot be worn) | - |
 | Charming Insignia (insignia) | - | - | - | - (charm, adds a charm slot; rename it in an anvil and wear it: other players see that name over your head; right-click toggles showing your own nameplate in third person; with the Eye worn or in creative, players' real names show small under their nameplate) | - |
 | Special loot (SpecialLootModifier) | - | - | - | - (Bottle of Ichor from chests only once per player; Celestial Fruit in the first End city chest for a cursed player; Heart of the Earth replaces suspicious-sand/gravel loot at 3%) | - |
+| Quote Player (quote_player) | - | - | - | - (hidden, /give only; sneak-right-click cycles the selected quote (action bar shows its name, tooltip too); right-click plays it with subtitles) | - |
 
 Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).

@@ -24,6 +24,7 @@ import com.aizistral.enigmaticlegacy.items.TheTwist;
 import com.aizistral.enigmaticlegacy.items.TheJudgement;
 import com.aizistral.enigmaticlegacy.items.EnigmaticEye;
 import com.aizistral.enigmaticlegacy.items.Insignia;
+import com.aizistral.enigmaticlegacy.items.QuotePlayer;
 import com.aizistral.enigmaticlegacy.items.EnderSlayer;
 import com.aizistral.enigmaticlegacy.items.DeceptionAmulet;
 import com.aizistral.enigmaticlegacy.items.EnchanterPearl;
@@ -260,6 +261,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ConfigurableItem("Charming Insignia")
 	@ObjectHolder(value = MODID + ":insignia", registryName = "item")
 	public static Insignia INSIGNIA;
+
+	@ConfigurableItem
+	@ObjectHolder(value = MODID + ":quote_player", registryName = "item")
+	public static QuotePlayer QUOTE_PLAYER;
 
 	@ConfigurableItem("Mending Mixture")
 	@ObjectHolder(value = MODID + ":mending_mixture", registryName = "item")
@@ -626,6 +631,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("the_judgement", TheJudgement::new);
 		this.register("enigmatic_eye", EnigmaticEye::new);
 		this.register("insignia", Insignia::new);
+		this.register("quote_player", QuotePlayer::new);
 	}
 
 	/** Port: forces class loading, which registers the items. */
