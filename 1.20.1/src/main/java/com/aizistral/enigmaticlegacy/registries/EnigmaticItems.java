@@ -17,6 +17,7 @@ import com.aizistral.enigmaticlegacy.items.BerserkEmblem;
 import com.aizistral.enigmaticlegacy.items.GuardianHeart;
 import com.aizistral.enigmaticlegacy.items.TheTwist;
 import com.aizistral.enigmaticlegacy.items.DeceptionAmulet;
+import com.aizistral.enigmaticlegacy.items.EnchanterPearl;
 import com.aizistral.enigmaticlegacy.items.HunterGuidebook;
 import com.aizistral.enigmaticlegacy.items.PetGuidebook;
 import com.aizistral.enigmaticlegacy.items.UnwitnessedAmulet;
@@ -200,6 +201,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ConfigurableItem("Guide to Feral Hunt")
 	@ObjectHolder(value = MODID + ":hunter_guidebook", registryName = "item")
 	public static HunterGuidebook HUNTER_GUIDEBOOK;
+
+	@ConfigurableItem("Enchanter's Pearl")
+	@ObjectHolder(value = MODID + ":enchanter_pearl", registryName = "item")
+	public static EnchanterPearl ENCHANTER_PEARL;
 
 	@ConfigurableItem("Mending Mixture")
 	@ObjectHolder(value = MODID + ":mending_mixture", registryName = "item")
@@ -554,6 +559,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("deception_amulet", DeceptionAmulet::new);
 		this.register("animal_guidebook", PetGuidebook::new);
 		this.register("hunter_guidebook", HunterGuidebook::new);
+		this.register("enchanter_pearl", EnchanterPearl::new);
 	}
 
 	/** Port: forces class loading, which registers the items. */

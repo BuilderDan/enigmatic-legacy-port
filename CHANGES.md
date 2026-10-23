@@ -563,3 +563,10 @@ Sections are added here as each Minecraft version / loader is ported.
     instead of `event.setCanceled(true)`. Not ported yet: upstream's `onLivingAttack` check that
     stops the player hitting protected animals (needs accessor mixins for `Mob.targetSelector`)
     and `MixinHoglinTasks`. The Cursed Ring and Void Pearl guidebook checks are restored.
+  - `EnchanterPearl` (Enchanter's Pearl): `@OnlyIn` removed; the charm slot bonus goes through
+    `Services.ACCESSORIES.addSlotModifier`; the `getAttributesTooltip` override is dropped.
+    Upstream's `MixinEnchantmentContainer` is merged into `MixinEnchantmentMenu`. Its
+    `clickMenuButton` inject used `@At("INVOKE")` with no target; the port uses `HEAD` plus a
+    button-index bounds check. The `getGoldCount` inject (64 lapis) was client-only upstream and
+    runs on both sides here. `SuperpositionHandler.mergeEnchantments` is ported; the Eternal
+    Binding roll is skipped until that enchantment is ported.
