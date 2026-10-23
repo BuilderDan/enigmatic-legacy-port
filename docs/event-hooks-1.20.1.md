@@ -47,6 +47,7 @@ the first rows unblock the most items.
 | Client: ViewportEvent.RenderFog | Mixin: `FogRenderer.setupFog` TAIL (done for Blazing Core) | Blazing Core, Molten Heart effect |
 | Client: RenderGuiOverlayEvent.Pre | `HudRenderCallback` (cannot cancel vanilla; mixin if needed) | curse HUD |
 | Client: RenderNameTagEvent, RenderCapeEvent | Mixins in `EntityRenderer` / `CapeLayer` | cosmetic, low priority |
+| Forge item hooks: `canPerformAction(SHIELD_BLOCK)`, shield durability, axe disabling | Mixins: `LivingEntity.isDamageSourceBlocked` HEAD, `Player.disableShield` HEAD, `@ModifyExpressionValue` in `Player.hurtCurrentlyUsedShield`; the item implements `Equipable` (offhand) (done for the Bulwark of Blazing Pride) | Bulwark of Blazing Pride, Eldritch Pan |
 | Mod-specific: SummonedEntityEvent, EnterBlockEvent, DropRulesEvent, EndPortalActivatedEvent, LivingGetProjectileEvent | Upstream's own events; port with their item | per item (DropRulesEvent: `AccessoryDrops` rule, done for Eternal Binding) |
 
 ## Suggested first step

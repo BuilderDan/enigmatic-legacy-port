@@ -9,8 +9,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.aizistral.enigmaticlegacy.handlers.EnigmaticEventHandler;
+import com.aizistral.enigmaticlegacy.items.InfernalShield;
 import com.aizistral.enigmaticlegacy.objects.PersistentData;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticAttributes;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
@@ -19,6 +21,7 @@ import net.minecraft.world.damagesource.CombatTracker;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
@@ -27,7 +30,8 @@ import net.minecraft.world.level.block.state.BlockState;
  * player part of {@code LivingHurtEvent}, which Forge fires at the head of actuallyHurt (Player
  * overrides it without calling super, so MixinLivingEntity's hook does not reach players), and
  * for {@code LivingDamageEvent} in the same method.
- * Also holds the player's persistent data (Forge's {@code PlayerPersisted} compound).
+ * Also holds the player's persistent data (Forge's {@code PlayerPersisted} compound), and makes
+ * the Bulwark of Blazing Pride count as a shield where Forge checks canPerformAction(SHIELD_BLOCK).
  */
 @Mixin(Player.class)
 public abstract class MixinPlayer implements PersistentData {
@@ -60,6 +64,22 @@ public abstract class MixinPlayer implements PersistentData {
 	private void enigmaticlegacy$onDamage(CombatTracker tracker, DamageSource source, float amount, Operation<Void> original) {
 		EnigmaticEventHandler.onLivingDamage((Player) (Object) this, source, amount);
 		original.call(tracker, source, amount);
+	}
+
+	/** Upstream's MixinPlayer: axes never disable the Bulwark of Blazing Pride. */
+	@Inject(method = "disableShield", at = @At("HEAD"), cancellable = true)
+	private void enigmaticlegacy$onDisableShield(boolean sprinting, CallbackInfo info) {
+		if (((Player) (Object) this).getUseItem().getItem() instanceof InfernalShield) {
+			info.cancel();
+		}
+	}
+
+	/** Vanilla only damages Items.SHIELD; Forge damages any item that can block. */
+	@ModifyExpressionValue(method = "hurtCurrentlyUsedShield", at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/world/item/ItemStack;is(Lnet/minecraft/world/item/Item;)Z"))
+	private boolean enigmaticlegacy$damageInfernalShield(boolean isShield) {
+		ItemStack useItem = ((Player) (Object) this).getUseItem();
+		return isShield || useItem.getItem() instanceof InfernalShield;
 	}
 
 	@Inject(method = "addAdditionalSaveData", at = @At("RETURN"))

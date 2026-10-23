@@ -616,3 +616,17 @@ Sections are added here as each Minecraft version / loader is ported.
     Curios loop skipped the last slot). `Level.NETHER` replaces the proxy's Nether key. The
     `DestroyedCursedRing` flag is stored, but the respawn quote (`Quote.RING_DESTRUCTION`) is a
     TODO until quotes are ported.
+  - Bulwark of Blazing Pride (`InfernalShield`): Forge's `canPerformAction(SHIELD_BLOCK)` has no
+    Fabric equivalent; vanilla blocking only needs `UseAnim.BLOCK`. The item implements
+    `Equipable` (offhand), because Forge sends shield-capable items to the offhand for mobs and
+    dispensers and vanilla does not. Upstream's `disableShield` mixin is in `MixinPlayer`, which
+    also makes `hurtCurrentlyUsedShield` damage the Bulwark (vanilla only damages
+    `Items.SHIELD`, Forge any shield). Upstream's `isDamageSourceBlocked` mixin is in
+    `MixinLivingEntity`; `IProperShieldUser.isActuallyReallyBlocking` becomes
+    `SuperpositionHandler.isActuallyReallyBlocking`, and `onDamageSourceBlocking` drops the
+    unused callback parameter, the piercing-arrow check (forced off upstream) and the Eldritch
+    Pan branch (not ported yet). The Unbreaking `canApplyAtEnchantingTable` override is dropped
+    (vanilla's BREAKABLE category already allows it); `getEnchantmentValue` uses vanilla's
+    signature without a stack. The `blocking` item property is registered in
+    `EnigmaticLegacyFabricClient`. Blazing Strength removal and the x1.5 damage when hit from
+    behind run in `onPlayerHurt` (upstream's `LivingHurtEvent`).

@@ -55,6 +55,16 @@ public abstract class MixinLivingEntity {
 		return EnigmaticEventHandler.onLivingHurt(self, source, MonsterCharm.modifyHurtAmount(self, source, amount));
 	}
 
+	/** Upstream's MixinLivingEntity: lets the Bulwark of Blazing Pride decide what it blocks. */
+	@Inject(method = "isDamageSourceBlocked", at = @At("HEAD"), cancellable = true)
+	private void enigmaticlegacy$onDamageSourceBlocking(DamageSource source, CallbackInfoReturnable<Boolean> info) {
+		LivingEntity self = (LivingEntity) (Object) this;
+
+		if (SuperpositionHandler.onDamageSourceBlocking(self, self.getUseItem(), source)) {
+			info.setReturnValue(true);
+		}
+	}
+
 	/**
 	 * Forge fires LivingDamageEvent in actuallyHurt after armor and absorption, right before the
 	 * combat tracker records the final damage. Player has its own copy in MixinPlayer.

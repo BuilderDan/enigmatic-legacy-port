@@ -8,6 +8,7 @@ import com.aizistral.enigmaticlegacy.api.items.IAdvancedPotionItem.PotionType;
 import com.aizistral.enigmaticlegacy.api.generic.ModRegistry;
 import com.aizistral.enigmaticlegacy.api.generic.ObjectHolder;
 import com.aizistral.enigmaticlegacy.items.AbyssalHeart;
+import com.aizistral.enigmaticlegacy.items.InfernalShield;
 import com.aizistral.enigmaticlegacy.items.AstralDust;
 import com.aizistral.enigmaticlegacy.items.AstralPotato;
 import com.aizistral.enigmaticlegacy.items.BlazingCore;
@@ -220,6 +221,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ConfigurableItem("The Burden of Desolation")
 	@ObjectHolder(value = MODID + ":desolation_ring", registryName = "item")
 	public static DesolationRing DESOLATION_RING;
+
+	@ConfigurableItem("Bulwark of Blazing Pride")
+	@ObjectHolder(value = MODID + ":infernal_shield", registryName = "item")
+	public static InfernalShield INFERNAL_SHIELD;
 
 	@ConfigurableItem("Mending Mixture")
 	@ObjectHolder(value = MODID + ":mending_mixture", registryName = "item")
@@ -578,6 +583,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("hunter_guidebook", HunterGuidebook::new);
 		this.register("enchanter_pearl", EnchanterPearl::new);
 		this.register("desolation_ring", DesolationRing::new);
+		this.register("infernal_shield", InfernalShield::new);
 	}
 
 	/** Port: forces class loading, which registers the items. */

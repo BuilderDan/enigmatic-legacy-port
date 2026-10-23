@@ -87,6 +87,10 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import com.aizistral.enigmaticlegacy.items.GolemHeart;
+import com.aizistral.enigmaticlegacy.items.InfernalShield;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticEffects;
+import net.minecraft.world.entity.monster.Guardian;
+import net.minecraft.world.item.UseAnim;
 import com.aizistral.enigmaticlegacy.items.TheAcknowledgment;
 import java.util.Map.Entry;
 import com.google.common.collect.Lists;
@@ -543,6 +547,71 @@ public class SuperpositionHandler {
 
 	public static boolean canUnequipBoundRelics(Player player) {
 		return player.isCreative() || EnigmaticLegacy.SOUL_OF_THE_ARCHITECT.equals(player.getUUID());
+	}
+
+	/**
+	 * Port: upstream's IProperShieldUser.isActuallyReallyBlocking, implemented by its
+	 * LivingEntity mixin. Same check as vanilla isBlocking, without the 5-tick warm-up.
+	 */
+	public static boolean isActuallyReallyBlocking(LivingEntity entity) {
+		if (entity.isUsingItem() && !entity.getUseItem().isEmpty())
+			return entity.getUseItem().getUseAnimation() == UseAnim.BLOCK && entity.getTicksUsingItem() >= 0;
+		else
+			return false;
+	}
+
+	// Port: upstream's CallbackInfoReturnable parameter was unused and is dropped. Its piercing
+	// arrow check is forced off upstream, so it is left out. The Eldritch Pan branch is not ported yet.
+	public static boolean onDamageSourceBlocking(LivingEntity blocker, ItemStack useItem, DamageSource source) {
+		if (blocker instanceof Player player && useItem != null) {
+			if (!isActuallyReallyBlocking(blocker))
+				return false;
+
+			if (useItem.getItem() instanceof InfernalShield) {
+				if (!source.is(DamageTypeTags.BYPASSES_SHIELD)) {
+					Vec3 sourcePos = source.getSourcePosition();
+
+					if (sourcePos != null) {
+						Vec3 lookVec = blocker.getViewVector(1.0F);
+						Vec3 sourceToSelf = sourcePos.vectorTo(blocker.position()).normalize();
+						sourceToSelf = new Vec3(sourceToSelf.x, 0.0D, sourceToSelf.z);
+
+						if (sourceToSelf.dot(lookVec) < 0.0D) {
+							int strength = -1;
+
+							if (player.hasEffect(EnigmaticEffects.BLAZING_STRENGTH)) {
+								MobEffectInstance effectInstance = player.getEffect(EnigmaticEffects.BLAZING_STRENGTH);
+								strength = effectInstance.getAmplifier();
+								player.removeEffect(EnigmaticEffects.BLAZING_STRENGTH);
+								strength = strength > 2 ? 2 : strength;
+							}
+
+							player.addEffect(new MobEffectInstance(EnigmaticEffects.BLAZING_STRENGTH, 1200, strength + 1, true, true));
+
+							if (source.getDirectEntity() instanceof LivingEntity living && living.isAlive()) {
+								if (!living.fireImmune() && !(living instanceof Guardian)) {
+									StackTraceElement[] stacktrace = Thread.currentThread().getStackTrace();
+
+									// Ensure that we will not be caught in any sort of StackOverflow because of thorns-like effects
+									if (Arrays.stream(stacktrace).filter(element -> {
+										return SuperpositionHandler.class.getName().equals(element.getClassName());
+									}).count() < 2) {
+										living.invulnerableTime = 0;
+										living.hurt(living.damageSources().source(DamageTypes.ON_FIRE, player), 4F);
+										living.setSecondsOnFire(4);
+										EnigmaticEventHandler.KNOCKBACK_THAT_BASTARD.remove(living);
+									}
+								}
+							}
+
+							return true;
+						}
+					}
+				}
+			}
+		}
+
+		return false;
 	}
 
 	// Port: upstream writes the cursed flag to EnigmaticTransience (the main menu's cursed

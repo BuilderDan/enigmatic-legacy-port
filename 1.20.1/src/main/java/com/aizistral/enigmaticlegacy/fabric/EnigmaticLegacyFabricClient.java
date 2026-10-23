@@ -8,6 +8,7 @@ import com.aizistral.enigmaticlegacy.items.CursedRing;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import com.aizistral.enigmaticlegacy.client.BlazingCoreClient;
@@ -74,6 +75,14 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 		ItemProperties.register(EnigmaticItems.ENIGMATIC_AMULET, new ResourceLocation(EnigmaticLegacy.MODID, "enigmatic_amulet_color"),
 				(stack, world, entity, seed) -> ItemNBTHelper.getFloat(stack, EnigmaticAmulet.amuletColorTag, 0F));
 		EnigmaticItems.SOUL_COMPASS.registerVariants();
+		// Port: upstream ClientProxy.registerBlockingProperty (FMLClientSetupEvent).
+		registerBlockingProperty(EnigmaticItems.INFERNAL_SHIELD);
+	}
+
+	private static void registerBlockingProperty(Item item) {
+		ItemProperties.register(item, new ResourceLocation("blocking"),
+				(stack, world, entity, seed) -> entity != null && entity.isUsingItem()
+						&& entity.getUseItem() == stack ? 1 : 0);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

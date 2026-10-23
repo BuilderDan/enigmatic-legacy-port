@@ -54,6 +54,7 @@ import com.aizistral.enigmaticlegacy.packets.clients.PacketWitherParticles;
 import com.aizistral.enigmaticlegacy.platform.Services;
 import com.aizistral.enigmaticlegacy.platform.network.TargetPoint;
 import com.aizistral.enigmaticlegacy.mixin.AccessorMobEffectInstance;
+import com.aizistral.enigmaticlegacy.items.InfernalShield;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticEffects;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticEnchantments;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
@@ -350,6 +351,14 @@ public class EnigmaticEventHandler {
 		if (player.isInvulnerableTo(source))
 			return amount;
 
+		/*
+		 * Handler for stripping away Blazing Strength (upstream runs it at HIGHEST priority).
+		 */
+
+		if (amount > 0 && player.hasEffect(EnigmaticEffects.BLAZING_STRENGTH)) {
+			player.removeEffect(EnigmaticEffects.BLAZING_STRENGTH);
+		}
+
 		if (SuperpositionHandler.hasCurio(player, EnigmaticItems.BERSERK_CHARM)) {
 			amount *= 1.0F - (SuperpositionHandler.getMissingHealthPool(player) * (float) BerserkEmblem.damageResistance.getValue());
 		}
@@ -360,6 +369,24 @@ public class EnigmaticEventHandler {
 
 		if (SuperpositionHandler.hasCurio(player, EnigmaticItems.CURSED_RING)) {
 			amount *= CursedRing.painMultiplier.getValue().asModifier();
+		}
+
+		/*
+		 * Handler for increasing damage on users of Bulwark of Blazing Pride.
+		 */
+
+		if (source.getEntity() != null) {
+			if (player.getUseItem().getItem() instanceof InfernalShield && SuperpositionHandler.isActuallyReallyBlocking(player)) {
+				Vec3 sourcePos = source.getSourcePosition();
+				if (sourcePos != null) {
+					Vec3 lookVec = player.getViewVector(1.0F);
+					Vec3 sourceToSelf = sourcePos.vectorTo(player.position()).normalize();
+					sourceToSelf = new Vec3(sourceToSelf.x, 0.0D, sourceToSelf.z);
+					if (!(sourceToSelf.dot(lookVec) < 0.0D)) {
+						amount *= 1.5F;
+					}
+				}
+			}
 		}
 
 		List<ItemStack> advancedCurios = SuperpositionHandler.getAdvancedCurios(player);
