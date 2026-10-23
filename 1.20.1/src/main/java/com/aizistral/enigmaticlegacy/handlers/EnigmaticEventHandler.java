@@ -26,6 +26,7 @@ import com.aizistral.enigmaticlegacy.items.AvariceScroll;
 import com.aizistral.enigmaticlegacy.items.CursedScroll;
 import com.aizistral.enigmaticlegacy.items.BerserkEmblem;
 import com.aizistral.enigmaticlegacy.items.TheTwist;
+import net.minecraft.core.NonNullList;
 import com.aizistral.enigmaticlegacy.items.EyeOfNebula;
 import com.aizistral.enigmaticlegacy.items.OceanStone;
 import com.aizistral.enigmaticlegacy.items.VoidPearl;
@@ -447,7 +448,6 @@ public class EnigmaticEventHandler {
 	 * side). Fabric calls it for each player from {@code ServerTickEvents.END_SERVER_TICK}.
 	 */
 	public static void onPlayerTick(ServerPlayer player) {
-		// TODO: Unwitnessed Amulet -> Enigmatic Amulet conversion when the Unwitnessed Amulet is ported.
 		if (SuperpositionHandler.hasSpellstoneCooldown(player)) {
 			SuperpositionHandler.tickSpellstoneCooldown(player, 1);
 		}
@@ -462,6 +462,25 @@ public class EnigmaticEventHandler {
 		}
 
 		tickBlazingCoreEffects(player);
+
+		// Detect Unwitnessed Amulet and turn it into a bound Enigmatic Amulet of random color.
+		// Port: Inventory.compartments is private on Fabric (Forge widens it); the same three lists are walked here.
+		for (NonNullList<ItemStack> list : List.of(player.getInventory().items, player.getInventory().armor, player.getInventory().offhand)) {
+			for (int i = 0; i < list.size(); ++i) {
+				if (list.get(i).is(EnigmaticItems.UNWITNESSED_AMULET)) {
+					ItemStack stack = new ItemStack(EnigmaticItems.ENIGMATIC_AMULET);
+					EnigmaticItems.ENIGMATIC_AMULET.setInscription(stack, player.getGameProfile().getName());
+
+					if (EnigmaticAmulet.seededColorGen.getValue()) {
+						EnigmaticItems.ENIGMATIC_AMULET.setSeededColor(stack);
+					} else {
+						EnigmaticItems.ENIGMATIC_AMULET.setRandomColor(stack);
+					}
+
+					list.set(i, stack);
+				}
+			}
+		}
 
 		// Port: upstream does this in its PlayerTickEvent inventory loop.
 		if (CursedRing.autoEquip.getValue() && !player.isCreative() && !player.isSpectator()

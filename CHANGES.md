@@ -553,3 +553,6 @@ Sections are added here as each Minecraft version / loader is ported.
     `LivingHurtEvent`). The boss bonus and the Cursed Ring debuff bypass are in `onLivingHurt`.
     `KNOCKBACK_THAT_BASTARD` and `AGERED_GUARDIANS` are cleared on server stop, as upstream's
     `performCleanup` does.
+  - `UnwitnessedAmulet`: the swap to a bound Enigmatic Amulet runs in
+    `EnigmaticEventHandler.onPlayerTick` (server tick), as in upstream's `PlayerTickEvent`. The
+    `getAttributesTooltip` override returned the list unchanged, so it is dropped.

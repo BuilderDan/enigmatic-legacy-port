@@ -35,6 +35,7 @@ name, model and tooltip. Results go to the log with a `[devcheck]` prefix. With
 | 2026-10-22 | 79 | 82 | 0 | Added Relic of Testing (hidden from the tab) and Ring of the Seven Curses. New mixins on `EnchantmentMenu`, `EnchantmentHelper` (enchanting bonus), `Enchantment` (vanishing rule) and `LivingEntity` (knockback) checked, plus the `Player` and `EnderMan` accessors. `relic_of_testing` has no item model, same as upstream. Recipe pass: 66 parsed, 23 skipped by conditions, 4 pending, 0 failed. |
 | 2026-10-22 | 81 | 84 | 0 | Added Twisted Mirror and Emblem of Bloodstained Valor (berserk_charm). Recipe pass: 68 parsed, 21 skipped by conditions, 4 pending, 0 failed. Berserk scaling and the mirror teleport still need an in-world playtest (both need the Seven Curses ring worn). |
 | 2026-10-22 | 84 | 86 | 0 | Added Heart of the Guardian and The Twist; all mixins ok. Needs an in-world playtest with the Seven Curses ring worn: guardian aggro, mob-debuff pulse, Twist knockback and boss bonus, and the non-cursed hit cancel. |
+| 2026-10-22 | 86 | 87 | 0 | Added Unwitnessed Amulet (cannot be equipped). In-world check: picking it up should turn it into an Enigmatic Amulet inscribed with the player name and a random (or seeded) color. |
 
 ## Manual checklist
 
