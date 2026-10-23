@@ -38,6 +38,7 @@
 		"MixinNaturalSpawner",
 		"MixinPiglinAi",
 		"MixinPlayer",
+		"MixinPlayerList",
 		"MixinPotionBrewing",
 		"MixinResultSlot",
 		"MixinServerGamePacketListenerImpl",

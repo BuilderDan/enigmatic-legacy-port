@@ -45,7 +45,9 @@ import com.aizistral.enigmaticlegacy.registries.EnigmaticAttributes;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticEffects;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticEnchantments;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticPotions;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticBlocks;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticTiles;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticLootFunctions;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticRecipes;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticSounds;
@@ -97,6 +99,8 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		EnigmaticSounds.init();
 		EnigmaticAttributes.init();
 		EnigmaticEnchantments.init();
+		EnigmaticBlocks.init();
+		EnigmaticTiles.init();
 		EnigmaticItems.init();
 		EnigmaticEntities.init();
 		EnigmaticMenus.init();

@@ -128,9 +128,15 @@ Status: `-` not tested, `ok`, `bug` (put details in the notes).
 | Charming Insignia (insignia) | - | - | - | - (charm, adds a charm slot; rename it in an anvil and wear it: other players see that name over your head; right-click toggles showing your own nameplate in third person; with the Eye worn or in creative, players' real names show small under their nameplate) | - |
 | Special loot (SpecialLootModifier) | - | - | - | - (Bottle of Ichor from chests only once per player; Celestial Fruit in the first End city chest for a cursed player; Heart of the Earth replaces suspicious-sand/gravel loot at 3%) | - |
 | Quote Player (quote_player) | - | - | - | - (hidden, /give only; sneak-right-click cycles the selected quote (action bar shows its name, tooltip too); right-click plays it with subtitles) | - |
+| Voracious Pan (eldritch_pan) | - | - | - | - (hidden recipe; worthy-only: unworthy hits are cancelled; blocks like a shield and eats projectiles (food, burp, fire charge puff, large fireballs don't explode); 3 s cooldown when an axe disables it; holding it builds Growing Hunger/Bloodlust; lifesteal and hungersteal; kills of new mob types raise damage/armor (gold chat message); mob drops cooked; enchants as a diamond sword; check in-hand vs inventory model) | - |
+| Lamps (massive_lamp, massive_shroomlamp, massive_redstonelamp, big_lamp, big_shroomlamp, big_redstonelamp) | - | - | - | - (place each: lantern light (15), cutout model with no black corners, drops itself) | - |
+| Block of Etherium (etherium_block) | - | - | - | - (rare name color, animated texture, light 10, needs a diamond pickaxe, drops itself) | - |
+| Block of Astral Dust (astral_block) | - | - | - | - (epic name color, light 10, drops itself) | - |
+| Star Fabric (star_fabric) | - | - | - | - (epic name color, light 10, drops itself) | - |
+| Cosmic Cake (cosmic_cake) | - | - | - | - (eat slices: effects per upstream; tooltip; cutout model; a bitten cake regrows one slice per random tick) | - |
+| End Anchor (end_anchor) | - | - | - | - (charge with ender pearls up to 4, comparator output; light scales with charge; right-click with charge sets spawn (default: any dimension not blacklisted; EndExclusiveMode: End only), where it cannot it explodes; dispenser charges it; die: respawn on the anchor and use a charge; anchor gone or empty: normal respawn; end portal renderer on its faces; tooltip) | - |
 
 Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).
 
 ## Notes
-| Voracious Pan (eldritch_pan) | - | - | - | - (hidden recipe; worthy-only: unworthy hits are cancelled; blocks like a shield and eats projectiles (food, burp, fire charge puff, large fireballs don't explode); 3 s cooldown when an axe disables it; holding it builds Growing Hunger/Bloodlust; lifesteal and hungersteal; kills of new mob types raise damage/armor (gold chat message); mob drops cooked; enchants as a diamond sword; check in-hand vs inventory model) | - |

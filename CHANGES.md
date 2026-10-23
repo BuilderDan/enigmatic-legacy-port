@@ -729,3 +729,13 @@ Sections are added here as each Minecraft version / loader is ported.
   `perspectives` entries and wraps the model; the port-only `MixinItemRenderer` swaps in the
   model for the current display context (Forge's `BakedModel.applyTransform`). GUI lighting
   follows the top-level model's `gui_light`, as on Forge. The model JSON files are unchanged.
+- Blocks and block entities (lamps, Block of Etherium, Block of Astral Dust, Star Fabric,
+  Cosmic Cake, End Anchor) use vanilla registries. Upstream registers the block items from
+  EnigmaticItems' RegisterEvent hook; the port registers them at the end of the EnigmaticItems
+  constructor, in a fixed order. The End Anchor's block entity type is built without a
+  datafixer choice type. Fabric ignores the models' Forge-only `"render_type": "cutout"`, so
+  the client sets the cutout layer for the lamps, the Cosmic Cake and the End Anchor.
+- End Anchor respawn: upstream's `MixinPlayerList` cancels the respawn, which skips the hook
+  where Fabric fires `ServerPlayerEvents.AFTER_RESPAWN`, so the port's copy fires it itself
+  (in place of Forge's `firePlayerRespawnEvent`). The "respawned at an End Anchor" check in the
+  event handler gains null checks for a missing respawn position or dimension.

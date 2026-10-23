@@ -20,13 +20,16 @@ import com.aizistral.enigmaticlegacy.items.EnigmaticElytra;
 import com.aizistral.enigmaticlegacy.packets.clients.PacketCosmicRevive;
 import com.aizistral.enigmaticlegacy.config.OmniconfigSync;
 import com.aizistral.enigmaticlegacy.fabric.platform.client.FabricClientNetwork;
+import com.aizistral.enigmaticlegacy.client.renderers.EndAnchorRenderer;
 import com.aizistral.enigmaticlegacy.client.renderers.PermanentItemRenderer;
 import com.aizistral.enigmaticlegacy.client.renderers.UltimateWitherSkullRenderer;
 import com.aizistral.enigmaticlegacy.handlers.EnigmaticKeybindHandler;
 import com.aizistral.enigmaticlegacy.EnigmaticLegacy;
 import com.aizistral.enigmaticlegacy.helpers.ItemNBTHelper;
 import com.aizistral.enigmaticlegacy.items.EnigmaticAmulet;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticBlocks;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticEntities;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticTiles;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticMenus;
 import com.aizistral.enigmaticlegacy.gui.containers.LoreInscriberScreen;
 import com.aizistral.enigmaticlegacy.helpers.PotionHelper;
@@ -36,6 +39,7 @@ import com.aizistral.etherium.client.ShieldAuraLayer;
 import org.lwjgl.glfw.GLFW;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer;
@@ -47,6 +51,8 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.world.entity.EntityType;
@@ -134,6 +140,15 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 		EntityRendererRegistry.register(EnigmaticEntities.PERMANENT_ITEM_ENTITY, ctx -> new PermanentItemRenderer(ctx, ctx.getItemRenderer()));
 		MenuScreens.register(EnigmaticMenus.LORE_INSCRIBER_CONTAINER, LoreInscriberScreen::new);
 		EntityRendererRegistry.register(EnigmaticEntities.ENIGMATIC_POTION, ThrownItemRenderer::new);
+
+		// Port: upstream registers this in EntityRenderersEvent.RegisterRenderers.
+		BlockEntityRenderers.register(EnigmaticTiles.END_ANCHOR, EndAnchorRenderer::new);
+
+		// Port: Fabric ignores the models' Forge-only "render_type": "cutout", so the layer is set here.
+		BlockRenderLayerMap.INSTANCE.putBlocks(RenderType.cutout(), EnigmaticBlocks.MASSIVE_LAMP,
+				EnigmaticBlocks.MASSIVE_SHROOMLAMP, EnigmaticBlocks.MASSIVE_REDSTONELAMP, EnigmaticBlocks.BIG_LAMP,
+				EnigmaticBlocks.BIG_SHROOMLAMP, EnigmaticBlocks.BIG_REDSTONELAMP, EnigmaticBlocks.COSMIC_CAKE,
+				EnigmaticBlocks.END_ANCHOR);
 
 		// Port: Fabric color provider instead of RegisterColorHandlersEvent
 		ColorProviderRegistry.ITEM.register((stack, color) -> color > 0 ? -1 : PotionHelper.getColor(stack),

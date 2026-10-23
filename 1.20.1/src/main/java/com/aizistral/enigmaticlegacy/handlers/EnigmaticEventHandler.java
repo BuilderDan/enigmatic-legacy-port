@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.handlers;
 
+import com.aizistral.enigmaticlegacy.registries.EnigmaticBlocks;
+import net.minecraft.server.level.ServerLevel;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -1813,9 +1815,16 @@ public class EnigmaticEventHandler {
 			DimensionalPosition dimPoint = hadEscapeScroll ? SuperpositionHandler.getRespawnPoint(player) : new DimensionalPosition(player.getX(), player.getY(), player.getZ(), player.level());
 
 			if (hadEscapeScroll) {
-				// TODO: upstream sends drops onto the End Anchor when the player respawns at one
-				// (no scatter); add that check when the End Anchor block is ported.
+				BlockPos respawnPos = player.getRespawnPosition();
+				ServerLevel respawnLevel = player.getServer().getLevel(player.getRespawnDimension());
 				boolean isEndAnchor = false;
+
+				// Port: null checks added; upstream assumes a respawn point is set.
+				if (respawnPos != null && respawnLevel != null && respawnLevel.getBlockState(respawnPos).is(EnigmaticBlocks.END_ANCHOR)) {
+					dimPoint = new DimensionalPosition(respawnPos.getX() + 0.5, respawnPos.getY() + 1.5,
+							respawnPos.getZ() + 0.5, respawnLevel);
+					isEndAnchor = true;
+				}
 
 				player.level().playSound(null, player.blockPosition(), SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0F, (float) (0.8F + (Math.random() * 0.2)));
 				Services.NETWORK.sendToNear(new TargetPoint(player.getX(), player.getY(), player.getZ(), 128, player.level().dimension()), new PacketPortalParticles(player.getX(), player.getY() + (player.getBbHeight() / 2), player.getZ(), 100, 1.25F, false));

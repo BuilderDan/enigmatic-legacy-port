@@ -638,6 +638,9 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("insignia", Insignia::new);
 		this.register("quote_player", QuotePlayer::new);
 		this.register("eldritch_pan", EldritchPan::new);
+
+		// Port: upstream onRegister.
+		EnigmaticBlocks.registerBlockItems();
 	}
 
 	/** Port: forces class loading, which registers the items. */
