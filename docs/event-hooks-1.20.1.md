@@ -17,7 +17,7 @@ the first rows unblock the most items.
 | LivingExperienceDropEvent | Mixin: `LivingEntity.dropExperience`, `@ModifyArg` on `ExperienceOrb.award` amount (done; verify) | Monster Charm (double XP), Avarice Scroll |
 | LootingLevelEvent | Mixin: `EnchantmentHelper.getMobLooting` RETURN; add `getLootingLevel` to the accessory API (done; verify) | Monster Charm, Avarice Scroll |
 | LivingDamageEvent | Mixin: `@WrapOperation` on `CombatTracker.recordDamage` in `actuallyHurt` of both `LivingEntity` and `Player` (Player overrides it); calls `onLivingDamage` | Cursed Ring (verify which items); done for Enigmatic Amulet (BLACK lifesteal) |
-| LivingAttackEvent | `ServerLivingEntityEvents.ALLOW_DAMAGE` (already used; spellstone immunities done) | Angel's Blessing, Ocean Stone (Blazing Core done) |
+| LivingAttackEvent | `ServerLivingEntityEvents.ALLOW_DAMAGE` (already used; spellstone immunities done) | Angel's Blessing, Ocean Stone (Blazing Core, Animal Guidebook protection done) |
 | LivingTickEvent | Mixin: `LivingEntity.tick` HEAD (done for Ender Slayer, `onLivingTick`; players: `ServerTickEvents` loop is cheaper) | Ocean Stone, Eye of Nebula, Heaven Scroll |
 | LivingHealEvent | Mixin: `LivingEntity.heal` `@ModifyVariable` on amount | Cursed Ring, Forbidden Fruit |
 | LivingKnockBackEvent | Mixin: `LivingEntity.knockback` HEAD | Golem Heart |

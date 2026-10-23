@@ -560,9 +560,12 @@ Sections are added here as each Minecraft version / loader is ported.
   - `PetGuidebook` (Guide to Animal Companionship), `HunterGuidebook` (Guide to Feral Hunt):
     `@OnlyIn` removed; `ForgeRegistries.ENTITY_TYPES` -> `BuiltInRegistries.ENTITY_TYPE`. The
     Hunter's Guide pet-damage redirect runs in `EnigmaticEventHandler.onLivingHurt` and returns 0
-    instead of `event.setCanceled(true)`. Not ported yet: upstream's `onLivingAttack` check that
-    stops the player hitting protected animals (needs accessor mixins for `Mob.targetSelector`)
-    and `MixinHoglinTasks`. The Cursed Ring and Void Pearl guidebook checks are restored.
+    instead of `event.setCanceled(true)`. Upstream's `LivingAttackEvent` check that stops the
+    player hitting protected animals runs at the end of `EnigmaticEventHandler.onLivingAttack`
+    (`ALLOW_DAMAGE`); a local flag stands in for upstream's cancel/un-cancel sequence. It reads
+    `Mob.targetSelector` and `TargetGoal.targetMob` through `AccessorMob` and the new
+    `AccessorTargetGoal` (Forge's access transformer made them public). `MixinHoglinTasks` is
+    copied unchanged. The Cursed Ring and Void Pearl guidebook checks are restored.
   - `EnchanterPearl` (Enchanter's Pearl): `@OnlyIn` removed; the charm slot bonus goes through
     `Services.ACCESSORIES.addSlotModifier`; the `getAttributesTooltip` override is dropped.
     Upstream's `MixinEnchantmentContainer` is merged into `MixinEnchantmentMenu`. Its

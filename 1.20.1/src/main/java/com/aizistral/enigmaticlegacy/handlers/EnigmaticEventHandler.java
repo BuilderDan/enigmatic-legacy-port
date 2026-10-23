@@ -33,6 +33,13 @@ import com.aizistral.enigmaticlegacy.items.EyeOfNebula;
 import com.aizistral.enigmaticlegacy.items.OceanStone;
 import com.aizistral.enigmaticlegacy.items.VoidPearl;
 import com.aizistral.enigmaticlegacy.mixin.AccessorMob;
+import com.aizistral.enigmaticlegacy.mixin.AccessorTargetGoal;
+import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.goal.WrappedGoal;
+import net.minecraft.world.entity.ai.goal.target.TargetGoal;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.animal.Animal;
+import java.util.Optional;
 import com.aizistral.enigmaticlegacy.objects.DimensionalPosition;
 import com.aizistral.enigmaticlegacy.objects.FireImmunityData;
 import com.aizistral.enigmaticlegacy.mixin.AccessorAbstractArrow;
@@ -183,9 +190,6 @@ public class EnigmaticEventHandler {
 		if (!EtheriumEventHandler.onEntityAttacked(entity, source))
 			return false;
 
-		// TODO(port): upstream's Animal Guidebook term (players can't hit protected animals unless
-		// the animal targets them) needs accessor mixins for Mob.targetSelector; see CHANGES.md.
-
 		if (source.getDirectEntity() instanceof Player && source.is(DamageTypes.PLAYER_ATTACK)) {
 			Player player = (Player) source.getDirectEntity();
 
@@ -290,6 +294,43 @@ public class EnigmaticEventHandler {
 							return false;
 					}
 				}
+		}
+
+		if (entity instanceof Animal animal && source.getEntity() instanceof Player player) {
+			if (SuperpositionHandler.hasItem(player, EnigmaticItems.ANIMAL_GUIDEBOOK)) {
+				if (EnigmaticItems.ANIMAL_GUIDEBOOK.isProtectedAnimal(animal)) {
+					// Port: upstream cancels here and un-cancels below; the flag keeps that order.
+					boolean canceled = true;
+
+					if (animal.getTarget() == player) {
+						canceled = false;
+					} else {
+						for (WrappedGoal goal : ((AccessorMob) animal).enigmaticlegacy$getTargetSelector().getAvailableGoals())
+							if (goal.getGoal() instanceof TargetGoal targetGoal) {
+								if (((AccessorTargetGoal) targetGoal).enigmaticlegacy$getTargetMob() == player) {
+									canceled = false;
+								}
+							}
+					}
+
+					Brain<?> brain = animal.getBrain();
+
+					if (brain != null) {
+						try {
+							var memory = brain.hasMemoryValue(MemoryModuleType.ATTACK_TARGET)
+									? brain.getMemory(MemoryModuleType.ATTACK_TARGET) : Optional.empty();
+							if (memory.isPresent() && memory.get() == player) {
+								canceled = false;
+							}
+						} catch (NullPointerException ex) {
+							// I don't get why it happens here but it does lol
+						}
+					}
+
+					if (canceled)
+						return false;
+				}
+			}
 		}
 
 		return true;
