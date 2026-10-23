@@ -107,7 +107,7 @@ public abstract class MixinEnchantmentMenu {
 				}
 
 				enchantedItem = SuperpositionHandler.mergeEnchantments(enchantedItem, doubleRoll, false, false);
-				// TODO(port): SuperpositionHandler.maybeApplyEternalBinding once Eternal Binding is ported.
+				enchantedItem = SuperpositionHandler.maybeApplyEternalBinding(enchantedItem);
 
 				this.enchantSlots.setItem(0, enchantedItem);
 

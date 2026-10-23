@@ -14,7 +14,9 @@ import dev.emi.trinkets.api.TrinketEnums;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
 /**
  * Port-only. Forwards Trinkets callbacks to an {@link IAccessoryItem}.
@@ -63,6 +65,10 @@ public record TrinketAdapter(IAccessoryItem item) implements Trinket {
 
 	@Override
 	public boolean canUnequip(ItemStack stack, SlotReference slot, LivingEntity entity) {
+		// Port: Curios' slot refuses bound items itself; Trinkets leaves that to Trinket.canUnequip.
+		if (EnchantmentHelper.hasBindingCurse(stack) && !(entity instanceof Player player && player.isCreative()))
+			return false;
+
 		return this.item.canUnequip(context(slot, entity), stack);
 	}
 

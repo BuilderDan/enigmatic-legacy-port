@@ -31,9 +31,12 @@ import com.aizistral.enigmaticlegacy.packets.server.PacketEnderRingKey;
 import com.aizistral.enigmaticlegacy.packets.server.PacketXPScrollKey;
 import com.aizistral.enigmaticlegacy.packets.server.PacketInkwellField;
 import com.aizistral.enigmaticlegacy.platform.Services;
+import com.aizistral.enigmaticlegacy.platform.accessory.AccessoryDrops;
+import com.aizistral.enigmaticlegacy.platform.accessory.DropRule;
 import com.aizistral.enigmaticlegacy.platform.network.PacketDirection;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticAttributes;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticEffects;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticEnchantments;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticPotions;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticLootFunctions;
@@ -63,6 +66,7 @@ import com.aizistral.enigmaticlegacy.registries.EnigmaticMenus;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -84,6 +88,7 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		EnigmaticPotions.init();
 		EnigmaticSounds.init();
 		EnigmaticAttributes.init();
+		EnigmaticEnchantments.init();
 		EnigmaticItems.init();
 		EnigmaticEntities.init();
 		EnigmaticMenus.init();
@@ -105,6 +110,8 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		EnigmaticRecipes.registerBrewingRecipes();
 		EnigmaticTabs.init();
 		TrinketsAccessorySlots.init();
+		// Port: upstream onCurioDrops (Curios DropRulesEvent).
+		AccessoryDrops.register((entity, stack) -> EnchantmentHelper.getItemEnchantmentLevel(EnigmaticEnchantments.ETERNAL_BINDING, stack) > 0 ? DropRule.ALWAYS_KEEP : null);
 		EnabledCondition.register();
 		PlayerPlaytimeCounter.registerStats();
 		registerPackets();
@@ -125,9 +132,11 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		// Port: upstream EntityJoinLevelEvent (arthropods avoid Acknowledgment holders).
 		ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> EnigmaticEventHandler.onEntityLoad(entity));
 		// Forge keeps the PlayerPersisted compound across respawns; copy ours over too.
-		ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) ->
-				((PersistentData) newPlayer).enigmaticlegacy$setPersistedTag(
-						((PersistentData) oldPlayer).enigmaticlegacy$getPersistedTag().copy()));
+		ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
+			((PersistentData) newPlayer).enigmaticlegacy$setPersistedTag(
+					((PersistentData) oldPlayer).enigmaticlegacy$getPersistedTag().copy());
+			EnigmaticEventHandler.onPlayerClone(oldPlayer, newPlayer, alive);
+		});
 		// Port: upstream reapplies the lost-soul max health penalty in its PlayerEvent.Clone handler.
 		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
 			EnigmaticItems.SOUL_CRYSTAL.updatePlayerSoulMap(newPlayer);

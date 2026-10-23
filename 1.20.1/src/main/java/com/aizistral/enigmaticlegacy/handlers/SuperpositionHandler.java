@@ -12,6 +12,7 @@ import java.util.WeakHashMap;
 import com.aizistral.enigmaticlegacy.api.items.ISpellstone;
 import com.aizistral.enigmaticlegacy.items.generic.ItemSpellstoneCurio;
 import com.aizistral.enigmaticlegacy.items.CursedRing;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticEnchantments;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 import java.util.List;
 import java.util.Optional;
@@ -470,6 +471,18 @@ public class SuperpositionHandler {
 			return true;
 		else
 			return DevotedBelieversHandler.isDevotedBeliever(player);
+	}
+
+	public static ItemStack maybeApplyEternalBinding(ItemStack stack) {
+		if (Math.random() < 0.5)
+			if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.BINDING_CURSE, stack) > 0) {
+				Map<Enchantment, Integer> map = EnchantmentHelper.getEnchantments(stack);
+				map.remove(Enchantments.VANISHING_CURSE);
+				int level = map.remove(Enchantments.BINDING_CURSE);
+				map.put(EnigmaticEnchantments.ETERNAL_BINDING, level);
+				EnchantmentHelper.setEnchantments(map, stack);
+			}
+		return stack;
 	}
 
 	public static ItemStack mergeEnchantments(ItemStack input, ItemStack mergeFrom, boolean overmerge, boolean onlyTreasure) {

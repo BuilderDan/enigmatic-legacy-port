@@ -13,7 +13,7 @@ the first rows unblock the most items.
 | LivingHurtEvent (4x, changes amount) | Mixin: `LivingEntity.actuallyHurt` `@ModifyVariable` on `amount` at HEAD (Forge fires it there, before armor) (done for Monster Charm; players use `Player.actuallyHurt` instead, done for Blazing Core; verify in game) | Monster Charm, Berserk Emblem, Angel's Blessing, Golem Heart, most curses |
 | LivingDeathEvent (4x) | `ServerLivingEntityEvents.ALLOW_DEATH` (cancel; done for Heart of Creation) + `AFTER_DEATH`; player confirmation: `ServerPlayer.die` HEAD mixin (done for Escape Scroll) | Escape Scroll, Ring of the Seven Curses, Soul Crystal |
 | LivingDropsEvent (2x) | Mixin: `LivingEntity.dropAllDeathLoot` HEAD/RETURN with `Entity.spawnAtLocation` RETURN recording the drops (done for Axe of Executioner; verify in game). Since the Escape Scroll, drops are captured (wrapped `addFreshEntity` in `spawnAtLocation` and `ServerPlayer.drop`) and spawned at RETURN, so handlers can add and remove them (done; verify in game) | Escape Scroll (postmortal possessions), Soul Crystal, Avarice Scroll |
-| PlayerEvent.Clone / PlayerRespawnEvent | `ServerPlayerEvents.COPY_FROM` (done for persistent data) / `AFTER_RESPAWN` | Escape Scroll, Soul Crystal, keep-inventory items, Soul Compass (done) |
+| PlayerEvent.Clone / PlayerRespawnEvent | `ServerPlayerEvents.COPY_FROM` (done for persistent data) / `AFTER_RESPAWN` | Escape Scroll, Soul Crystal, keep-inventory items, Soul Compass (done), Eternal Binding armor restore (done) |
 | LivingExperienceDropEvent | Mixin: `LivingEntity.dropExperience`, `@ModifyArg` on `ExperienceOrb.award` amount (done; verify) | Monster Charm (double XP), Avarice Scroll |
 | LootingLevelEvent | Mixin: `EnchantmentHelper.getMobLooting` RETURN; add `getLootingLevel` to the accessory API (done; verify) | Monster Charm, Avarice Scroll |
 | LivingDamageEvent | Mixin: `@WrapOperation` on `CombatTracker.recordDamage` in `actuallyHurt` of both `LivingEntity` and `Player` (Player overrides it); calls `onLivingDamage` | Cursed Ring (verify which items); done for Enigmatic Amulet (BLACK lifesteal) |
@@ -47,7 +47,7 @@ the first rows unblock the most items.
 | Client: ViewportEvent.RenderFog | Mixin: `FogRenderer.setupFog` TAIL (done for Blazing Core) | Blazing Core, Molten Heart effect |
 | Client: RenderGuiOverlayEvent.Pre | `HudRenderCallback` (cannot cancel vanilla; mixin if needed) | curse HUD |
 | Client: RenderNameTagEvent, RenderCapeEvent | Mixins in `EntityRenderer` / `CapeLayer` | cosmetic, low priority |
-| Mod-specific: SummonedEntityEvent, EnterBlockEvent, DropRulesEvent, EndPortalActivatedEvent, LivingGetProjectileEvent | Upstream's own events; port with their item | per item |
+| Mod-specific: SummonedEntityEvent, EnterBlockEvent, DropRulesEvent, EndPortalActivatedEvent, LivingGetProjectileEvent | Upstream's own events; port with their item | per item (DropRulesEvent: `AccessoryDrops` rule, done for Eternal Binding) |
 
 ## Suggested first step
 

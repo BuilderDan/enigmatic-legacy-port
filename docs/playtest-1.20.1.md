@@ -43,6 +43,7 @@ name, model and tooltip. Results go to the log with a `[devcheck]` prefix. With
 | 2026-10-23 | 92 | 93 | 0 | Added The Ender Slayer (End-dweller damage/knockback, teleport block, XP-for-drops in the End; mixins applied). |
 | 2026-10-23 | 93 | 94 | 0 | Added the Soul Compass (Wayfinder of the Damned; compass packet, item properties). |
 | 2026-10-23 | 94 | 94 | 0 | Guide to Animal Companionship: attack protection for protected animals, hoglins ignore the holder (MixinHoglinTasks, AccessorTargetGoal). |
+| 2026-10-23 | 94 | 94 | 0 | Added the Curse of Eternal Binding (Enchanter Pearl roll, death-keep for armor and trinkets, trinket unequip block). |
 
 ## Manual checklist
 

@@ -598,3 +598,12 @@ Sections are added here as each Minecraft version / loader is ported.
     server from `initialize` instead of `ServerLifecycleHooks`, and keeps upstream's `hasCurio`
     check. `LAST_SOUL_COMPASS_UPDATE` is cleared on respawn (`AFTER_RESPAWN`), dimension change
     (`AFTER_PLAYER_CHANGE_WORLD`) and server stop.
+  - Curse of Eternal Binding (`EternalBindingCurse`, `EnigmaticEnchantments`): Forge's
+    `isAllowedOnBooks` is dropped (no vanilla equivalent). Upstream's `hasBindingCurse` inject is
+    in `MixinEnchantmentHelper`; the Enchanter Pearl roll (`maybeApplyEternalBinding`) runs from
+    `MixinEnchantmentMenu`. Bound armor is stored in `onConfirmedDeath` and restored by
+    `EnigmaticEventHandler.onPlayerClone`, called from `COPY_FROM` after the persistent data
+    copy. Curios' `DropRulesEvent` becomes an `AccessoryDrops` rule (`ALWAYS_KEEP`). Port
+    addition: `TrinketAdapter.canUnequip` refuses items with a binding curse outside creative,
+    because Trinkets (unlike Curios' slot) does not check it; this also covers vanilla Binding.
+    The Eldritch Amulet branch is left as a TODO until that item is ported.

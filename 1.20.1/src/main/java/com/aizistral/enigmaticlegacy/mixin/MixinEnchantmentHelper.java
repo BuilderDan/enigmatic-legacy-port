@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.aizistral.enigmaticlegacy.handlers.EnigmaticEventHandler;
 import com.aizistral.enigmaticlegacy.items.TheAcknowledgment;
 import com.aizistral.enigmaticlegacy.platform.Services;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticEnchantments;
 
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -30,6 +31,8 @@ import net.minecraft.world.item.enchantment.Enchantments;
  * <p>
  * Also adds the Ring of the Seven Curses enchanting bonus that MixinEnchantmentMenu works out
  * (Forge's EnchantmentLevelSetEvent, which fires right after getEnchantmentCost).
+ * <p>
+ * Also the upstream hasBindingCurse inject: Curse of Eternal Binding counts as Curse of Binding.
  */
 @Mixin(EnchantmentHelper.class)
 public abstract class MixinEnchantmentHelper {
@@ -70,6 +73,14 @@ public abstract class MixinEnchantmentHelper {
 				info.setReturnValue(copy);
 				return;
 			}
+		}
+	}
+
+	@Inject(method = "hasBindingCurse", at = @At("RETURN"), cancellable = true)
+	private static void enigmaticlegacy$hasEternalBinding(ItemStack stack, CallbackInfoReturnable<Boolean> info) {
+		if (!info.getReturnValueZ() && EnigmaticEnchantments.ETERNAL_BINDING != null
+				&& EnchantmentHelper.getItemEnchantmentLevel(EnigmaticEnchantments.ETERNAL_BINDING, stack) > 0) {
+			info.setReturnValue(true);
 		}
 	}
 }

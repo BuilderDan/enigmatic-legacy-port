@@ -55,6 +55,7 @@ import com.aizistral.enigmaticlegacy.platform.Services;
 import com.aizistral.enigmaticlegacy.platform.network.TargetPoint;
 import com.aizistral.enigmaticlegacy.mixin.AccessorMobEffectInstance;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticEffects;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticEnchantments;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 import net.minecraft.world.entity.ExperienceOrb;
 import com.aizistral.enigmaticlegacy.objects.RegisteredMeleeAttack;
@@ -83,6 +84,7 @@ import net.minecraft.world.entity.monster.Drowned;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -681,6 +683,37 @@ public class EnigmaticEventHandler {
 			player.level().addFreshEntity(droppedTomeStack);
 
 			tomeStack.shrink(1);
+		}
+
+		// TODO: Eldritch Amulet branch (storeInventory) when that item is ported; this is its else.
+		for (int i = 0; i < player.getInventory().armor.size(); i++) {
+			ItemStack armor = player.getInventory().armor.get(i);
+
+			if (EnchantmentHelper.getItemEnchantmentLevel(EnigmaticEnchantments.ETERNAL_BINDING, armor) > 0) {
+				player.getInventory().armor.set(i, ItemStack.EMPTY);
+				SuperpositionHandler.setPersistentTag(player, "EternallyBoundArmor" + i, armor.save(new CompoundTag()));
+			}
+		}
+	}
+
+	/**
+	 * Port: the Eternal Binding part of upstream's {@code playerClone} ({@code PlayerEvent.Clone}).
+	 * Called from EnigmaticLegacyFabric's COPY_FROM hook, after the persisted tag is copied.
+	 */
+	public static void onPlayerClone(ServerPlayer oldPlayer, ServerPlayer newPlayer, boolean alive) {
+		if (alive)
+			return;
+
+		// TODO: skip this when ELDRITCH_AMULET.reclaimInventory succeeds, once that item is ported.
+		for (int i = 0; i < 4; i++) {
+			Tag tag = SuperpositionHandler.getPersistentTag(oldPlayer, "EternallyBoundArmor" + i, null);
+
+			if (tag instanceof CompoundTag armor) {
+				ItemStack stack = ItemStack.of(armor);
+				newPlayer.getInventory().armor.set(i, stack);
+			}
+
+			SuperpositionHandler.removePersistentTag(newPlayer, "EternallyBoundArmor" + i);
 		}
 	}
 
