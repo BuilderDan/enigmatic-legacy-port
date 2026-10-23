@@ -157,6 +157,12 @@ public final class DevSelfCheck {
 		problems += checkMixinApplied("net.minecraft.server.PlayerAdvancements", "enigmaticlegacy$onEarned");
 		problems += checkMixinApplied("net.minecraft.world.entity.boss.enderdragon.EnderDragon", "onTickDeath", "dropAbyssalHeart");
 		problems += checkMixinApplied("net.minecraft.client.gui.screens.worldselection.WorldSelectionList$WorldListEntry", "getAltInfo", "onJoinWorld");
+		problems += checkMixinApplied("net.minecraft.advancements.critereon.InventoryChangeTrigger", "onTrigger");
+		problems += checkMixinApplied("net.minecraft.world.entity.monster.piglin.PiglinAi", "onPiglinItemPickup", "onBarterByHand", "onPiglinBarter");
+		problems += checkMixinApplied("net.minecraft.world.entity.npc.Villager", "onGolemCreation", "onSpecialPrices");
+		problems += checkMixinApplied("net.minecraft.world.level.levelgen.PhantomSpawner", "onHandlePhantomSpawns");
+		problems += checkMixinApplied("net.minecraft.world.effect.MobEffect", "onHurt");
+		problems += checkMixinApplied("net.minecraft.world.entity.projectile.FireworkRocketEntity", "onProjectileImpact");
 		problems += checkPlayerAttributes();
 		LOGGER.info("[devcheck] Done: {} problem(s)", problems);
 	}

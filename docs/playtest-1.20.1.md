@@ -50,6 +50,8 @@ name, model and tooltip. Results go to the log with a `[devcheck]` prefix. With
 | 2026-10-23 | 101 | 104 | 1 | Added the other seven enchantments (Sharpshooter, Ceaseless, Slayer, Torrent, Wrath, Nemesis, Sorrow); `Player.getProjectile`, `CrossbowItem` and `ThrownTrident` accessor mixins load. The 1 problem is a false positive from the Enigmatic Eye commit (fe96ec4): its name uses the `enigmatic_eye_dormant`/`_active` keys, as upstream. Enchantments still need an in-world test. |
 | 2026-10-23 | 112 | 115 | 1 | Inventory buttons (Ender Chest, magnet toggle) and the magnet flag sync packets; client accessor mixin loads. Same Enigmatic Eye false positive. Buttons still need an in-world click test (survival and creative inventory, Ender/Cursed Ring worn). |
 | 2026-10-23 | 112 | 115 | 1 | Spellstone and scroll slot unlocks: `PacketSlotUnlocked`, the slot-unlocked toast and `MixinPlayerAdvancements` (mixin load checked). Same Enigmatic Eye false positive. Earning Discover Spellstone/Scroll, the toast, the relog and death re-unlock, and the Revelation Tome toast still need an in-world test. |
+| 2026-10-23 | 112 | 115 | 1 | Permadeath / world transience (fractured and cursed world flags, permadeath screen, world list lock and alt info line) and the Abyssal Heart drop with the With Dragons quote; `EnderDragon` and `WorldSelectionList$WorldListEntry` mixin handlers merge. Same Enigmatic Eye false positive. Needs in-world test: lose all soul crystals, check the world list lock; kill the dragon as the Worthy One. |
+| 2026-10-23 | 112 | 115 | 1 | Cursed inventory trigger, Scroll of Avarice piglin/villager hooks, Cursed Ring insomnia phantoms, Desolation Ring golem block, poison death save, rocket deflection; the devcheck now checks the `InventoryChangeTrigger`, `PiglinAi`, `Villager`, `PhantomSpawner`, `MobEffect` and `FireworkRocketEntity` handlers (all merge). Same Enigmatic Eye false positive. Needs in-world test: barter with the scroll (thrown and by hand), villager prices, sleepless phantoms with the Cursed Ring, golems near a Desolation Ring, poison at low health, a rocket at a violet amulet wearer. |
 
 ## Manual checklist
 
@@ -142,4 +144,3 @@ Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).
 
 ## Notes
-| 2026-10-23 | 112 | 115 | 1 | Permadeath / world transience (fractured and cursed world flags, permadeath screen, world list lock and alt info line) and the Abyssal Heart drop with the With Dragons quote; `EnderDragon` and `WorldSelectionList$WorldListEntry` mixin handlers merge. Same Enigmatic Eye false positive. Needs in-world test: lose all soul crystals, check the world list lock; kill the dragon as the Worthy One. |

@@ -7,6 +7,7 @@
 		"AccessorAbstractArrow",
 		"AccessorBeaconBlockEntity",
 		"AccessorEnderMan",
+		"AccessorItemEntity",
 		"AccessorLargeFireball",
 		"AccessorMob",
 		"AccessorMobEffectInstance",
@@ -32,11 +33,15 @@
 		"MixinEnderMan",
 		"MixinEnterBlockTrigger",
 		"MixinEntity",
+		"MixinFireworkRocketEntity",
 		"MixinHoglinTasks",
+		"MixinInventoryChangeTrigger",
 		"MixinLivingEntity",
 		"MixinLootTable",
 		"MixinMob",
+		"MixinMobEffect",
 		"MixinNaturalSpawner",
+		"MixinPhantomSpawner",
 		"MixinPiglinAi",
 		"MixinPlayer",
 		"MixinPlayerAdvancements",
@@ -49,7 +54,8 @@
 		"MixinShulker",
 		"MixinSummonedEntityTrigger",
 		"MixinThrowableProjectile",
-		"MixinThrownEnderPearl"
+		"MixinThrownEnderPearl",
+		"MixinVillager"
 	],
 	"client": [
 		"AccessorAbstractContainerScreen",

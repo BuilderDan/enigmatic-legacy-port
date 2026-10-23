@@ -760,3 +760,19 @@ Sections are added here as each Minecraft version / loader is ported.
   `SlotUnlockedToastClient`; a single counter replaces upstream's per-player `CooldownMap`, and
   the toast reports its 43-pixel height so stacked toasts do not overlap. The join and respawn
   re-unlocks run from Fabric's `JOIN` and `AFTER_RESPAWN` hooks (`onPlayerRespawnSlots`).
+- Cursed inventory advancement trigger (`CursedInventoryChangedTrigger`, unchanged from
+  upstream): fired by the port-only `MixinInventoryChangeTrigger` (HEAD of
+  `InventoryChangeTrigger.trigger`) for the Cursed One, where upstream used a Forge hook.
+- Scroll of Avarice piglin hooks (upstream `MixinPiglinTasks`) are merged into the port's
+  `MixinPiglinAi`. The piglin pickup hook reads the item thrower through the port-only
+  `AccessorItemEntity`, and the barter loot uses `PiglinAi.isBarterCurrency` (through
+  `AccessorPiglinAi`) in place of Forge's `ItemStack.isPiglinCurrency`.
+- Villager hooks: upstream's `MixinVillager` and `MixinVillagerEntity` are merged into one
+  `MixinVillager` (Avarice discount, Desolation Ring golem block). Fix: upstream injects the
+  golem block at RETURN of `spawnGolemIfNeeded`, after the golem has spawned, so it never
+  worked; the port injects at HEAD and cancels.
+- Firework rockets: the violet amulet's projectile deflection now also covers rockets
+  (port-only `MixinFireworkRocketEntity`, standing in for Forge's `ProjectileImpactEvent`).
+  Fishing hooks, llama spit and shulker bullets are still not hooked.
+- The poison death save (`isPoisonHurt`, set by `MixinMobEffect`) is checked in the port's
+  `ALLOW_DEATH` handler, which stands in for Forge's `LivingDeathEvent`.

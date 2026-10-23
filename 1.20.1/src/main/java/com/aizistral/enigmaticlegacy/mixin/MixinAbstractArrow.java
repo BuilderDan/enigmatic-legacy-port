@@ -14,8 +14,8 @@ import net.minecraft.world.phys.HitResult;
  * calling onHit; canceling it skips onHit. Same hook in MixinAbstractHurtingProjectile and
  * MixinThrowableProjectile.
  * <p>
- * Port: Forge also fires the event for fishing hooks, llama spit, shulker bullets and firework
- * rockets; those are not hooked yet (TODO), so the Violet amulet does not deflect them.
+ * Port: Forge also fires the event for fishing hooks, llama spit and shulker bullets; those are
+ * not hooked yet (TODO), so the Violet amulet does not deflect them. Rockets: MixinFireworkRocketEntity.
  */
 @Mixin(AbstractArrow.class)
 public abstract class MixinAbstractArrow {

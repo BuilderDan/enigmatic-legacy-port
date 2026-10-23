@@ -194,6 +194,7 @@ public class EnigmaticEventHandler {
 	// Port: set while the Charm of Treasure Hunter applies Night Vision; upstream's potion handler
 	// skips that case. No ported item reads it yet.
 	public static boolean isApplyingNightVision = false;
+	public static boolean isPoisonHurt = false;
 
 	public static final Multimap<Player, Item> POSTMORTAL_POSESSIONS = ArrayListMultimap.create();
 	public static final String NBT_KEY_ENIGMATICGIFT = "enigmaticlegacy.firstjoin";
@@ -541,7 +542,10 @@ public class EnigmaticEventHandler {
 	 */
 	public static boolean onLivingDeath(LivingEntity entity, DamageSource source, float amount) {
 		if (entity instanceof Player player && !player.level().isClientSide) {
-			if (LAST_HEALTH.containsKey(player) && LAST_HEALTH.get(player) >= 1.5F && SuperpositionHandler.hasCurio(player, EnigmaticItems.THE_CUBE)) {
+			if (isPoisonHurt && source.is(DamageTypes.MAGIC)) {
+				player.setHealth(1);
+				return false;
+			} else if (LAST_HEALTH.containsKey(player) && LAST_HEALTH.get(player) >= 1.5F && SuperpositionHandler.hasCurio(player, EnigmaticItems.THE_CUBE)) {
 				player.setHealth(1);
 				return false;
 			} else if (SuperpositionHandler.hasCurio(player, EnigmaticItems.ENIGMATIC_ITEM) || player.getInventory().contains(new ItemStack(EnigmaticItems.ENIGMATIC_ITEM)) || source.is(EnigmaticDamageTypes.NEMESIS_CURSE)) {
