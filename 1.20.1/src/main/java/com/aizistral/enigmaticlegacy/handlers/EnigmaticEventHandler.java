@@ -110,6 +110,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import com.aizistral.enigmaticlegacy.items.CursedRing;
 import com.aizistral.enigmaticlegacy.items.MonsterCharm;
@@ -674,6 +675,19 @@ public class EnigmaticEventHandler {
 			POSTMORTAL_POSESSIONS.put(player, EnigmaticItems.ENIGMATIC_AMULET);
 		}
 
+		if (SuperpositionHandler.hasItem(player, EnigmaticItems.CURSED_STONE)) {
+			POSTMORTAL_POSESSIONS.put(player, EnigmaticItems.CURSED_STONE);
+
+			// Port: Forge's Inventory.compartments is private; the same three lists are named here.
+			for (List<ItemStack> list : List.of(player.getInventory().items, player.getInventory().armor, player.getInventory().offhand)) {
+				for (ItemStack itemstack : list) {
+					if (!itemstack.isEmpty() && itemstack.getItem() == EnigmaticItems.CURSED_STONE) {
+						itemstack.setCount(0);
+					}
+				}
+			}
+		}
+
 		if (SuperpositionHandler.hasCurio(player, EnigmaticItems.ESCAPE_SCROLL)) {
 			POSTMORTAL_POSESSIONS.put(player, EnigmaticItems.ESCAPE_SCROLL);
 
@@ -694,6 +708,73 @@ public class EnigmaticEventHandler {
 				SuperpositionHandler.setPersistentTag(player, "EternallyBoundArmor" + i, armor.save(new CompoundTag()));
 			}
 		}
+
+		destroyRingsInLavaPool(player);
+	}
+
+	/**
+	 * Port: the lava-pool part of upstream's {@code onCurioDrops} (Curios DropRulesEvent). Trinkets
+	 * asks for drop rules once per stack, so this runs once here, before the drops, and empties
+	 * the ring slots directly instead of adding a DESTROY override.
+	 */
+	private static void destroyRingsInLavaPool(ServerPlayer player) {
+		if (hadUnholyStone(player) && player.level().dimension() == Level.NETHER) {
+			BlockPos deathPos = player.blockPosition();
+
+			if (isThereLava(player.level(), deathPos)) {
+				BlockPos surfacePos = deathPos;
+
+				while (true) {
+					BlockPos nextAbove = surfacePos.offset(0, 1, 0);
+					if (isThereLava(player.level(), nextAbove)) {
+						surfacePos = nextAbove;
+						continue;
+					} else {
+						break;
+					}
+				}
+
+				boolean confirmLavaPool = true;
+
+				for(int i = -3; i <= 2; ++i) {
+					final int fi = i;
+
+					boolean checkArea = BlockPos.betweenClosedStream(surfacePos.offset(-3, i, -3), surfacePos.offset(3, i, 3))
+							.map(blockPos -> {
+								if (fi <= 0)
+									return isThereLava(player.level(), blockPos);
+								else
+									return player.level().isEmptyBlock(blockPos) || isThereLava(player.level(), blockPos);
+							})
+							.reduce((prevResult, nextElement) -> {
+								return prevResult && nextElement;
+							}).orElse(false);
+
+					confirmLavaPool = confirmLavaPool && checkArea;
+				}
+
+				if (confirmLavaPool) {
+					EnigmaticItems.SOUL_CRYSTAL.setLostCrystals(player, EnigmaticItems.SOUL_CRYSTAL.getLostCrystals(player)+1);
+					SuperpositionHandler.destroyCurio(player, EnigmaticItems.CURSED_RING);
+					SuperpositionHandler.destroyCurio(player, EnigmaticItems.DESOLATION_RING);
+
+					player.level().playSound(null, player.blockPosition(), SoundEvents.WITHER_DEATH, SoundSource.PLAYERS, 1.0F, 0.5F);
+					SuperpositionHandler.setPersistentBoolean(player, "DestroyedCursedRing", true);
+				}
+			}
+		}
+	}
+
+	private static boolean isThereLava(Level world, BlockPos pos) {
+		FluidState fluidState = world.getBlockState(pos).getFluidState();
+		if (fluidState != null && fluidState.is(FluidTags.LAVA) && fluidState.isSource())
+			return true;
+		else
+			return false;
+	}
+
+	private static boolean hadUnholyStone(Player player) {
+		return POSTMORTAL_POSESSIONS.containsKey(player) ? POSTMORTAL_POSESSIONS.containsEntry(player, EnigmaticItems.CURSED_STONE) : false;
 	}
 
 	/**

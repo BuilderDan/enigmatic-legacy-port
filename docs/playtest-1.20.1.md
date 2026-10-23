@@ -117,3 +117,4 @@ Cursed-only tooltip lines stay inactive until the Cursed Ring is ported
 (`isTheCursedOne` always returns false for now).
 
 ## Notes
+| 2026-10-23 | 94 | 94 | 0 | Added the Cursed Ring lava-pool destruction (Unholy Stone death in a Nether lava pool destroys both rings). |

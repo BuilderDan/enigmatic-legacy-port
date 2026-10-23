@@ -578,8 +578,8 @@ Sections are added here as each Minecraft version / loader is ported.
     by the port-only `MixinNaturalSpawner` (HEAD of `isValidPositionForMob`), which refuses
     natural spawns of piglins, zombified piglins, iron golems and endermen inside a desolation
     box. Upstream also cleared `DESOLATION_BOXES` on server stop; the port relies on its
-    `WeakHashMap` keys and the per-tick removal. The death-handler lava-pool destruction is not
-    ported yet.
+    `WeakHashMap` keys and the per-tick removal. The death-handler lava-pool destruction is
+    ported separately (see Cursed Ring lava-pool destruction below).
   - `EnderSlayer` (The Ender Slayer): `@OnlyIn` removed. The Slayer and Torrent enchantment
     terms are dropped (enchantments not ported). Forge's `getPersistentData()` on mobs is the
     port-only `EntityPersistentData`, kept by `MixinEntity` and saved under
@@ -607,3 +607,12 @@ Sections are added here as each Minecraft version / loader is ported.
     addition: `TrinketAdapter.canUnequip` refuses items with a binding curse outside creative,
     because Trinkets (unlike Curios' slot) does not check it; this also covers vanilla Binding.
     The Eldritch Amulet branch is left as a TODO until that item is ported.
+  - Cursed Ring lava-pool destruction: `onConfirmedDeath` now records and consumes the Unholy
+    Stone (Forge's private `Inventory.compartments` -> the items, armor and offhand lists). The
+    lava-pool part of upstream's `onCurioDrops` (Curios `DropRulesEvent`) moves to
+    `destroyRingsInLavaPool`, run once at the end of `onConfirmedDeath`, because Trinkets asks for
+    drop rules once per stack. It empties the ring slots before the drops instead of adding a
+    DESTROY override; `SuperpositionHandler.destroyCurio` clears every matching slot (upstream's
+    Curios loop skipped the last slot). `Level.NETHER` replaces the proxy's Nether key. The
+    `DestroyedCursedRing` flag is stored, but the respawn quote (`Quote.RING_DESTRUCTION`) is a
+    TODO until quotes are ported.

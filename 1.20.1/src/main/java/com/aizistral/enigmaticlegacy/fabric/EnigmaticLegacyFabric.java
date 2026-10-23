@@ -142,6 +142,7 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 			EnigmaticItems.SOUL_CRYSTAL.updatePlayerSoulMap(newPlayer);
 			// Port: upstream onPlayerRespawn (PlayerRespawnEvent).
 			EnigmaticEventHandler.LAST_SOUL_COMPASS_UPDATE.remove(newPlayer);
+			// TODO Port Quote: upstream removes "DestroyedCursedRing" here and plays Quote.RING_DESTRUCTION.
 		});
 		// Port: upstream onPlayerTravel (PlayerChangedDimensionEvent).
 		ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) ->

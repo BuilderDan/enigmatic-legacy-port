@@ -246,6 +246,11 @@ public class SuperpositionHandler {
 		return Services.ACCESSORIES.isEquipped(entity, curio);
 	}
 
+	public static void destroyCurio(LivingEntity entity, Item curio) {
+		// Port: clears every matching accessory slot (upstream's Curios loop skipped the last slot).
+		Services.ACCESSORIES.destroy(entity, curio);
+	}
+
 	/**
 	 * Gets the first stack of the given curio the entity has equipped, or null if there is none.
 	 */
