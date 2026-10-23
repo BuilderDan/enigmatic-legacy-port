@@ -1020,6 +1020,10 @@ public class SuperpositionHandler {
 		return totalCurses;
 	}
 
+	public static float getMissingHealthPool(Player player) {
+		return (player.getMaxHealth() - Math.min(player.getHealth(), player.getMaxHealth()))/player.getMaxHealth();
+	}
+
 	public static int getCurseAmount(Player player) {
 		int count = 0;
 		boolean ringCounted = false;

@@ -12,6 +12,8 @@ import com.aizistral.enigmaticlegacy.items.AstralDust;
 import com.aizistral.enigmaticlegacy.items.AstralPotato;
 import com.aizistral.enigmaticlegacy.items.BlazingCore;
 import com.aizistral.enigmaticlegacy.items.CursedRing;
+import com.aizistral.enigmaticlegacy.items.TwistedMirror;
+import com.aizistral.enigmaticlegacy.items.BerserkEmblem;
 import com.aizistral.enigmaticlegacy.items.EnigmaticAmulet;
 import com.aizistral.enigmaticlegacy.items.EscapeScroll;
 import com.aizistral.enigmaticlegacy.items.CosmicHeart;
@@ -160,6 +162,14 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ConfigurableItem("Ring of the Seven Curses")
 	@ObjectHolder(value = MODID + ":cursed_ring", registryName = "item")
 	public static CursedRing CURSED_RING;
+
+	@ConfigurableItem("Twisted Mirror")
+	@ObjectHolder(value = MODID + ":twisted_mirror", registryName = "item")
+	public static TwistedMirror TWISTED_MIRROR;
+
+	@ConfigurableItem("Emblem of Bloodstained Valor")
+	@ObjectHolder(value = MODID + ":berserk_charm", registryName = "item")
+	public static BerserkEmblem BERSERK_CHARM;
 
 	@ConfigurableItem("Mending Mixture")
 	@ObjectHolder(value = MODID + ":mending_mixture", registryName = "item")
@@ -506,6 +516,8 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("withered_tome", () -> new RevelationTome(Rarity.UNCOMMON, RevelationTome.TomeType.NETHER));
 		this.register("corrupted_tome", () -> new RevelationTome(Rarity.RARE, RevelationTome.TomeType.END));
 		this.register("cursed_ring", CursedRing::new);
+		this.register("twisted_mirror", TwistedMirror::new);
+		this.register("berserk_charm", BerserkEmblem::new);
 	}
 
 	/** Port: forces class loading, which registers the items. */

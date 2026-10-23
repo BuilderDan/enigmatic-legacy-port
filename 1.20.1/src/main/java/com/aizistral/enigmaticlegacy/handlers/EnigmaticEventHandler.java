@@ -24,6 +24,7 @@ import com.aizistral.enigmaticlegacy.items.BlazingCore;
 import com.aizistral.enigmaticlegacy.items.AngelBlessing;
 import com.aizistral.enigmaticlegacy.items.AvariceScroll;
 import com.aizistral.enigmaticlegacy.items.CursedScroll;
+import com.aizistral.enigmaticlegacy.items.BerserkEmblem;
 import com.aizistral.enigmaticlegacy.items.EyeOfNebula;
 import com.aizistral.enigmaticlegacy.items.OceanStone;
 import com.aizistral.enigmaticlegacy.items.VoidPearl;
@@ -266,6 +267,10 @@ public class EnigmaticEventHandler {
 	public static float onPlayerHurt(Player player, DamageSource source, float amount) {
 		if (player.isInvulnerableTo(source))
 			return amount;
+
+		if (SuperpositionHandler.hasCurio(player, EnigmaticItems.BERSERK_CHARM)) {
+			amount *= 1.0F - (SuperpositionHandler.getMissingHealthPool(player) * (float) BerserkEmblem.damageResistance.getValue());
+		}
 
 		/*
 		 * Handler for doubling damage on bearers of Ring of the Seven Curses.
@@ -929,8 +934,8 @@ public class EnigmaticEventHandler {
 	/**
 	 * Port: the rest of upstream's {@code LivingHurtEvent} handler (attacker terms and the Cube).
 	 * Fabric calls it from MixinLivingEntity and MixinPlayer at the head of {@code actuallyHurt};
-	 * player targets also go through {@link #onPlayerHurt}. The Berserk Emblem and Hunter's
-	 * Guidebook terms follow with those items.
+	 * player targets also go through {@link #onPlayerHurt}. The Hunter's Guidebook term follows
+	 * with that item.
 	 *
 	 * @return the new damage amount.
 	 */
@@ -941,9 +946,17 @@ public class EnigmaticEventHandler {
 				amount *= CursedRing.monsterDamageDebuff.getValue().asModifierInverted();
 			}
 
-			if (SuperpositionHandler.hasCurio(attacker, EnigmaticItems.CURSED_SCROLL)) {
-				amount += amount * (CursedScroll.damageBoost.getValue().asModifier() * SuperpositionHandler.getCurseAmount(attacker));
+			float damageBoost = 0F;
+
+			if (SuperpositionHandler.hasCurio(attacker, EnigmaticItems.BERSERK_CHARM)) {
+				damageBoost += amount * (SuperpositionHandler.getMissingHealthPool(attacker) * (float) BerserkEmblem.attackDamage.getValue());
 			}
+
+			if (SuperpositionHandler.hasCurio(attacker, EnigmaticItems.CURSED_SCROLL)) {
+				damageBoost += amount * (CursedScroll.damageBoost.getValue().asModifier() * SuperpositionHandler.getCurseAmount(attacker));
+			}
+
+			amount += damageBoost;
 
 			if (SuperpositionHandler.hasCurio(attacker, EnigmaticItems.EYE_OF_NEBULA) && SuperpositionHandler.isMagic(source)) {
 				amount *= EyeOfNebula.magicBoost.getValue().asModifier(true);
