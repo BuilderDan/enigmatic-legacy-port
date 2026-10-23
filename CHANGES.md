@@ -555,4 +555,5 @@ Sections are added here as each Minecraft version / loader is ported.
     `performCleanup` does.
   - `UnwitnessedAmulet`: the swap to a bound Enigmatic Amulet runs in
     `EnigmaticEventHandler.onPlayerTick` (server tick), as in upstream's `PlayerTickEvent`. The
-    `getAttributesTooltip` override returned the list unchanged, so it is dropped.
+    `getAttributesTooltip` override returned the list unchanged, so it is dropped. The loop walks
+    `Inventory.items`, `armor` and `offhand` directly, since `compartments` is private on Fabric.

@@ -16,6 +16,7 @@ import com.aizistral.enigmaticlegacy.items.TwistedMirror;
 import com.aizistral.enigmaticlegacy.items.BerserkEmblem;
 import com.aizistral.enigmaticlegacy.items.GuardianHeart;
 import com.aizistral.enigmaticlegacy.items.TheTwist;
+import com.aizistral.enigmaticlegacy.items.DeceptionAmulet;
 import com.aizistral.enigmaticlegacy.items.UnwitnessedAmulet;
 import com.aizistral.enigmaticlegacy.items.EnigmaticAmulet;
 import com.aizistral.enigmaticlegacy.items.EscapeScroll;
@@ -185,6 +186,10 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 	@ConfigurableItem
 	@ObjectHolder(value = MODID + ":unwitnessed_amulet", registryName = "item")
 	public static UnwitnessedAmulet UNWITNESSED_AMULET;
+
+	@ConfigurableItem("Deception Amulet")
+	@ObjectHolder(value = MODID + ":deception_amulet", registryName = "item")
+	public static DeceptionAmulet DECEPTION_AMULET;
 
 	@ConfigurableItem("Mending Mixture")
 	@ObjectHolder(value = MODID + ":mending_mixture", registryName = "item")
@@ -536,6 +541,7 @@ public class EnigmaticItems extends AbstractRegistry<Item> {
 		this.register("guardian_heart", GuardianHeart::new);
 		this.register("the_twist", TheTwist::new);
 		this.register("unwitnessed_amulet", UnwitnessedAmulet::new);
+		this.register("deception_amulet", DeceptionAmulet::new);
 	}
 
 	/** Port: forces class loading, which registers the items. */
