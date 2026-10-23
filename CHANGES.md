@@ -568,7 +568,7 @@ Sections are added here as each Minecraft version / loader is ported.
     `clickMenuButton` inject used `@At("INVOKE")` with no target; the port uses `HEAD` plus a
     button-index bounds check. The `getGoldCount` inject (64 lapis) was client-only upstream and
     runs on both sides here. `SuperpositionHandler.mergeEnchantments` is ported; the Eternal
-    Binding roll is skipped until that enchantment is ported.
+    Binding roll came with that enchantment (below).
   - `DesolationRing` (The Burden of Desolation): `@OnlyIn` removed; Curios `SlotContext` and
     `DropRule` -> platform equivalents. Forge's `MobSpawnEvent.FinalizeSpawn` handler is replaced
     by the port-only `MixinNaturalSpawner` (HEAD of `isValidPositionForMob`), which refuses
@@ -576,8 +576,7 @@ Sections are added here as each Minecraft version / loader is ported.
     box. Upstream also cleared `DESOLATION_BOXES` on server stop; the port relies on its
     `WeakHashMap` keys and the per-tick removal. The death-handler lava-pool destruction is
     ported separately (see Cursed Ring lava-pool destruction below).
-  - `EnderSlayer` (The Ender Slayer): `@OnlyIn` removed. The Slayer and Torrent enchantment
-    terms are dropped (enchantments not ported). Forge's `getPersistentData()` on mobs is the
+  - `EnderSlayer` (The Ender Slayer): `@OnlyIn` removed. Forge's `getPersistentData()` on mobs is the
     port-only `EntityPersistentData`, kept by `MixinEntity` and saved under
     `"enigmaticlegacy:data"`. Forge's `EntityTeleportEvent.EnderEntity` is replaced by HEAD
     mixins on `EnderMan.teleport(DDD)Z` (port-only `MixinEnderMan`) and
@@ -603,6 +602,16 @@ Sections are added here as each Minecraft version / loader is ported.
     addition: `TrinketAdapter.canUnequip` refuses items with a binding curse outside creative,
     because Trinkets (unlike Curios' slot) does not check it; this also covers vanilla Binding.
     The Eldritch Amulet branch came with that item.
+  - The other seven enchantments (Sharpshooter, Ceaseless, Slayer, Torrent, Wrath, Curse of
+    Nemesis, Curse of Sorrow): Forge's `canApplyAtEnchantingTable` and `isAllowedOnBooks`
+    overrides are dropped (no Fabric hooks; the vanilla category and `isDiscoverable` decide), and
+    `stack.getEnchantmentLevel` becomes `EnchantmentHelper.getItemEnchantmentLevel`. Forge's
+    access transformer on `ThrownTrident.tridentItem` is the port-only accessor mixin
+    `AccessorThrownTrident`. `MixinCrossbowItem` (Sharpshooter damage, Ceaseless pickup) is
+    upstream's. Forge's `LivingGetProjectileEvent` (Ceaseless ammo) is a `getProjectile` RETURN
+    inject in `MixinPlayer`. The Torrent/Wrath, Slayer and Nemesis terms run at the start of the
+    port's `onLivingHurt`; upstream's LOWEST-priority `onLivingHurtFinal` (Sorrow) runs at its
+    end and is skipped when an earlier term returned 0, as Forge skips canceled events.
   - Cursed Ring lava-pool destruction: `onConfirmedDeath` now records and consumes the Unholy
     Stone (Forge's private `Inventory.compartments` -> the items, armor and offhand lists). The
     lava-pool part of upstream's `onCurioDrops` (Curios `DropRulesEvent`) moves to

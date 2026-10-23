@@ -70,6 +70,12 @@ public abstract class MixinPlayer implements PersistentData {
 		original.call(tracker, source, amount);
 	}
 
+	/** Stands in for Forge's {@code LivingGetProjectileEvent}, which wraps every return of getProjectile. */
+	@Inject(method = "getProjectile", at = @At("RETURN"), cancellable = true)
+	private void enigmaticlegacy$onGetProjectile(ItemStack weapon, CallbackInfoReturnable<ItemStack> info) {
+		info.setReturnValue(EnigmaticEventHandler.onGetProjectile(weapon, info.getReturnValue()));
+	}
+
 	/** Upstream's MixinPlayer: axes never disable the Bulwark of Blazing Pride. */
 	@Inject(method = "disableShield", at = @At("HEAD"), cancellable = true)
 	private void enigmaticlegacy$onDisableShield(boolean sprinting, CallbackInfo info) {

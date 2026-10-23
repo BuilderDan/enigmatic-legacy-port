@@ -66,6 +66,12 @@ import com.aizistral.enigmaticlegacy.mixin.AccessorMobEffectInstance;
 import com.aizistral.enigmaticlegacy.items.InfernalShield;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticEffects;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticEnchantments;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticDamageTypes;
+import com.aizistral.enigmaticlegacy.enchantments.CeaselessEnchantment;
+import com.aizistral.enigmaticlegacy.helpers.EnigmaticEnchantmentHelper;
+import com.aizistral.enigmaticlegacy.mixin.AccessorThrownTrident;
+import net.minecraft.world.item.ArrowItem;
+import net.minecraft.world.item.CrossbowItem;
 import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
 import net.minecraft.world.entity.ExperienceOrb;
 import com.aizistral.enigmaticlegacy.objects.RegisteredMeleeAttack;
@@ -521,7 +527,6 @@ public class EnigmaticEventHandler {
 	/**
 	 * Port: was the Forge {@code LivingDeathEvent} handler (Cube, Heart of Creation, Pearl of the
 	 * Void, Architect's Favor). Fabric calls it from {@code ServerLivingEntityEvents.ALLOW_DEATH}.
-	 * The Nemesis Curse term follows with that item.
 	 *
 	 * @return false to cancel the death (upstream: {@code event.setCanceled(true)}).
 	 */
@@ -530,7 +535,7 @@ public class EnigmaticEventHandler {
 			if (LAST_HEALTH.containsKey(player) && LAST_HEALTH.get(player) >= 1.5F && SuperpositionHandler.hasCurio(player, EnigmaticItems.THE_CUBE)) {
 				player.setHealth(1);
 				return false;
-			} else if (SuperpositionHandler.hasCurio(player, EnigmaticItems.ENIGMATIC_ITEM) || player.getInventory().contains(new ItemStack(EnigmaticItems.ENIGMATIC_ITEM))) {
+			} else if (SuperpositionHandler.hasCurio(player, EnigmaticItems.ENIGMATIC_ITEM) || player.getInventory().contains(new ItemStack(EnigmaticItems.ENIGMATIC_ITEM)) || source.is(EnigmaticDamageTypes.NEMESIS_CURSE)) {
 				player.setHealth(1);
 				return false;
 			} else if (SuperpositionHandler.hasCurio(player, EnigmaticItems.VOID_PEARL) && Math.random() <= VoidPearl.undeadProbability.getValue().asMultiplier(false)) {
@@ -1306,6 +1311,26 @@ public class EnigmaticEventHandler {
 	}
 
 	/**
+	 * Port: was the Forge {@code LivingGetProjectileEvent} handler (Ceaseless). Fabric calls it
+	 * from MixinPlayer at every return of {@code Player.getProjectile}.
+	 *
+	 * @return the projectile stack to use.
+	 */
+	public static ItemStack onGetProjectile(ItemStack weapon, ItemStack arrows) {
+		if (weapon.getItem() instanceof CrossbowItem && EnchantmentHelper.getItemEnchantmentLevel(EnigmaticEnchantments.CEASELESS, weapon) > 0) {
+			if (arrows.isEmpty() && CeaselessEnchantment.allowNoArrow.getValue())
+				return new ItemStack(Items.ARROW, 64);
+			else if (arrows.getItem() instanceof ArrowItem) {
+				ItemStack arrowsCopy = arrows.copy();
+				arrowsCopy.setCount(64);
+				return arrowsCopy;
+			}
+		}
+
+		return arrows;
+	}
+
+	/**
 	 * Port: was the Forge {@code PlayerEvent.BreakSpeed} handler (miningStuff). Fabric calls it from
 	 * {@code MixinPlayer} at the end of {@code Player.getDestroySpeed}, where Forge fires the event.
 	 *
@@ -1357,6 +1382,36 @@ public class EnigmaticEventHandler {
 	 * @return the new damage amount.
 	 */
 	public static float onLivingHurt(LivingEntity victim, DamageSource source, float amount) {
+		if (source.getEntity() instanceof LivingEntity attacker) {
+			Entity immediateSource = source.getDirectEntity();
+
+			if (immediateSource instanceof ThrownTrident || immediateSource instanceof LivingEntity) {
+				ItemStack mainhandStack = ItemStack.EMPTY;
+
+				if (immediateSource instanceof ThrownTrident trident) {
+					// Port: tridentItem is private in vanilla, so it goes through an accessor.
+					ItemStack tridentItem = ((AccessorThrownTrident) trident).enigmaticlegacy$getTridentItem();
+
+					if (tridentItem != null) {
+						mainhandStack = tridentItem;
+					}
+				} else {
+					mainhandStack = ((LivingEntity) immediateSource).getMainHandItem();
+				}
+
+				int torrentLevel = EnchantmentHelper.getItemEnchantmentLevel(EnigmaticEnchantments.TORRENT, mainhandStack);
+				int wrathLevel = EnchantmentHelper.getItemEnchantmentLevel(EnigmaticEnchantments.WRATH, mainhandStack);
+
+				if (torrentLevel > 0) {
+					amount += EnigmaticEnchantments.TORRENT.bonusDamageByCreature(attacker, victim, torrentLevel);
+				}
+
+				if (wrathLevel > 0) {
+					amount += EnigmaticEnchantments.WRATH.bonusDamageByCreature(attacker, victim, wrathLevel);
+				}
+			}
+		}
+
 		if (source.getEntity() instanceof Player attacker) {
 			boolean bypass = source.getDirectEntity() == attacker && (attacker.getMainHandItem().is(EnigmaticItems.THE_TWIST)
 					|| attacker.getMainHandItem().is(EnigmaticItems.THE_INFINITUM)
@@ -1420,6 +1475,26 @@ public class EnigmaticEventHandler {
 				}
 			}
 
+			if (source.getDirectEntity() == attacker && source.is(DamageTypes.PLAYER_ATTACK)) {
+				ItemStack mainhandStack = attacker.getMainHandItem();
+				int slayerLevel = EnchantmentHelper.getItemEnchantmentLevel(EnigmaticEnchantments.SLAYER, mainhandStack);
+
+				if (slayerLevel > 0) {
+					amount += EnigmaticEnchantments.SLAYER.bonusDamageByCreature(attacker, victim, slayerLevel);
+
+					if (victim instanceof Monster) {
+						int i = 20 + attacker.getRandom().nextInt(10 * slayerLevel);
+						victim.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, i, 3));
+					}
+				}
+
+				if (EnigmaticEnchantmentHelper.hasNemesisCurseEnchantment(mainhandStack)) {
+					float supposedDamage = amount * 0.35F;
+
+					attacker.hurt(attacker.damageSources().source(EnigmaticDamageTypes.NEMESIS_CURSE, victim), supposedDamage);
+				}
+			}
+
 			if (SuperpositionHandler.hasCurio(attacker, EnigmaticItems.EYE_OF_NEBULA) && SuperpositionHandler.isMagic(source)) {
 				amount *= EyeOfNebula.magicBoost.getValue().asModifier(true);
 			}
@@ -1469,6 +1544,20 @@ public class EnigmaticEventHandler {
 
 		// Port: upstream EtheriumEventHandler.onEntityHurt is a separate Forge subscriber.
 		amount = EtheriumEventHandler.onEntityHurt(victim, source, amount);
+
+		// Port: upstream onLivingHurtFinal, a LOWEST-priority LivingHurtEvent subscriber.
+		// A 0 here means an earlier term canceled the hurt, and Forge skips canceled events.
+		if (victim instanceof ServerPlayer player && source.getEntity() != null && amount > 0) {
+			int sorrowLevel = 0;
+
+			for (ItemStack armor : player.getInventory().armor) {
+				sorrowLevel += EnchantmentHelper.getItemEnchantmentLevel(EnigmaticEnchantments.SORROW, armor);
+			}
+
+			for (int i = 0; i < sorrowLevel; i++) {
+				EnigmaticEnchantments.SORROW.maybeApplyDebuff(player, amount);
+			}
+		}
 
 		return amount;
 	}
