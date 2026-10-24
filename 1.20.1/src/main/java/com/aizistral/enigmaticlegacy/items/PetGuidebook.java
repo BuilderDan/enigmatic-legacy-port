@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.awt.TextComponent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,7 +55,7 @@ public class PetGuidebook extends ItemBase implements Vanishable {
 	}
 
 	@Override
-	// Port: @OnlyIn(Dist.CLIENT) removed (see CHANGES.md).
+	@Environment(EnvType.CLIENT)
 	public void appendHoverText(ItemStack stack, Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		if (Screen.hasShiftDown()) {
 			ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.animalGuidebook1");

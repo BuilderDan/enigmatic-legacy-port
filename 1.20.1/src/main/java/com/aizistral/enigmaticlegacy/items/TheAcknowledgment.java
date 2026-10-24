@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
@@ -120,6 +122,7 @@ public class TheAcknowledgment extends ItemBase implements Vanishable {
 		return true;
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, Level world, List<Component> list, TooltipFlag flag) {
 		if (Screen.hasShiftDown()) {

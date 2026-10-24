@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,7 +93,7 @@ public class BlazingCore extends ItemSpellstoneCurio implements ISpellstone {
 		//nemesisList.add("arrow");
 	}
 
-	// Port: @OnlyIn(Dist.CLIENT) removed (see CHANGES.md).
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 

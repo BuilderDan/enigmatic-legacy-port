@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import com.aizistral.enigmaticlegacy.objects.NarratorData;
 import java.util.List;
 import java.util.Random;
@@ -43,7 +45,7 @@ public class RelicOfTesting extends ItemBase implements IHidden {
 		return null;
 	}
 
-	// Port: no @OnlyIn; tooltips are only built on the client.
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		if (Screen.hasShiftDown()) {

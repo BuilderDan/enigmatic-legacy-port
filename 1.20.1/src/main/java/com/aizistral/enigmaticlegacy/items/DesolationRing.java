@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +31,7 @@ public class DesolationRing extends ItemBaseCurio implements IEldritch {
 	}
 
 	@Override
-	// Port: @OnlyIn(Dist.CLIENT) removed (see CHANGES.md).
+	@Environment(EnvType.CLIENT)
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.void");
 

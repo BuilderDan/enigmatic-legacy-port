@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -42,6 +44,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 public class AstralBreaker extends ItemBaseTool implements IMultiblockMiningTool {
 	public static Omniconfig.IntParameter miningRadius;
@@ -88,6 +91,7 @@ public class AstralBreaker extends ItemBaseTool implements IMultiblockMiningTool
 						));
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		if (Screen.hasShiftDown()) {
@@ -119,6 +123,12 @@ public class AstralBreaker extends ItemBaseTool implements IMultiblockMiningTool
 
 		if (entityLiving instanceof Player player && this.areaEffectsEnabled(player, stack) && this.isCorrectToolForDrops(state) && !world.isClientSide && miningRadius.getValue() != -1) {
 			HitResult trace = AOEMiningHelper.calcRayTrace(world, player, ClipContext.Fluid.ANY);
+			// Port: Fabric calls mineBlock after the block is removed (Forge before), so the trace above
+			// can pass through the hole. The broken block's own shape still gives the face that was hit.
+			Vec3 eye = player.getEyePosition();
+			BlockHitResult own = state.getShape(world, pos).clip(eye, eye.add(player.getLookAngle().scale(16)), pos);
+			if (own != null)
+				trace = own;
 
 			if (trace.getType() == HitResult.Type.BLOCK) {
 				BlockHitResult blockTrace = (BlockHitResult) trace;

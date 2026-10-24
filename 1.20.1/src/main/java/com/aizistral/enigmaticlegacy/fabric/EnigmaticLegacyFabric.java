@@ -69,7 +69,9 @@ import com.aizistral.enigmaticlegacy.triggers.EquipAccessoryTrigger;
 import com.aizistral.enigmaticlegacy.triggers.UseUnholyGrailTrigger;
 import com.aizistral.omniconfig.packets.PacketSyncOptions;
 
+import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
@@ -162,6 +164,13 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		CriteriaTriggers.register(ForbiddenFruitTrigger.INSTANCE);
 		CriteriaTriggers.register(RevelationGainTrigger.INSTANCE);
 		CriteriaTriggers.register(RevelationTomeBurntTrigger.INSTANCE);
+
+		// Port-only: the multiplayer playtest, where a dedicated server runs the scenarios (see DevPlaytest).
+		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER && !DevHooks.playtestMode().isEmpty()
+				&& !DevHooks.playtestMode().equals("false")) {
+			DevPlaytestScenarios.register(DevHooks.playtestMode());
+			DevPlaytestScenarios.start();
+		}
 
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			OmniconfigSync.onPlayerLoggedIn(handler.getPlayer());

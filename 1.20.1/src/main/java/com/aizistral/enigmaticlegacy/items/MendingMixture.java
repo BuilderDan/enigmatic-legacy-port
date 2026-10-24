@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -21,6 +23,7 @@ public class MendingMixture extends ItemBase {
 		super(ItemBase.getDefaultProperties().stacksTo(1).rarity(Rarity.EPIC).craftRemainder(Items.GLASS_BOTTLE));
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		if (Screen.hasShiftDown()) {
@@ -31,6 +34,7 @@ public class MendingMixture extends ItemBase {
 		}
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public boolean isFoil(ItemStack stack) {
 		return true;

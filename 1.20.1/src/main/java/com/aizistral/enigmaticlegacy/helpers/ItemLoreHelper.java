@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.helpers;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -18,9 +20,10 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-// Port: @OnlyIn removed; only client code (tooltips) calls the Minecraft-using methods.
+// Port: @OnlyIn -> @Environment(EnvType.CLIENT) on the Minecraft-using methods.
 public class ItemLoreHelper {
 
+	@Environment(EnvType.CLIENT)
 	public static void indicateCursedOnesOnly(List<Component> list) {
 		ChatFormatting format;
 
@@ -37,6 +40,7 @@ public class ItemLoreHelper {
 
 	}
 
+	@Environment(EnvType.CLIENT)
 	public static void indicateBlessedOnesOnly(List<Component> list) {
 		ChatFormatting format;
 
@@ -51,6 +55,7 @@ public class ItemLoreHelper {
 
 	}
 
+	@Environment(EnvType.CLIENT)
 	public static void indicateWorthyOnesOnly(List<Component> list) {
 		ChatFormatting format = ChatFormatting.DARK_RED;
 		Player player = Minecraft.getInstance().player;

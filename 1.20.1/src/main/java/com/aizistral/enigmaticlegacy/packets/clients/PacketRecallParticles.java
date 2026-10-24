@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.packets.clients;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.function.Supplier;
 
 import com.aizistral.enigmaticlegacy.handlers.SuperpositionHandler;
@@ -15,7 +17,7 @@ import com.aizistral.enigmaticlegacy.platform.network.PacketContext;
  * @author Integral
  */
 
-// Port: NetworkEvent.Context -> PacketContext; @OnlyIn removed (only the client runs handle).
+// Port: NetworkEvent.Context -> PacketContext; @OnlyIn -> @Environment(EnvType.CLIENT) on handleClient (Fabric does not strip lambdas).
 public class PacketRecallParticles {
 
 	private double x;
@@ -47,22 +49,23 @@ public class PacketRecallParticles {
 
 	public static void handle(PacketRecallParticles msg, Supplier<PacketContext> ctx) {
 
-		ctx.get().enqueueWork(() -> {
-			LocalPlayer player = Minecraft.getInstance().player;
-
-			int amount = msg.num;
-
-			if (msg.check) {
-				amount *= SuperpositionHandler.getParticleMultiplier();
-			}
-
-			for (int counter = 0; counter <= amount; counter++) {
-				player.level().addParticle(ParticleTypes.DRAGON_BREATH, true, msg.x, msg.y, msg.z, (Math.random()-0.5D)*0.2D, (Math.random()-0.5D)*0.2D, (Math.random()-0.5D)*0.2D);
-			}
-
-
-		});
+		ctx.get().enqueueWork(() -> handleClient(msg));
 		ctx.get().setPacketHandled(true);
 	}
 
+
+	@Environment(EnvType.CLIENT)
+	private static void handleClient(PacketRecallParticles msg) {
+		LocalPlayer player = Minecraft.getInstance().player;
+
+		int amount = msg.num;
+
+		if (msg.check) {
+			amount *= SuperpositionHandler.getParticleMultiplier();
+		}
+
+		for (int counter = 0; counter <= amount; counter++) {
+			player.level().addParticle(ParticleTypes.DRAGON_BREATH, true, msg.x, msg.y, msg.z, (Math.random()-0.5D)*0.2D, (Math.random()-0.5D)*0.2D, (Math.random()-0.5D)*0.2D);
+		}
+	}
 }

@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items.generic;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -66,6 +68,7 @@ public abstract class ItemBasePotion extends ItemBase {
 			return new InteractionResultHolder<>(InteractionResult.PASS, playerIn.getItemInHand(handIn));
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public boolean isFoil(ItemStack stack) {
 		return true;

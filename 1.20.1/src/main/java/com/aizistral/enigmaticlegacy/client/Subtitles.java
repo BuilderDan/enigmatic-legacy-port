@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.client;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -40,6 +42,7 @@ public class Subtitles {
 		this.quote = quote;
 	}
 
+	@Environment(EnvType.CLIENT)
 	public String getLine(double time) {
 		String line = "ERROR";
 		double bestTime = -1;

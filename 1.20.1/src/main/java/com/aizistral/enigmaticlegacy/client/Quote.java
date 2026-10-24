@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.client;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -115,10 +117,12 @@ public class Quote {
 		this.play(player, 1);
 	}
 
+	@Environment(EnvType.CLIENT)
 	public void play() {
 		this.play(1);
 	}
 
+	@Environment(EnvType.CLIENT)
 	public void play(int delayTicks) {
 		if (delayTicks < 1)
 			throw new IllegalArgumentException("Delay cannot be less than 1 tick!");

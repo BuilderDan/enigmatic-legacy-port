@@ -1,5 +1,7 @@
 package com.aizistral.etherium.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -43,6 +45,7 @@ public class EtheriumPickaxe extends ItemEtheriumTool {
 				.fireResistant());
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		if (this.getConfig().getPickaxeMiningRadius() == -1)

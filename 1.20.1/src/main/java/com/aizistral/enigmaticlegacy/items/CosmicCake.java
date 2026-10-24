@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 
 import com.aizistral.enigmaticlegacy.helpers.ItemLoreHelper;
@@ -19,6 +21,7 @@ public class CosmicCake extends GenericBlockItem {
 		super(EnigmaticBlocks.COSMIC_CAKE, getDefaultProperties().stacksTo(1).rarity(Rarity.EPIC));
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
 		if (Screen.hasShiftDown()) {

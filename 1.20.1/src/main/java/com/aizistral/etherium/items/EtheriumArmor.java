@@ -1,5 +1,7 @@
 package com.aizistral.etherium.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -60,6 +62,7 @@ public class EtheriumArmor extends ArmorItem implements ICreativeTabMember {
 		return false;
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		if (Screen.hasShiftDown()) {

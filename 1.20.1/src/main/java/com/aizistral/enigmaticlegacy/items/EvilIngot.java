@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 
 import com.aizistral.enigmaticlegacy.EnigmaticLegacy;
@@ -27,6 +29,7 @@ public class EvilIngot extends ItemBase implements ICursed {
 		return !SuperpositionHandler.isExplosion(source);
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		//		if (Screen.hasShiftDown()) {

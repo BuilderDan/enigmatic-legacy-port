@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.packets.clients;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.function.Supplier;
 
 import com.aizistral.enigmaticlegacy.platform.network.PacketContext;
@@ -12,7 +14,7 @@ import net.minecraft.network.FriendlyByteBuf;
  * @author Integral
  */
 
-// Port: NetworkEvent.Context -> PacketContext; @OnlyIn removed (only the client runs handle).
+// Port: NetworkEvent.Context -> PacketContext; @OnlyIn -> @Environment(EnvType.CLIENT) on handleClient (Fabric does not strip lambdas).
 public class PacketPlayerMotion {
 	private double x, y, z;
 
@@ -33,10 +35,13 @@ public class PacketPlayerMotion {
 	}
 
 	public static void handle(PacketPlayerMotion msg, Supplier<PacketContext> ctx) {
-		ctx.get().enqueueWork(() -> {
-			Minecraft.getInstance().player.setDeltaMovement(msg.x, msg.y, msg.z);
-		});
+		ctx.get().enqueueWork(() -> handleClient(msg));
 
 		ctx.get().setPacketHandled(true);
+	}
+
+	@Environment(EnvType.CLIENT)
+	private static void handleClient(PacketPlayerMotion msg) {
+		Minecraft.getInstance().player.setDeltaMovement(msg.x, msg.y, msg.z);
 	}
 }

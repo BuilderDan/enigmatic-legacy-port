@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 
 import com.aizistral.enigmaticlegacy.EnigmaticLegacy;
@@ -21,6 +23,7 @@ public class TwistedHeart extends ItemBase implements ICursed, Vanishable {
 		super(ItemBase.getDefaultProperties().rarity(Rarity.EPIC).stacksTo(1));
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
 		ItemLoreHelper.indicateCursedOnesOnly(tooltip);

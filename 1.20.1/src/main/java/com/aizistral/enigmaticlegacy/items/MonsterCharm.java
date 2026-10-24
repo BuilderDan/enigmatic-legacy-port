@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import com.aizistral.enigmaticlegacy.client.Quote;
 import net.minecraft.server.level.ServerPlayer;
 import java.util.List;
@@ -74,6 +76,7 @@ public class MonsterCharm extends ItemBaseCurio {
 		super(ItemBaseCurio.getDefaultProperties().rarity(Rarity.EPIC));
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.void");

@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.packets.clients;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.function.Supplier;
 
 import com.aizistral.enigmaticlegacy.handlers.SuperpositionHandler;
@@ -40,25 +42,13 @@ public class PacketCosmicRevive {
 	}
 
 	public static void handle(PacketCosmicRevive msg, Supplier<PacketContext> ctx) {
-		ctx.get().enqueueWork(() -> {
-			if (msg.reviveType == 0) {
-				displayReviveAnimation(msg.entityID, msg.reviveType);
-			} else {
-				Player player = Minecraft.getInstance().player;
-				Entity entity = player.level().getEntity(msg.entityID);
-
-				if (entity == player) {
-					scheduledCubeRevive = 5;
-				} else {
-					displayReviveAnimation(msg.entityID, msg.reviveType);
-				}
-			}
-		});
+		ctx.get().enqueueWork(() -> handleClient(msg));
 
 		ctx.get().setPacketHandled(true);
 	}
 
 	/** Port: the client-player branch of upstream's EnigmaticEventHandler.onPlayerTick. */
+	@Environment(EnvType.CLIENT)
 	public static void onClientTick(Minecraft minecraft) {
 		if (minecraft.player != null && scheduledCubeRevive > 0 && !(minecraft.screen instanceof ReceivingLevelScreen)) {
 			scheduledCubeRevive--;
@@ -70,6 +60,7 @@ public class PacketCosmicRevive {
 		}
 	}
 
+	@Environment(EnvType.CLIENT)
 	private static void displayReviveAnimation(int entityID, int reviveType) {
 		Player player = Minecraft.getInstance().player;
 		Entity entity = player.level().getEntity(entityID);
@@ -98,4 +89,20 @@ public class PacketCosmicRevive {
 		}
 	}
 
+
+	@Environment(EnvType.CLIENT)
+	private static void handleClient(PacketCosmicRevive msg) {
+		if (msg.reviveType == 0) {
+			displayReviveAnimation(msg.entityID, msg.reviveType);
+		} else {
+			Player player = Minecraft.getInstance().player;
+			Entity entity = player.level().getEntity(msg.entityID);
+
+			if (entity == player) {
+				scheduledCubeRevive = 5;
+			} else {
+				displayReviveAnimation(msg.entityID, msg.reviveType);
+			}
+		}
+	}
 }

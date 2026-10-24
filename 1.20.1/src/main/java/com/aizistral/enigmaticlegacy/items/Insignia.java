@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,6 +43,7 @@ public class Insignia extends ItemBaseCurio {
 		super(getDefaultProperties().rarity(Rarity.UNCOMMON).stacksTo(1));
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.void");

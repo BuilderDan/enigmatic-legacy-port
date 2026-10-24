@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,14 +38,17 @@ import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Upstream item. Port: the client-only members lost their @OnlyIn markers; they only run on
+ * Upstream item. Port: the client-only members swap @OnlyIn for @Environment(EnvType.CLIENT); they only run on
  * the client (registerVariants from EnigmaticLegacyFabricClient, setNearestCrystal from
  * PacketUpdateCompass).
  */
 // TODO Make wayfinder make soul crystals glow, also give it the mode to point to personal crystals only
 public class SoulCompass extends ItemBase implements ICursed {
+	@Environment(EnvType.CLIENT)
 	private CompassWobble wobble;
+	@Environment(EnvType.CLIENT)
 	private CompassWobble wobbleRandom;
+	@Environment(EnvType.CLIENT)
 	@Nullable
 	private BlockPos nearestCrystal;
 
@@ -51,6 +56,7 @@ public class SoulCompass extends ItemBase implements ICursed {
 		super(getDefaultProperties().rarity(Rarity.EPIC).stacksTo(1).fireResistant());
 	}
 
+	@Environment(EnvType.CLIENT)
 	public void setNearestCrystal(BlockPos nearestCrystal) {
 		if (!Objects.equal(this.nearestCrystal, nearestCrystal)) {
 			if (nearestCrystal != null && this.nearestCrystal != null) {
@@ -65,6 +71,7 @@ public class SoulCompass extends ItemBase implements ICursed {
 		}
 	}
 
+	@Environment(EnvType.CLIENT)
 	public float getAngle(BlockPos one, BlockPos two) {
 		float angle = (float) Math.toDegrees(Math.atan2(one.getZ() - two.getZ(), one.getX() - two.getX()));
 
@@ -75,6 +82,7 @@ public class SoulCompass extends ItemBase implements ICursed {
 		return angle;
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, Level world, List<Component> list, TooltipFlag flag) {
 		if (Screen.hasShiftDown()) {
@@ -87,12 +95,15 @@ public class SoulCompass extends ItemBase implements ICursed {
 		ItemLoreHelper.indicateCursedOnesOnly(list);
 	}
 
+	@Environment(EnvType.CLIENT)
 	public void registerVariants() {
 		this.wobble = new CompassWobble(0.1);
 		this.wobbleRandom = new CompassWobble(0.6); // 0.6 to make it GO FASTA
 
 		ItemProperties.register(this, new ResourceLocation("angle"), new ClampedItemPropertyFunction() {
+			@Environment(EnvType.CLIENT)
 			private final CompassWobble wobble = SoulCompass.this.wobble;
+			@Environment(EnvType.CLIENT)
 			private final CompassWobble wobbleRandom = SoulCompass.this.wobbleRandom;
 
 			@Override

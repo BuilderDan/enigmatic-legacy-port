@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +30,7 @@ public class GoldenRing extends ItemBaseCurio {
 		super(ItemBaseCurio.getDefaultProperties().rarity(Rarity.UNCOMMON));
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, Level world, List<Component> list, TooltipFlag flag) {
 		ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.void");

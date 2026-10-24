@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,7 +47,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.Vanishable;
 import net.minecraft.world.level.Level;
 
-// Port: ForgeRegistries.ITEMS -> BuiltInRegistries.ITEM; @OnlyIn removed.
+// Port: ForgeRegistries.ITEMS -> BuiltInRegistries.ITEM; @OnlyIn -> @Environment(EnvType.CLIENT).
 public class OblivionStone extends ItemBase implements Vanishable {
 	public static Omniconfig.IntParameter itemSoftcap;
 	public static Omniconfig.IntParameter itemHardcap;
@@ -71,6 +73,7 @@ public class OblivionStone extends ItemBase implements Vanishable {
 		super(ItemBase.getDefaultProperties().stacksTo(1).rarity(Rarity.RARE).fireResistant());
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		if (Screen.hasShiftDown()) {

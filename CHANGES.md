@@ -36,6 +36,8 @@ Sections are added here as each Minecraft version / loader is ported.
     at 0 slots and are unlocked per player, like upstream.
   - Curios item tags become Trinkets tags; all slots are enabled for players in
     `data/trinkets/entities/enigmaticlegacy.json`. `data/curios/` is not copied.
+  - New file `assets/trinkets/lang/en_us.json` names the three new slots (Trinkets reads
+    `trinkets.slot.<group>.<slot>`, upstream only has the `curios.identifier.*` keys).
 - Recipes: Forge `"conditions"` become Fabric API `"fabric:load_conditions"`.
   `EnabledCondition` is rewritten as a Fabric resource condition. Until the config is
   ported it only checks that the item exists, so every recipe is enabled.
@@ -54,7 +56,7 @@ Sections are added here as each Minecraft version / loader is ported.
   - It is copied on every respawn, including returning from the End. Upstream copies it
     only on death.
   - The two custom stats are now registered in code (`registerStats()`).
-- `PacketSyncPlayTime`: uses `PacketContext`; `@OnlyIn` removed.
+- `PacketSyncPlayTime`: uses `PacketContext`; `@OnlyIn` -> `@Environment(EnvType.CLIENT)`.
 - Trinkets has no looting or "recently hit" info when it decides drop rules, so accessory
   drop rules get looting 0 and recently-hit false. Upstream's extra drop rules (Curios
   `onCurioDrops`) go through `AccessoryDrops` and Trinkets' drop callback.
@@ -93,9 +95,8 @@ Sections are added here as each Minecraft version / loader is ported.
   `displayItems` instead of Forge's `BuildCreativeModeTabContentsEvent`. Temporary: the main
   tab icon is Blank Scroll until the Enigmatic Amulet is ported; the potions tab returns with
   the potion items.
-- `@OnlyIn` is removed (not replaced with Fabric `@Environment`) so common code stays
-  loader-neutral; only client code calls the client-only methods (`ItemLoreHelper`,
-  `LoreFragment`).
+- `@OnlyIn(Dist.CLIENT)` becomes Fabric's `@Environment(EnvType.CLIENT)` (`ItemLoreHelper`,
+  `LoreFragment`); classes that are client-only as a whole just drop it.
 - `ItemLoreHelper.indicateWorthyOnesOnly` / `indicateBlessedOnesOnly` are left out until the
   Cursed Ring and the Architect/Believer items are ported.
 - Temporary: `SuperpositionHandler.isTheCursedOne` always returns false until the Cursed Ring
@@ -182,13 +183,13 @@ Sections are added here as each Minecraft version / loader is ported.
 - `SuperpositionHandler`: added `constructLootPool` and `createOptionalLootEntry` (both
   overloads), close to upstream.
 - Dev only, port-only: `DevSelfCheck` also checks that the End city table gets one pool.
-- `PacketPortalParticles` and `PacketRecallParticles`: use `PacketContext`; `@OnlyIn` removed.
+- `PacketPortalParticles` and `PacketRecallParticles`: use `PacketContext`; `@OnlyIn` -> `@Environment(EnvType.CLIENT)`.
 - `SuperpositionHandler`: added `getParticleMultiplier`, copied unchanged from upstream
-  (client only; `@OnlyIn` removed).
+  (client only; `@OnlyIn` -> `@Environment(EnvType.CLIENT)`).
 - Potion of Recall (`RecallPotion`, `ItemBasePotion`, `helpers/AdvancedSpawnLocationHelper`):
   `canDrink` used `EnigmaticLegacy.PROXY.isInVanillaDimension`; it now calls the new
   `SuperpositionHandler.isInVanillaDimension`, which does the same check on both sides.
-  `@OnlyIn` removed from `isFoil` and the tooltip.
+  `@OnlyIn` -> `@Environment(EnvType.CLIENT)` on `isFoil` and the tooltip.
 - `SuperpositionHandler.backToSpawn`: upstream moved the player to another dimension with
   Forge's `changeDimension(level, RealSmoothTeleporter)`; the port uses vanilla
   `ServerPlayer.teleportTo(level, ...)`, which also keeps the position, before the same
@@ -304,7 +305,7 @@ Sections are added here as each Minecraft version / loader is ported.
     registered with `Services.NETWORK` and handled with `PacketContext`; sends use
     `sendToNear` with `TargetPoint` instead of Forge `PacketDistributor.NEAR`.
   - `EnigmaticItem` and `ItemSpellstoneCurio` use the platform `SlotContext` (Trinkets) instead
-    of Curios, `BuiltInRegistries` instead of `ForgeRegistries`, and drop `@OnlyIn`.
+    of Curios, `BuiltInRegistries` instead of `ForgeRegistries`, and swap `@OnlyIn` for `@Environment(EnvType.CLIENT)`.
 - Blazing Core (`BlazingCore`):
   - The lava immunity timer moves from upstream's `TransientPlayerData` to port-only
     `objects/FireImmunityData` (server map cleared when the server stops, plus the client
@@ -338,7 +339,7 @@ Sections are added here as each Minecraft version / loader is ported.
   - `PacketHandleItemPickup` uses `PacketContext`; `ClientProxy.handleItemPickup` is inlined
     into its handler. `PermanentItemRenderer` and `PermanentItemPickupParticle` drop `@OnlyIn`.
     The empty `IPermanentCrystal` interface is copied for the renderer.
-  - `EscapeScroll` drops `@OnlyIn` on its tooltip; `javax` `Nullable` becomes `org.jetbrains`.
+  - `EscapeScroll` swaps `@OnlyIn` for `@Environment(EnvType.CLIENT)` on its tooltip; `javax` `Nullable` becomes `org.jetbrains`.
 - Enigmatic Amulet (`EnigmaticAmulet`):
   - Attributes: Forge's `ENTITY_GRAVITY` and `SWIM_SPEED` become port-only
     `EnigmaticAttributes.GRAVITY` and `SWIM_SPEED`, added to players in `MixinPlayer.createAttributes`
@@ -446,6 +447,9 @@ Sections are added here as each Minecraft version / loader is ported.
   - `ItemBaseTool` and `AstralBreaker`: Forge's `ToolAction` set and `canPerformAction`
     override are dropped (no Fabric equivalent). Mining speed and harvest checks still come
     from the block tags, as upstream.
+  - `AstralBreaker.mineBlock`: Fabric (vanilla) calls it after the block is removed, Forge
+    before, so the area-mining ray trace could miss and only one block broke. The face is now
+    taken from the broken block's own shape first, then the world trace as upstream.
   - `PacketFlameParticles` uses the port's packet context instead of Forge's
     `NetworkEvent.Context`; it is registered in `EnigmaticLegacyFabric`.
   - `OblivionStone`, `OblivionStoneCombineRecipe`: `ForgeRegistries.ITEMS` ->
@@ -563,7 +567,7 @@ Sections are added here as each Minecraft version / loader is ported.
     `getAttributesTooltip` override returned the list unchanged, so it is dropped. The loop walks
     `Inventory.items`, `armor` and `offhand` directly, since `compartments` is private on Fabric.
   - `PetGuidebook` (Guide to Animal Companionship), `HunterGuidebook` (Guide to Feral Hunt):
-    `@OnlyIn` removed; `ForgeRegistries.ENTITY_TYPES` -> `BuiltInRegistries.ENTITY_TYPE`. The
+    `@OnlyIn` -> `@Environment(EnvType.CLIENT)`; `ForgeRegistries.ENTITY_TYPES` -> `BuiltInRegistries.ENTITY_TYPE`. The
     Hunter's Guide pet-damage redirect runs in `EnigmaticEventHandler.onLivingHurt` and returns 0
     instead of `event.setCanceled(true)`. Upstream's `LivingAttackEvent` check that stops the
     player hitting protected animals runs at the end of `EnigmaticEventHandler.onLivingAttack`
@@ -571,21 +575,21 @@ Sections are added here as each Minecraft version / loader is ported.
     `Mob.targetSelector` and `TargetGoal.targetMob` through `AccessorMob` and the new
     `AccessorTargetGoal` (Forge's access transformer made them public). `MixinHoglinTasks` is
     copied unchanged. The Cursed Ring and Void Pearl guidebook checks are restored.
-  - `EnchanterPearl` (Enchanter's Pearl): `@OnlyIn` removed; the charm slot bonus goes through
+  - `EnchanterPearl` (Enchanter's Pearl): `@OnlyIn` -> `@Environment(EnvType.CLIENT)`; the charm slot bonus goes through
     `Services.ACCESSORIES.addSlotModifier`; the `getAttributesTooltip` override is dropped.
     Upstream's `MixinEnchantmentContainer` is merged into `MixinEnchantmentMenu`. Its
     `clickMenuButton` inject used `@At("INVOKE")` with no target; the port uses `HEAD` plus a
     button-index bounds check. The `getGoldCount` inject (64 lapis) was client-only upstream and
     runs on both sides here. `SuperpositionHandler.mergeEnchantments` is ported; the Eternal
     Binding roll came with that enchantment (below).
-  - `DesolationRing` (The Burden of Desolation): `@OnlyIn` removed; Curios `SlotContext` and
+  - `DesolationRing` (The Burden of Desolation): `@OnlyIn` -> `@Environment(EnvType.CLIENT)`; Curios `SlotContext` and
     `DropRule` -> platform equivalents. Forge's `MobSpawnEvent.FinalizeSpawn` handler is replaced
     by the port-only `MixinNaturalSpawner` (HEAD of `isValidPositionForMob`), which refuses
     natural spawns of piglins, zombified piglins, iron golems and endermen inside a desolation
     box. Upstream also cleared `DESOLATION_BOXES` on server stop; the port relies on its
     `WeakHashMap` keys and the per-tick removal. The death-handler lava-pool destruction is
     ported separately (see Cursed Ring lava-pool destruction below).
-  - `EnderSlayer` (The Ender Slayer): `@OnlyIn` removed. Forge's `getPersistentData()` on mobs is the
+  - `EnderSlayer` (The Ender Slayer): `@OnlyIn` -> `@Environment(EnvType.CLIENT)`. Forge's `getPersistentData()` on mobs is the
     port-only `EntityPersistentData`, kept by `MixinEntity` and saved under
     `"enigmaticlegacy:data"`. Forge's `EntityTeleportEvent.EnderEntity` is replaced by HEAD
     mixins on `EnderMan.teleport(DDD)Z` (port-only `MixinEnderMan`) and
@@ -595,7 +599,7 @@ Sections are added here as each Minecraft version / loader is ported.
     is fed by `AttackEntityCallback` and drops `ticksSinceLastSwing`; its registry is cleared in
     `onServerStopped`. The hit cancel for non-cursed holders is in `ALLOW_DAMAGE`; the End XP
     conversion clears the drop list instead of cancelling the drops event.
-  - `SoulCompass` (Wayfinder of the Damned): `@OnlyIn` removed; `registerVariants` runs from
+  - `SoulCompass` (Wayfinder of the Damned): `@OnlyIn` -> `@Environment(EnvType.CLIENT)`; `registerVariants` runs from
     `EnigmaticLegacyFabricClient`. `SuperpositionHandler.hasExactStack` checks the three
     inventory lists instead of Forge's `compartments`. `updateSoulCompass` sends
     `PacketUpdateCompass` through the platform network. `SoulArchive.synchronize` keeps the
@@ -643,7 +647,7 @@ Sections are added here as each Minecraft version / loader is ported.
     signature without a stack. The `blocking` item property is registered in
     `EnigmaticLegacyFabricClient`. Blazing Strength removal and the x1.5 damage when hit from
     behind run in `onPlayerHurt` (upstream's `LivingHurtEvent`).
-  - `TheInfinitum` (The Infinitum): `@OnlyIn` removed. Upstream's `LivingHurtEvent` cancel for
+  - `TheInfinitum` (The Infinitum): `@OnlyIn` -> `@Environment(EnvType.CLIENT)`. Upstream's `LivingHurtEvent` cancel for
     unworthy wielders, with its six debuffs, is in `ALLOW_DAMAGE` like The Twist's. The death
     save checks only the main hand: upstream checks the main hand twice (probably meant the
     offhand), so the behavior is the same. Lifesteal stays a flat 10% as upstream, which does
@@ -679,7 +683,7 @@ Sections are added here as each Minecraft version / loader is ported.
   loop (`onPlayerTick`); upstream ran it at PlayerTickEvent START. A `CapeLayer` mixin replaces
   Caelus' `RenderCapeEvent`, and `EnigmaticElytraLayer` is added to players and armor stands with
   `LivingEntityFeatureRendererRegistrationCallback`.
-- `TheJudgement` (The Judgement): copied unchanged except Forge's `@OnlyIn` client markers.
+- `TheJudgement` (The Judgement): copied unchanged except Forge's `@OnlyIn` client markers, now `@Environment(EnvType.CLIENT)`.
 - Quote system (`Quote`, `Subtitles`, `QuoteHandler`, `PacketPlayQuote`): the narrator flag from
   upstream's `TransientPlayerData` becomes `NarratorData` (port-only, persistent boolean
   `ELUnlockedNarrator`). `QuoteHandler` hooks Fabric's client tick, HUD and screen-render events
@@ -718,7 +722,7 @@ Sections are added here as each Minecraft version / loader is ported.
   table to id is rebuilt in Fabric's `LootTableEvents.ALL_LOADED`. The loot modifier codec and
   `data/forge/loot_modifiers` JSON are dropped.
 - `QuotePlayer` (Quote Player, creative/debug item): copied unchanged except Forge's `@OnlyIn`
-  markers and an unused `java.awt.TextComponent` import.
+  markers (now `@Environment(EnvType.CLIENT)`) and an unused `java.awt.TextComponent` import.
 - `EldritchPan` (Voracious Pan): Forge's `getAttributeModifiers(slot, stack)` becomes
   `FabricItem.getAttributeModifiers(stack, slot)`. Forge's `canPerformAction` (shield actions),
   `isBookEnchantable` and `canApplyAtEnchantingTable` (enchants as a diamond sword) become
@@ -811,3 +815,22 @@ Sections are added here as each Minecraft version / loader is ported.
 - Dev only, port-only: `DevPlaytest` and `DevPlaytestScenarios` (`-Pplaytest`) open a test world,
   screenshot the creative tabs and run in-world item checks; dev runs start muted and do not
   pause on lost focus.
+- Packets the client handles (`packets/clients`: `PacketCosmicRevive`, `PacketFlameParticles`,
+  `PacketForceArrowRotations`, `PacketGenericParticleEffect`, `PacketPlayerMotion`,
+  `PacketPlayerSetlook`, `PacketPortalParticles`, `PacketRecallParticles`, `PacketWitherParticles`,
+  `PacketSyncPlayTime`, `PacketHandleItemPickup`): the client body of upstream's `enqueueWork`
+  lambda moved into an `@Environment(EnvType.CLIENT)` method that the lambda calls. Fabric does
+  not strip lambdas, so the old form crashed a dedicated server at packet registration.
+  `PacketPlayerSetlook` now holds the client `lookAt` helper (upstream: `SuperpositionHandler`),
+  and `PacketCosmicRevive` holds the client-tick block upstream had in
+  `EnigmaticEventHandler.onPlayerTick`. Same behavior.
+- For the same reason `@Environment(EnvType.CLIENT)` was added to methods that touch
+  `Minecraft` (`SuperpositionHandler.getParticleMultiplier`, `addPotionTooltip`,
+  `obscureTooltip`, `EnigmaticKeybindHandler.onKeyInput`, every item's `appendHoverText`).
+  No behavior change.
+- Dev only, port-only: the playtest also writes every item's name and tooltip
+  (`test-output/playtest/tooltips.md`, checked against upstream's lang), presses each mod
+  keybind, records which mod sounds play, and with `remote` joins a dedicated server that runs
+  the same checks (`results-server.md`). Dev mixins (`enigmaticlegacy.dev.mixins.json`, gated by
+  `DevMixinPlugin`) never load in a normal game. `DevMixinWindow` opens every dev client hidden,
+  moves it to the second monitor and shows it without taking focus.

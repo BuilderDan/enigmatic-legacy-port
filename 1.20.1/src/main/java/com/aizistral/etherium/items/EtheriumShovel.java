@@ -1,5 +1,7 @@
 package com.aizistral.etherium.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 import java.util.Set;
 
@@ -47,6 +49,7 @@ public class EtheriumShovel extends ItemEtheriumTool {
 				.fireResistant());
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		if (this.getConfig().getShovelMiningRadius() == -1)

@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -16,13 +18,14 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.Level;
 
-// Port: @OnlyIn removed; javax Nullable -> jetbrains.
+// Port: @OnlyIn -> @Environment(EnvType.CLIENT); javax Nullable -> jetbrains.
 public class CurseTransposer extends EnchantmentTransposer implements ICursed {
 
 	public CurseTransposer() {
 		super(getDefaultProperties().stacksTo(1).rarity(Rarity.EPIC));
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		if (Screen.hasShiftDown()) {

@@ -1,4 +1,6 @@
 package com.aizistral.enigmaticlegacy.packets.clients;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import java.util.Random;
 import java.util.function.Supplier;
 
@@ -47,6 +49,7 @@ public class PacketHandleItemPickup {
 	}
 
 	// Port: was ClientProxy.handleItemPickup. Upstream's argument order is kept as is.
+	@Environment(EnvType.CLIENT)
 	private static void handleItemPickup(int pickuper_id, int item_id) {
 		try {
 			Minecraft mc = Minecraft.getInstance();

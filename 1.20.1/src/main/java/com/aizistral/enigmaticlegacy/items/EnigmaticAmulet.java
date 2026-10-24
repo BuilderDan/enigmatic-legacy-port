@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -210,6 +212,7 @@ public class EnigmaticAmulet extends ItemBaseCurio {
 		return builder.build();
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		String name = ItemNBTHelper.getString(stack, "Inscription", null);
@@ -255,6 +258,7 @@ public class EnigmaticAmulet extends ItemBaseCurio {
 		this.addAttributes(list, stack);
 	}
 
+	@Environment(EnvType.CLIENT)
 	protected void addAttributes(List<Component> list, ItemStack stack) {
 		// Port: Curios supplies "curios.modifiers.charm"; the port adds it to its own lang files.
 		ItemLoreHelper.addLocalizedFormattedString(list, "curios.modifiers.charm", ChatFormatting.GOLD);

@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.*;
 
 import com.aizistral.enigmaticlegacy.api.generic.SubscribeConfig;
@@ -202,7 +204,7 @@ public class EldritchPan extends TieredItem implements Vanishable, ICursed, ICre
 	}
 
 	@Override
-	// Port: @OnlyIn(Dist.CLIENT) removed (see CHANGES.md).
+	@Environment(EnvType.CLIENT)
 	public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
 		if (Screen.hasShiftDown()) {
 			String life = "+" + this.toString(100 * lifeSteal.getValue()) + "%";

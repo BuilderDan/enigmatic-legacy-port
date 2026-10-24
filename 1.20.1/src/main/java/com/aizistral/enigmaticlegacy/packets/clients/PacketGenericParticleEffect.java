@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.packets.clients;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.function.Supplier;
 
 import com.aizistral.enigmaticlegacy.handlers.SuperpositionHandler;
@@ -61,32 +63,34 @@ public class PacketGenericParticleEffect {
 
 	public static void handle(PacketGenericParticleEffect msg, Supplier<PacketContext> ctx) {
 
-		ctx.get().enqueueWork(() -> {
-			Player player = Minecraft.getInstance().player;
-			Vector3 pos = msg.pos;
-
-			int amount = msg.num;
-
-			if (msg.check) {
-				amount *= SuperpositionHandler.getParticleMultiplier();
-			}
-
-			if (msg.effect == Effect.GUARDIAN_CURSE) {
-				double dist = 0.05;
-				double distHearts = 0.5;
-
-				for (int counter = 0; counter < 4; counter++) {
-					player.level().addParticle(ParticleTypes.ANGRY_VILLAGER, true, pos.x+SuperpositionHandler.getRandomNegative()*distHearts, pos.y+SuperpositionHandler.getRandomNegative()*distHearts, pos.z+SuperpositionHandler.getRandomNegative()*distHearts, SuperpositionHandler.getRandomNegative() * 1.05, SuperpositionHandler.getRandomNegative() * 1.05, SuperpositionHandler.getRandomNegative() * 1.05);
-				}
-
-				for (int counter = 0; counter < 12; counter++) {
-					player.level().addParticle(ParticleTypes.LARGE_SMOKE, true, pos.x, pos.y, pos.z, SuperpositionHandler.getRandomNegative() * dist, SuperpositionHandler.getRandomNegative() * dist, SuperpositionHandler.getRandomNegative() * dist);
-				}
-
-			}
-
-		});
+		ctx.get().enqueueWork(() -> handleClient(msg));
 		ctx.get().setPacketHandled(true);
 	}
 
+
+	@Environment(EnvType.CLIENT)
+	private static void handleClient(PacketGenericParticleEffect msg) {
+		Player player = Minecraft.getInstance().player;
+		Vector3 pos = msg.pos;
+
+		int amount = msg.num;
+
+		if (msg.check) {
+			amount *= SuperpositionHandler.getParticleMultiplier();
+		}
+
+		if (msg.effect == Effect.GUARDIAN_CURSE) {
+			double dist = 0.05;
+			double distHearts = 0.5;
+
+			for (int counter = 0; counter < 4; counter++) {
+				player.level().addParticle(ParticleTypes.ANGRY_VILLAGER, true, pos.x+SuperpositionHandler.getRandomNegative()*distHearts, pos.y+SuperpositionHandler.getRandomNegative()*distHearts, pos.z+SuperpositionHandler.getRandomNegative()*distHearts, SuperpositionHandler.getRandomNegative() * 1.05, SuperpositionHandler.getRandomNegative() * 1.05, SuperpositionHandler.getRandomNegative() * 1.05);
+			}
+
+			for (int counter = 0; counter < 12; counter++) {
+				player.level().addParticle(ParticleTypes.LARGE_SMOKE, true, pos.x, pos.y, pos.z, SuperpositionHandler.getRandomNegative() * dist, SuperpositionHandler.getRandomNegative() * dist, SuperpositionHandler.getRandomNegative() * dist);
+			}
+
+		}
+	}
 }

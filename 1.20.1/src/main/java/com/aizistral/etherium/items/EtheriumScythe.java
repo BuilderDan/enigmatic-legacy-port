@@ -1,5 +1,7 @@
 package com.aizistral.etherium.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -82,6 +84,7 @@ public class EtheriumScythe extends SwordItem implements IEtheriumTool, ICreativ
 		return EnigmaticTabs.MAIN;
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		if (this.getConfig().getScytheMiningVolume() == -1)

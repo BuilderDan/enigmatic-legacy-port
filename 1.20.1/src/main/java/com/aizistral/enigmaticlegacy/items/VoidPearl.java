@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,7 +106,7 @@ public class VoidPearl extends ItemSpellstoneCurio implements ISpellstone {
 	}
 
 	@Override
-	// Port: @OnlyIn(Dist.CLIENT) removed (see CHANGES.md).
+	@Environment(EnvType.CLIENT)
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 
 		ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.void");

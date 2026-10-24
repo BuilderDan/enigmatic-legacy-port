@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.packets.clients;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.Random;
 import java.util.function.Supplier;
 
@@ -17,7 +19,7 @@ import com.aizistral.enigmaticlegacy.platform.network.PacketContext;
  * @author Integral
  */
 
-// Port: NetworkEvent.Context -> PacketContext; @OnlyIn removed (only the client runs handle).
+// Port: NetworkEvent.Context -> PacketContext; @OnlyIn -> @Environment(EnvType.CLIENT) on handleClient (Fabric does not strip lambdas).
 public class PacketFlameParticles {
 	public static final Random random = new Random();
 
@@ -49,31 +51,33 @@ public class PacketFlameParticles {
 
 	public static void handle(PacketFlameParticles msg, Supplier<PacketContext> ctx) {
 		if (AstralBreaker.flameParticlesToggle.getValue()) {
-			ctx.get().enqueueWork(() -> {
-				LocalPlayer player = Minecraft.getInstance().player;
-
-				int amount = msg.num;
-				float modifier = 1.0F;
-
-				if (msg.check) {
-					if (Minecraft.getInstance().options.particles().get() == ParticleStatus.MINIMAL) {
-						modifier = 0.10F;
-					} else if (Minecraft.getInstance().options.particles().get() == ParticleStatus.DECREASED) {
-						modifier = 0.25F;
-					} else {
-						modifier = 0.35F;
-					}
-				}
-
-				amount *= modifier;
-
-				for (int counter = 0; counter <= amount; counter++) {
-					player.level().addParticle(ParticleTypes.FLAME, true, msg.x + (Math.random() - 0.5), msg.y + (Math.random() - 0.5), msg.z + (Math.random() - 0.5), (Math.random() - 0.5D) * 0.1D, (Math.random() - 0.5D) * 0.1D, (Math.random() - 0.5D) * 0.1D);
-				}
-
-			});
+			ctx.get().enqueueWork(() -> handleClient(msg));
 
 			ctx.get().setPacketHandled(true);
+		}
+	}
+
+	@Environment(EnvType.CLIENT)
+	private static void handleClient(PacketFlameParticles msg) {
+		LocalPlayer player = Minecraft.getInstance().player;
+
+		int amount = msg.num;
+		float modifier = 1.0F;
+
+		if (msg.check) {
+			if (Minecraft.getInstance().options.particles().get() == ParticleStatus.MINIMAL) {
+				modifier = 0.10F;
+			} else if (Minecraft.getInstance().options.particles().get() == ParticleStatus.DECREASED) {
+				modifier = 0.25F;
+			} else {
+				modifier = 0.35F;
+			}
+		}
+
+		amount *= modifier;
+
+		for (int counter = 0; counter <= amount; counter++) {
+			player.level().addParticle(ParticleTypes.FLAME, true, msg.x + (Math.random() - 0.5), msg.y + (Math.random() - 0.5), msg.z + (Math.random() - 0.5), (Math.random() - 0.5D) * 0.1D, (Math.random() - 0.5D) * 0.1D, (Math.random() - 0.5D) * 0.1D);
 		}
 	}
 }

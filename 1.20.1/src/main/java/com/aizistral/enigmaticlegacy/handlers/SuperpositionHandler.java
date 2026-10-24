@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.handlers;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -866,6 +868,7 @@ public class SuperpositionHandler {
 	/**
 	 * @return Multiplier for amount of particles based on client settings.
 	 */
+	@Environment(EnvType.CLIENT)
 	public static float getParticleMultiplier() {
 		if (Minecraft.getInstance().options.particles().get() == ParticleStatus.MINIMAL)
 			return 0.35F;
@@ -1211,6 +1214,7 @@ public class SuperpositionHandler {
 	}
 
 	/** Port: copied from upstream; client-only callers. */
+	@Environment(EnvType.CLIENT)
 	public static void addPotionTooltip(List<MobEffectInstance> list, ItemStack itemIn, List<Component> lores, float durationFactor) {
 		List<Pair<Attribute, AttributeModifier>> list1 = Lists.newArrayList();
 		if (list.isEmpty()) {
@@ -1477,6 +1481,7 @@ public class SuperpositionHandler {
 		return false;
 	}
 
+	@Environment(EnvType.CLIENT)
 	public static void obscureTooltip(List<Component> tooltip) {
 		tooltip.replaceAll(component -> Component.literal(obscureString(component.getString())).withStyle(component.getStyle()));
 	}

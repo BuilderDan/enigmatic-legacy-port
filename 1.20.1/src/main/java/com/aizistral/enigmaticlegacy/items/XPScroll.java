@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +37,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import com.aizistral.enigmaticlegacy.platform.accessory.SlotContext;
 
-// Port: Curios SlotContext -> the port's accessory SlotContext; @OnlyIn removed.
+// Port: Curios SlotContext -> the port's accessory SlotContext; @OnlyIn -> @Environment(EnvType.CLIENT).
 public class XPScroll extends ItemBaseCurio {
 	public static Omniconfig.DoubleParameter xpCollectionRange;
 
@@ -58,6 +60,7 @@ public class XPScroll extends ItemBaseCurio {
 		super(ItemBaseCurio.getDefaultProperties().rarity(Rarity.UNCOMMON));
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		MutableComponent cMode;
@@ -138,6 +141,7 @@ public class XPScroll extends ItemBaseCurio {
 
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public boolean isFoil(ItemStack stack) {
 		return ItemNBTHelper.getBoolean(stack, "IsActive", false);

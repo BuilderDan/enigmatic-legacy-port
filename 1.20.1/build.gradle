@@ -21,6 +21,12 @@ loom {
 			sourceSet sourceSets.main
 		}
 	}
+	runs {
+		// Its own dir, so a dev server and a dev client can run at once. A junction to B: like ./run.
+		server {
+			runDir 'run-server'
+		}
+	}
 }
 
 dependencies {
@@ -81,6 +87,8 @@ tasks.withType(JavaExec).configureEach {
 // Only these keys are forced; other options set in game are kept.
 def devOptions = file('run/options.txt')
 tasks.named('runClient') {
+	// Dan (2026-10-21, 2026-10-23): dev clients always open on the 2nd monitor, without focus.
+	systemProperty 'enigmaticlegacy.monitor2', 'true'
 	// Port: -Pdevcheck=true (or =exit) turns on the DevSelfCheck smoke test.
 	if (project.hasProperty('devcheck')) {
 		systemProperty 'enigmaticlegacy.devcheck', project.property('devcheck')
@@ -98,5 +106,29 @@ tasks.named('runClient') {
 		forced.each { k, v -> lines << "${k}:${v}".toString() }
 		devOptions.parentFile.mkdirs()
 		devOptions.write(lines.join('\n') + '\n', 'UTF-8')
+	}
+}
+
+def serverDir = file('run-server')
+tasks.named('runServer') {
+	// Port: -Pplaytest=all,exit runs the DevPlaytest scenarios on this dedicated server; join it with
+	// ./gradlew runClient -Pplaytest=remote,exit. The server stops itself when the results are written.
+	if (project.hasProperty('playtest')) {
+		systemProperty 'enigmaticlegacy.playtest', project.property('playtest')
+	}
+	if (project.hasProperty('devcheck')) {
+		systemProperty 'enigmaticlegacy.devcheck', project.property('devcheck')
+	}
+	doFirst {
+		def dir = serverDir
+		dir.mkdirs()
+		new File(dir, 'eula.txt').write('eula=true\n', 'UTF-8')
+		def props = new File(dir, 'server.properties')
+		def forced = ['online-mode': 'false', 'spawn-monsters': 'false', 'view-distance': '6',
+				'level-seed': '20261023', 'gamemode': 'creative', 'motd': 'Enigmatic Legacy playtest']
+		def lines = props.exists() ? props.readLines('UTF-8') : []
+		lines = lines.findAll { line -> !forced.keySet().any { line.startsWith(it + '=') } }
+		forced.each { k, v -> lines << "${k}=${v}".toString() }
+		props.write(lines.join('\n') + '\n', 'UTF-8')
 	}
 }

@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.packets.clients;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.function.Supplier;
 
 import com.aizistral.enigmaticlegacy.handlers.SuperpositionHandler;
@@ -50,31 +52,33 @@ public class PacketWitherParticles {
 		return new PacketWitherParticles(buf.readDouble(), buf.readDouble(), buf.readDouble(), buf.readInt(), buf.readBoolean(), buf.readInt());
 	}
 
-	// Port: NetworkEvent.Context -> PacketContext; @OnlyIn removed.
+	// Port: NetworkEvent.Context -> PacketContext; @OnlyIn -> @Environment(EnvType.CLIENT).
 	public static void handle(PacketWitherParticles msg, Supplier<PacketContext> ctx) {
 
-		ctx.get().enqueueWork(() -> {
-
-			LocalPlayer player = Minecraft.getInstance().player;
-
-			int amount = msg.num;
-
-			if (msg.check) {
-				amount *= SuperpositionHandler.getParticleMultiplier();
-			}
-
-			if (msg.mode == 0) {
-				for (int counter = 0; counter <= amount; counter++) {
-					player.level().addParticle(ParticleTypes.LARGE_SMOKE, true, msg.x, msg.y, msg.z, (Math.random() - 0.5D) * 0.2D, (Math.random() - 0.5D) * 0.2D, (Math.random() - 0.5D) * 0.2D);
-				}
-			} else if (msg.mode == 1) {
-				for (int counter = 0; counter <= amount; counter++) {
-					player.level().addParticle(ParticleTypes.LARGE_SMOKE, true, msg.x + (Math.random()-0.5D), msg.y, msg.z + (Math.random()-0.5D), 0.0D, 0.0D, 0.0D);
-				}
-			}
-
-		});
+		ctx.get().enqueueWork(() -> handleClient(msg));
 		ctx.get().setPacketHandled(true);
 	}
 
+
+	@Environment(EnvType.CLIENT)
+	private static void handleClient(PacketWitherParticles msg) {
+
+		LocalPlayer player = Minecraft.getInstance().player;
+
+		int amount = msg.num;
+
+		if (msg.check) {
+			amount *= SuperpositionHandler.getParticleMultiplier();
+		}
+
+		if (msg.mode == 0) {
+			for (int counter = 0; counter <= amount; counter++) {
+				player.level().addParticle(ParticleTypes.LARGE_SMOKE, true, msg.x, msg.y, msg.z, (Math.random() - 0.5D) * 0.2D, (Math.random() - 0.5D) * 0.2D, (Math.random() - 0.5D) * 0.2D);
+			}
+		} else if (msg.mode == 1) {
+			for (int counter = 0; counter <= amount; counter++) {
+				player.level().addParticle(ParticleTypes.LARGE_SMOKE, true, msg.x + (Math.random()-0.5D), msg.y, msg.z + (Math.random()-0.5D), 0.0D, 0.0D, 0.0D);
+			}
+		}
+	}
 }

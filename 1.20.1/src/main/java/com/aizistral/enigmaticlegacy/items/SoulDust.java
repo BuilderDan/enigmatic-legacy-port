@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 
 import com.aizistral.enigmaticlegacy.api.items.ICursed;
@@ -20,6 +22,7 @@ public class SoulDust extends ItemBase implements ICursed {
 		super(getDefaultProperties().rarity(Rarity.RARE).stacksTo(64));
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		//		if (Screen.hasShiftDown()) {

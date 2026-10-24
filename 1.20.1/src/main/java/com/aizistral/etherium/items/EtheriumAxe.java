@@ -1,5 +1,7 @@
 package com.aizistral.etherium.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 import java.util.Set;
 
@@ -53,6 +55,7 @@ public class EtheriumAxe extends AxeItem implements IEtheriumTool, ICreativeTabM
 		return EnigmaticTabs.MAIN;
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		if (this.getConfig().getAxeMiningVolume() == -1)

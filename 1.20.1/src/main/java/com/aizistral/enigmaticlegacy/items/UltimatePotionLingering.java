@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 
 import org.jetbrains.annotations.Nullable;
@@ -40,6 +42,7 @@ public class UltimatePotionLingering extends ItemBase implements IAdvancedPotion
 		this.potionType = type;
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public ItemStack getDefaultInstance() {
 		ItemStack stack = super.getDefaultInstance().copy();
@@ -52,11 +55,13 @@ public class UltimatePotionLingering extends ItemBase implements IAdvancedPotion
 		return this.getDescriptionId() + ".effect." + PotionHelper.getAdvancedPotion(stack).getId();
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public boolean isFoil(ItemStack stack) {
 		return true;
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		SuperpositionHandler.addPotionTooltip(PotionHelper.getEffects(stack), stack, list, 0.25F);

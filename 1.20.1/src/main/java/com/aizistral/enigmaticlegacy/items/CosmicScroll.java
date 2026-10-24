@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 import java.util.UUID;
 
@@ -88,7 +90,7 @@ public class CosmicScroll extends ItemBaseCurio implements IHidden {
 	}
 
 	@Override
-	// Port: @OnlyIn(Dist.CLIENT) removed (see CHANGES.md).
+	@Environment(EnvType.CLIENT)
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.void");
 
@@ -205,6 +207,7 @@ public class CosmicScroll extends ItemBaseCurio implements IHidden {
 	 * Fabric's {@code ItemTooltipCallback}, which also runs after the item's own tooltip lines.
 	 * {@code PROXY.getClientPlayer()} became the {@code clientPlayer} parameter.
 	 */
+	@Environment(EnvType.CLIENT)
 	public void onTooltip(ItemStack stack, @Nullable Player clientPlayer, List<Component> tooltip) {
 		if (stack.is(this)) {
 			if (clientPlayer != null && SuperpositionHandler.isTheBlessedOne(clientPlayer))

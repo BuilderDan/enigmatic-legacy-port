@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +53,7 @@ public class EldritchAmulet extends AscensionAmulet implements IEldritch {
 		return ImmutableList.of(new ItemStack(this));
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		String name = ItemNBTHelper.getString(stack, "Inscription", null);
@@ -82,6 +85,7 @@ public class EldritchAmulet extends AscensionAmulet implements IEldritch {
 		this.addAttributes(list, stack);
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	protected void addAttributes(List<Component> list, ItemStack stack) {
 		ItemLoreHelper.addLocalizedFormattedString(list, "curios.modifiers.charm", ChatFormatting.GOLD);

@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -65,6 +67,7 @@ public class EndAnchor extends GenericBlockItem {
 		super(EnigmaticBlocks.END_ANCHOR, getDefaultProperties().stacksTo(1).fireResistant().rarity(Rarity.EPIC));
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
 		if (Screen.hasShiftDown()) {

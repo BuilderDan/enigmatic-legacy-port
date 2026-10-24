@@ -1,0 +1,20 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "com.aizistral.enigmaticlegacy.fabric.devmixin",
+	"plugin": "com.aizistral.enigmaticlegacy.fabric.DevMixinPlugin",
+	"compatibilityLevel": "JAVA_17",
+	"mixins": [
+		"DevMixinServerLevel",
+		"DevMixinServerPlayer"
+	],
+	"client": [
+		"DevMixinKeybindHandler",
+		"DevMixinScreen",
+		"DevMixinSoundManager",
+		"DevMixinWindow"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

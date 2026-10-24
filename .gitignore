@@ -13,6 +13,7 @@ build/
 .gradle/
 run/
 runs/
+run-server/
 out/
 *.class
 .idea/

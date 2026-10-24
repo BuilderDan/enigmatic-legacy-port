@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.packets.clients;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.function.Supplier;
 
 import com.aizistral.enigmaticlegacy.platform.network.PacketContext;
@@ -48,23 +50,25 @@ public class PacketForceArrowRotations {
 	}
 
 	public static void handle(PacketForceArrowRotations msg, Supplier<PacketContext> ctx) {
-		ctx.get().enqueueWork(() -> {
-			ClientLevel theWorld = Minecraft.getInstance().level;
-			Entity arrow = theWorld.getEntity(msg.entityID);
-
-			if (arrow != null) {
-				arrow.addTag("enigmaticlegacy.redirected");
-
-				arrow.moveTo(msg.posX, msg.posY, msg.posZ);
-				arrow.setDeltaMovement(msg.motionX, msg.motionY, msg.motionZ);
-				arrow.setYRot(msg.rotationYaw);
-				arrow.yRotO = msg.rotationYaw;
-				arrow.setXRot(msg.rotationPitch);
-				arrow.xRotO = msg.rotationPitch;
-			}
-
-		});
+		ctx.get().enqueueWork(() -> handleClient(msg));
 		ctx.get().setPacketHandled(true);
 	}
 
+
+	@Environment(EnvType.CLIENT)
+	private static void handleClient(PacketForceArrowRotations msg) {
+		ClientLevel theWorld = Minecraft.getInstance().level;
+		Entity arrow = theWorld.getEntity(msg.entityID);
+
+		if (arrow != null) {
+			arrow.addTag("enigmaticlegacy.redirected");
+
+			arrow.moveTo(msg.posX, msg.posY, msg.posZ);
+			arrow.setDeltaMovement(msg.motionX, msg.motionY, msg.motionZ);
+			arrow.setYRot(msg.rotationYaw);
+			arrow.yRotO = msg.rotationYaw;
+			arrow.setXRot(msg.rotationPitch);
+			arrow.xRotO = msg.rotationPitch;
+		}
+	}
 }

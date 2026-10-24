@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -44,6 +46,7 @@ public class CosmicHeart extends ItemBase implements Vanishable {
 		}
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
 		if (ItemNBTHelper.getBoolean(stack, "isBelieverBlessed", false)) {

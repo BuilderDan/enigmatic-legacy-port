@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,7 +41,7 @@ import net.minecraft.world.level.Level;
 import com.aizistral.enigmaticlegacy.platform.accessory.SlotContext;
 
 /**
- * Upstream item. Port: the client-only members lost their @OnlyIn markers; registerVariants
+ * Upstream item. Port: the client-only members swap @OnlyIn for @Environment(EnvType.CLIENT); registerVariants
  * runs from EnigmaticLegacyFabricClient.
  */
 public class EnigmaticEye extends ItemBaseCurio {
@@ -49,6 +51,7 @@ public class EnigmaticEye extends ItemBaseCurio {
 		super(getDefaultProperties().rarity(Rarity.EPIC).fireResistant());
 	}
 
+	@Environment(EnvType.CLIENT)
 	public void registerVariants() {
 		ItemProperties.register(this, new ResourceLocation(EnigmaticLegacy.MODID, "enigmatic_eye_activated"), (stack, world, entity, numberlol) -> {
 			if (!this.isDormant(stack))
@@ -72,6 +75,7 @@ public class EnigmaticEye extends ItemBaseCurio {
 		});
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 		ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.void");

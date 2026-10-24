@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.entities;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.UUID;
 
 import org.jetbrains.annotations.Nullable;
@@ -44,7 +46,7 @@ import net.minecraft.world.phys.Vec3;
  * @author Integral
  */
 
-// Port: @OnlyIn removed; Forge packets -> Services.NETWORK; vanilla spawn packet. The Storage
+// Port: @OnlyIn -> @Environment(EnvType.CLIENT); Forge packets -> Services.NETWORK; vanilla spawn packet. The Storage
 // and Soul Crystal pickup branch and the SoulArchive calls wait for the Enigmatic Amulet's
 // soul system (see CHANGES.md).
 
@@ -80,6 +82,7 @@ public class PermanentItemEntity extends Entity {
 		this.setItem(stack);
 	}
 
+	@Environment(EnvType.CLIENT)
 	private PermanentItemEntity(PermanentItemEntity p_i231561_1_) {
 		super(p_i231561_1_.getType(), p_i231561_1_.level());
 		this.setItem(p_i231561_1_.getItem().copy());
@@ -88,6 +91,7 @@ public class PermanentItemEntity extends Entity {
 		this.hoverStart = p_i231561_1_.hoverStart;
 	}
 
+	@Environment(EnvType.CLIENT)
 	public PermanentItemEntity copy() {
 		return new PermanentItemEntity(this);
 	}
@@ -331,10 +335,12 @@ public class PermanentItemEntity extends Entity {
 			return false;
 	}
 
+	@Environment(EnvType.CLIENT)
 	public float getItemHover(float partialTicks) {
 		return (this.getAge() + partialTicks) / 20.0F + this.hoverStart;
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public boolean shouldRenderAtSqrDistance(double distance) {
 		double d0 = this.getBoundingBox().getSize() * 4.0D;
@@ -388,6 +394,7 @@ public class PermanentItemEntity extends Entity {
 		this.thrower = throwerId;
 	}
 
+	@Environment(EnvType.CLIENT)
 	public int getAge() {
 		return this.age;
 	}

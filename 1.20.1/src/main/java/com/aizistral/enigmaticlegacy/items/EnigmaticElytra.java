@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -67,6 +69,7 @@ public class EnigmaticElytra extends ItemBaseCurio implements Equipable {
 		return SoundEvents.ARMOR_EQUIP_ELYTRA;
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, Level world, List<Component> list, TooltipFlag flag) {
 		ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.void");

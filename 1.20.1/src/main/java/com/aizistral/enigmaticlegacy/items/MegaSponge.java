@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.items;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,6 +62,7 @@ public class MegaSponge extends ItemBaseCurio implements Vanishable {
 		super(ItemBaseCurio.getDefaultProperties().rarity(Rarity.UNCOMMON));
 	}
 
+	@Environment(EnvType.CLIENT)
 	@Override
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> list, TooltipFlag flagIn) {
 

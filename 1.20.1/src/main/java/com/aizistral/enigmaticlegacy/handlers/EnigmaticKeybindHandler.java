@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.handlers;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import com.aizistral.enigmaticlegacy.packets.server.PacketEnderRingKey;
 import com.aizistral.enigmaticlegacy.packets.server.PacketSpellstoneKey;
 import com.aizistral.enigmaticlegacy.packets.server.PacketXPScrollKey;
@@ -22,6 +24,7 @@ public class EnigmaticKeybindHandler {
 	public KeyMapping xpScrollKey;
 	public KeyMapping spellstoneAbilityKey;
 
+	@Environment(EnvType.CLIENT)
 	public void onKeyInput(Minecraft minecraft) {
 		if (!minecraft.isWindowActive() || minecraft.player == null)
 			return;

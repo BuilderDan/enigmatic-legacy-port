@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.packets.clients;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import java.util.function.Supplier;
 
 import com.aizistral.enigmaticlegacy.platform.network.PacketContext;
@@ -13,7 +15,7 @@ import net.minecraft.network.FriendlyByteBuf;
  * @author Integral
  */
 
-// Port: NetworkEvent.Context -> PacketContext; @OnlyIn removed (only the client runs handle).
+// Port: NetworkEvent.Context -> PacketContext; @OnlyIn -> @Environment(EnvType.CLIENT) on handleClient (Fabric does not strip lambdas).
 public class PacketPlayerSetlook {
 	private double x, y, z;
 
@@ -34,9 +36,7 @@ public class PacketPlayerSetlook {
 	}
 
 	public static void handle(PacketPlayerSetlook msg, Supplier<PacketContext> ctx) {
-		ctx.get().enqueueWork(() -> {
-			lookAt(msg.x, msg.y, msg.z, Minecraft.getInstance().player);
-		});
+		ctx.get().enqueueWork(() -> handleClient(msg));
 
 		ctx.get().setPacketHandled(true);
 	}
@@ -45,6 +45,7 @@ public class PacketPlayerSetlook {
 	 * Port: upstream's SuperpositionHandler.lookAt, moved here so that the common
 	 * SuperpositionHandler never references the client-only LocalPlayer class.
 	 */
+	@Environment(EnvType.CLIENT)
 	private static void lookAt(double px, double py, double pz, LocalPlayer me) {
 		double dirx = me.getX() - px;
 		double diry = me.getY() - py;
@@ -66,5 +67,10 @@ public class PacketPlayerSetlook {
 		yaw += 90f;
 		me.setXRot((float) pitch);
 		me.setYRot((float) yaw);
+	}
+
+	@Environment(EnvType.CLIENT)
+	private static void handleClient(PacketPlayerSetlook msg) {
+		lookAt(msg.x, msg.y, msg.z, Minecraft.getInstance().player);
 	}
 }

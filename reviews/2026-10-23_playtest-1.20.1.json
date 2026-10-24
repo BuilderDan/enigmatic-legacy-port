@@ -1,0 +1,100 @@
+{
+ "title": "Enigmatic Legacy 1.20.1 Fabric playtest: look and feel",
+ "key": "enigmatic_playtest_1201_r1",
+ "root": "../test-output/playtest/screenshots",
+ "out": "../test-output/review",
+ "closed": [],
+ "groups": [
+  {
+   "title": "Creative tabs",
+   "scene": "Dev client, GUI scale 2, creative inventory open on the Enigmatic Legacy tabs. The automated check already confirmed every item has a model, a name and a tooltip key.",
+   "parts": [
+    {
+     "item": 1,
+     "name": "Main tab",
+     "tests": "Every item icon renders like upstream (no purple/black missing textures, nothing stretched or blank)",
+     "look": ["Item icons", "Enchantment glint on items that should have it"],
+     "ignore": ["Item order", "The relic_of_testing debug item (upstream has no model either)"],
+     "images": [
+      {"k": "A", "path": "main_0.png", "cap": "page 1"},
+      {"k": "B", "path": "main_1.png", "cap": "page 2"},
+      {"k": "C", "path": "main_2.png", "cap": "page 3"},
+      {"k": "D", "path": "main_3.png", "cap": "page 4"},
+      {"k": "E", "path": "main_4.png", "cap": "page 5"}
+     ],
+     "qs": [
+      ["1a", "All icons look right?", ["Yes", "Some look wrong (note which)", "Can't tell"]]
+     ]
+    },
+    {
+     "item": 2,
+     "name": "Potions tab",
+     "tests": "Potion bottles show distinct colors and the right bottle types",
+     "look": ["Bottle colors", "Splash and lingering bottles"],
+     "ignore": ["Item order"],
+     "images": [
+      {"k": "A", "path": "potions_0.png", "cap": "page 1"},
+      {"k": "B", "path": "potions_1.png", "cap": "page 2"},
+      {"k": "C", "path": "potions_2.png", "cap": "page 3"},
+      {"k": "D", "path": "potions_3.png", "cap": "page 4"},
+      {"k": "E", "path": "potions_4.png", "cap": "page 5"}
+     ],
+     "qs": [
+      ["2a", "Potion icons look right?", ["Yes", "Some look wrong (note which)", "Can't tell"]]
+     ]
+    }
+   ]
+  },
+  {
+   "title": "GUI and HUD, single player vs dedicated server",
+   "scene": "Same scenario run twice: A in single player, B as a client on a local dedicated server. Effects were already checked by code; this is only about how it looks.",
+   "parts": [
+    {
+     "item": 3,
+     "name": "Blazing Core in lava",
+     "tests": "Player wearing the Blazing Core while submerged in lava",
+     "look": ["Lava fog and fire overlay", "HUD"],
+     "ignore": ["Camera angle", "Chat lines from the test harness"],
+     "images": [
+      {"k": "A", "path": "blazing_core_lava.png", "cap": "single player"},
+      {"k": "B", "path": "mp_blazing_core_lava.png", "cap": "dedicated server"}
+     ],
+     "qs": [
+      ["3a", "Looks right for the Blazing Core?", ["Yes", "No (note why)", "Can't tell"]],
+      ["3b", "A and B look the same?", ["Yes", "No (note why)", "Can't tell"]]
+     ]
+    },
+    {
+     "item": 4,
+     "name": "Ender Ring",
+     "tests": "Ender chest screen opened by the Ender Ring keybind",
+     "look": ["Screen title and layout"],
+     "ignore": ["Chest contents", "Chat lines from the test harness"],
+     "images": [
+      {"k": "A", "path": "ender_ring.png", "cap": "single player"},
+      {"k": "B", "path": "mp_ender_ring.png", "cap": "dedicated server"}
+     ],
+     "qs": [
+      ["4a", "Looks right?", ["Yes", "No (note why)", "Can't tell"]],
+      ["4b", "A and B look the same?", ["Yes", "No (note why)", "Can't tell"]]
+     ]
+    },
+    {
+     "item": 5,
+     "name": "Lore Inscriber",
+     "tests": "Lore Inscriber screen with its text fields",
+     "look": ["Background texture", "Text fields and buttons"],
+     "ignore": ["The advancement toast overlapping the top right in B (vanilla toast, cosmetic)"],
+     "images": [
+      {"k": "A", "path": "lore_inscriber.png", "cap": "single player"},
+      {"k": "B", "path": "mp_lore_inscriber.png", "cap": "dedicated server"}
+     ],
+     "qs": [
+      ["5a", "Looks right?", ["Yes", "No (note why)", "Can't tell"]],
+      ["5b", "A and B look the same?", ["Yes", "No (note why)", "Can't tell"]]
+     ]
+    }
+   ]
+  }
+ ]
+}

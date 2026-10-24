@@ -1,5 +1,7 @@
 package com.aizistral.enigmaticlegacy.packets.clients;
 
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -8,8 +10,9 @@ import com.aizistral.enigmaticlegacy.platform.network.PacketContext;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.entity.player.Player;
 
-// Port: NetworkEvent.Context -> PacketContext; @OnlyIn removed (only the client runs handle).
+// Port: NetworkEvent.Context -> PacketContext; @OnlyIn -> @Environment(EnvType.CLIENT) on the client handle method (Fabric does not strip lambdas).
 public class PacketSyncPlayTime {
 	private UUID playerID;
 	private long timeWithCurses, timeWithoutCurses;
@@ -38,12 +41,16 @@ public class PacketSyncPlayTime {
 		ctx.get().setPacketHandled(true);
 	}
 
+	@Environment(EnvType.CLIENT)
 	private static void handle(UUID playerID, long timeWithCurses, long timeWithoutCurses) {
-		Minecraft.getInstance().level.players().stream().filter(player -> player.getUUID().equals(playerID))
-		.findAny().ifPresent(player -> {
-			var counter = IPlaytimeCounter.get(player);
-			counter.setTimeWithCurses(timeWithCurses);
-			counter.setTimeWithoutCurses(timeWithoutCurses);
-		});
+		// Port: a loop, not a stream; Fabric does not strip lambdas typed with client classes.
+		for (Player player : Minecraft.getInstance().level.players()) {
+			if (player.getUUID().equals(playerID)) {
+				var counter = IPlaytimeCounter.get(player);
+				counter.setTimeWithCurses(timeWithCurses);
+				counter.setTimeWithoutCurses(timeWithoutCurses);
+				break;
+			}
+		}
 	}
 }
