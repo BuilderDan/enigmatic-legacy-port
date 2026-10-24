@@ -104,6 +104,7 @@ public class EnigmaticLegacyFabricClient implements ClientModInitializer {
 		registerRenderers();
 		SeparateTransformsModel.register();
 		DevSelfCheck.register();
+		DevPlaytest.register();
 	}
 
 	/**

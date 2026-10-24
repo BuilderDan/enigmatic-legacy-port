@@ -34,6 +34,7 @@ import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.registries.VanillaRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
@@ -94,9 +95,12 @@ public final class DevSelfCheck {
 		for (ItemStack stack : stacks) {
 			String id = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
 
-			if (!I18n.exists(stack.getDescriptionId())) {
+			// Check the key of the shown name: some items, like the Inscrutable Eye, name themselves with their own keys.
+			String key = stack.getHoverName().getContents() instanceof TranslatableContents name ? name.getKey() : stack.getDescriptionId();
+
+			if (!I18n.exists(key)) {
 				problems++;
-				LOGGER.warn("[devcheck] {}: no translation for {}", id, stack.getDescriptionId());
+				LOGGER.warn("[devcheck] {}: no translation for {}", id, key);
 			}
 
 			if (client.getItemRenderer().getModel(stack, null, null, 0) == missing) {

@@ -65,6 +65,7 @@ import com.aizistral.enigmaticlegacy.triggers.RevelationGainTrigger;
 import com.aizistral.enigmaticlegacy.triggers.RevelationTomeBurntTrigger;
 import com.aizistral.enigmaticlegacy.triggers.CursedInventoryChangedTrigger;
 import com.aizistral.enigmaticlegacy.triggers.CursedRingEquippedTrigger;
+import com.aizistral.enigmaticlegacy.triggers.EquipAccessoryTrigger;
 import com.aizistral.enigmaticlegacy.triggers.UseUnholyGrailTrigger;
 import com.aizistral.omniconfig.packets.PacketSyncOptions;
 
@@ -156,6 +157,7 @@ public class EnigmaticLegacyFabric implements ModInitializer {
 		CriteriaTriggers.register(BeheadingTrigger.INSTANCE);
 		CriteriaTriggers.register(UseUnholyGrailTrigger.INSTANCE);
 		CriteriaTriggers.register(CursedRingEquippedTrigger.INSTANCE);
+		CriteriaTriggers.register(EquipAccessoryTrigger.INSTANCE);
 		CriteriaTriggers.register(CursedInventoryChangedTrigger.INSTANCE);
 		CriteriaTriggers.register(ForbiddenFruitTrigger.INSTANCE);
 		CriteriaTriggers.register(RevelationGainTrigger.INSTANCE);

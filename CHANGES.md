@@ -799,3 +799,15 @@ Sections are added here as each Minecraft version / loader is ported.
   Upstream's Quark matrix enchanter check is dropped (Quark has no Fabric version).
 - Dev only, port-only: `DevSelfCheck` also checks the fishing hook, llama spit and shulker bullet
   mixins and that `AccessorAdvancementCommands` returns the advancement suggestions.
+- Advancements that used Curios data:
+  - `main/desolation_ring`: Curios' `curios:equip_curio` trigger becomes the port-only
+    `enigmaticlegacy:equip_accessory` (`EquipAccessoryTrigger`, same `item` predicate), fired
+    from `TrinketAdapter.onEquip` (Trinkets has no equip trigger).
+  - `main/discover_scroll` and `main/discover_spellstone`: the `curios:scroll` and
+    `curios:spellstone` item tags become `trinkets:head/scroll` and `trinkets:legs/spellstone`
+    (same contents).
+- `AdvancedBrewingRecipeProcessor` (Patchouli page processor for the brewing recipes) is
+  copied unchanged; it was missing, so those book pages failed to load.
+- Dev only, port-only: `DevPlaytest` and `DevPlaytestScenarios` (`-Pplaytest`) open a test world,
+  screenshot the creative tabs and run in-world item checks; dev runs start muted and do not
+  pause on lost focus.

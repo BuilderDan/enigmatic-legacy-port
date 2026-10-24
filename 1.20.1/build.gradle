@@ -85,8 +85,14 @@ tasks.named('runClient') {
 	if (project.hasProperty('devcheck')) {
 		systemProperty 'enigmaticlegacy.devcheck', project.property('devcheck')
 	}
+	// Port: -Pplaytest=all,exit (or a comma list of scenario ids) runs the DevPlaytest in-world checks.
+	if (project.hasProperty('playtest')) {
+		systemProperty 'enigmaticlegacy.playtest', project.property('playtest')
+	}
 	doFirst {
-		def forced = ['soundCategory_music': '0.0', 'narrator': '0', 'onboardAccessibility': 'false']
+		// Dan (2026-10-23): no sound at all, and no pause menu when the window is in the background.
+		def forced = ['soundCategory_music': '0.0', 'soundCategory_master': '0.0', 'narrator': '0',
+				'onboardAccessibility': 'false', 'pauseOnLostFocus': 'false', 'tutorialStep': 'none']
 		def lines = devOptions.exists() ? devOptions.readLines('UTF-8') : []
 		lines = lines.findAll { line -> !forced.keySet().any { line.startsWith(it + ':') } }
 		forced.each { k, v -> lines << "${k}:${v}".toString() }

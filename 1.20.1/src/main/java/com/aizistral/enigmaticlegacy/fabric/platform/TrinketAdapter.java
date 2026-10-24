@@ -5,12 +5,14 @@ import java.util.UUID;
 import com.aizistral.enigmaticlegacy.platform.accessory.DropRule;
 import com.aizistral.enigmaticlegacy.platform.accessory.IAccessoryItem;
 import com.aizistral.enigmaticlegacy.platform.accessory.SlotContext;
+import com.aizistral.enigmaticlegacy.triggers.EquipAccessoryTrigger;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 
 import dev.emi.trinkets.api.SlotReference;
 import dev.emi.trinkets.api.Trinket;
 import dev.emi.trinkets.api.TrinketEnums;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -51,6 +53,10 @@ public record TrinketAdapter(IAccessoryItem item) implements Trinket {
 	@Override
 	public void onEquip(ItemStack stack, SlotReference slot, LivingEntity entity) {
 		this.item.onEquip(context(slot, entity), ItemStack.EMPTY, stack);
+
+		// Curios fires curios:equip_curio itself; Trinkets has no such trigger.
+		if (entity instanceof ServerPlayer player)
+			EquipAccessoryTrigger.INSTANCE.trigger(player, stack);
 	}
 
 	@Override
