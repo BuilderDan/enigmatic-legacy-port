@@ -834,3 +834,51 @@ Sections are added here as each Minecraft version / loader is ported.
   the same checks (`results-server.md`). Dev mixins (`enigmaticlegacy.dev.mixins.json`, gated by
   `DevMixinPlugin`) never load in a normal game. `DevMixinWindow` opens every dev client hidden,
   moves it to the second monitor and shows it without taking focus.
+
+### 1.21.1 Fabric (`1.21.1/`, in progress)
+
+Ported from the 1.20.1 Fabric port above; every change listed there also applies here. The
+changes below are the extra ones Minecraft 1.21 required. Unless noted, behavior matches upstream.
+
+- Build: Loom 1.11, Fabric Loader 0.16.14, Fabric API 0.116.17+1.21.1, Java 21, Parchment
+  2024.11.17. Trinkets 3.10.0, Cardinal Components API 6.1.2, Patchouli 1.21.1-93-FABRIC.
+- Enchantments are data-driven in 1.21: Eternal Binding, Sorrow, Nemesis Curse, Wrath, Torrent,
+  Slayer, Ceaseless and Sharpshooter are JSON files under `data/enigmaticlegacy/enchantment/`,
+  with their effects in code reading the enchantment level through registry holders.
+  Binding/Vanishing curse checks, Aqua Affinity, Enchanter's Pearl, Curse Transposer and loot
+  bonuses use the 1.21 holder API. The Acknowledgment's Bane of Arthropods and the Ring of the
+  Seven Curses' Vanishing checks moved to Fabric's `EnchantmentEvents.ALLOW_ENCHANTING`
+  (`MixinEnchantment` removed).
+- Item NBT -> data components: `custom_data` for item state (amulets, Oblivion Stone, Storage
+  Crystal, Lore Fragment, Insignia, Lore Inscriber), lore and custom-name components for
+  tooltips and names.
+- Attributes: modifiers use ResourceLocation ids instead of UUIDs; weapon and tool attributes
+  are item-property components. Upstream's block reach attribute and its three mixins are
+  removed; the mod uses vanilla `BLOCK_INTERACTION_RANGE` with the same values.
+- Etherium armor: `ArmorMaterial` is a registered holder, durability factor 132 kept, body
+  defense 9. Tool tiers use 1.21 block tags.
+- Recipes, loot and advancements: loot changes use Fabric loot API v3, codec-based recipe serializers
+  (`ShapelessNoReturn`, hidden recipes), codec-based advancement triggers, `AdvancementHolder`,
+  the recipe folder renamed to `recipe/`. The config condition `EnabledCondition` is a Fabric
+  `ResourceCondition`.
+- Brewing: `PotionBrewing` is a per-level instance, so the brewing hooks are instance methods.
+  Potion tooltips, fire-resistance loot and potion clouds use the potion contents component.
+- Networking: each packet is a `CustomPacketPayload` with its own `StreamCodec`.
+- Projectiles: one `MixinProjectile` on `hitTargetOrDeflectSelf` replaces seven per-class
+  tick wraps for impact handling and deflection (arrows, hurting projectiles, throwables,
+  rockets, fishing hooks, llama spit, shulker bullets). Crossbow effects hook `createProjectile` and skip fireworks.
+- Other API moves: `dropAllDeathLoot` takes a `ServerLevel`, `disableShield` has no sprinting
+  parameter, the poison mixin targets `PoisonMobEffect`, `doPostAttackEffects` replaces the old
+  enchantment post-hit hook, the name tag render inject has the new `partialTick` parameter.
+- End Anchor respawn uses `findRespawnAndUseSpawnBlock` (access widener). End Anchor and
+  Cosmic Cake split `use()` into `useWithoutItem`/`useItemOn`.
+- Permadeath disconnects with the 1.21 disconnect API; the respawn helper copies player data
+  the 1.21 way; Revelation uses a `MapCodec` and a 1.21 toast.
+- Client: the HUD uses sprite-based food and air icons and `guiWidth`/`guiHeight`; the aura
+  color is a packed int; screens no longer draw their background twice; the inventory button
+  extends `Button`; the Storage Crystal model loader and growing effects use the 1.21 APIs.
+- Patchouli book: entries use the 1.21 item component syntax for enchanted and potion icons.
+- Evil Essence and Evil Ingot use `canBeHurtBy` for fire immunity; permanent item entities use
+  the 1.21 portal API.
+- Dev only, port-only: devcheck and the 39 playtest scenarios are updated for 1.21; the mixin
+  audit only checks handlers that still exist; devcheck builds only the mod's creative tabs.

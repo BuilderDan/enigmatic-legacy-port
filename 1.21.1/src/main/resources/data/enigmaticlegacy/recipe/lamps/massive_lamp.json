@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:massive_lamp"
+    }
+  ],
+  "ingredients": [
+    {
+      "item": "enigmaticlegacy:big_lamp"
+    },
+    {
+      "item": "minecraft:glass"
+    }
+  ],
+  "result": {
+    "id": "enigmaticlegacy:massive_lamp"
+  }
+}

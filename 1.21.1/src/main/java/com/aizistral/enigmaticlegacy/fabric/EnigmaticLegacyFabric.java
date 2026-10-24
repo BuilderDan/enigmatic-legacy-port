@@ -1,0 +1,332 @@
+package com.aizistral.enigmaticlegacy.fabric;
+
+import com.aizistral.enigmaticlegacy.api.items.IBindable;
+import com.aizistral.enigmaticlegacy.objects.LoggerWrapper;
+
+import com.aizistral.enigmaticlegacy.EnigmaticLegacy;
+import com.aizistral.enigmaticlegacy.api.capabilities.PlayerPlaytimeCounter;
+import com.aizistral.enigmaticlegacy.config.OmniconfigHandler;
+import com.aizistral.enigmaticlegacy.config.OmniconfigSync;
+import com.aizistral.enigmaticlegacy.fabric.platform.FabricPlatformHelper;
+import com.aizistral.enigmaticlegacy.handlers.EnigmaticEventHandler;
+import com.aizistral.enigmaticlegacy.handlers.SoulArchive;
+import com.aizistral.enigmaticlegacy.fabric.platform.TrinketsAccessorySlots;
+import com.aizistral.enigmaticlegacy.objects.EnabledCondition;
+import com.aizistral.enigmaticlegacy.objects.PersistentData;
+import com.aizistral.enigmaticlegacy.objects.RegisteredMeleeAttack;
+import com.aizistral.enigmaticlegacy.objects.SpecialLootModifier;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketForceArrowRotations;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketHandleItemPickup;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketFlameParticles;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketPortalParticles;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketGenericParticleEffect;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketRecallParticles;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncFireImmunity;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayQuote;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketUpdateCompass;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncForbiddenFruit;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncMagnetEffects;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncPlayTime;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncElytraBoosting;
+import com.aizistral.enigmaticlegacy.packets.server.PacketUpdateElytraBoosting;
+import com.aizistral.enigmaticlegacy.handlers.SuperpositionHandler;
+import net.fabricmc.fabric.api.entity.event.v1.EntityElytraEvents;
+import net.minecraft.world.item.ItemStack;
+import net.fabricmc.fabric.api.item.v1.EnchantingContext;
+import net.fabricmc.fabric.api.item.v1.EnchantmentEvents;
+import net.fabricmc.fabric.api.util.TriState;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import com.aizistral.enigmaticlegacy.enchantments.EternalBindingCurse;
+import com.aizistral.enigmaticlegacy.items.CursedRing;
+import com.aizistral.enigmaticlegacy.items.EldritchPan;
+import com.aizistral.enigmaticlegacy.items.TheAcknowledgment;
+import com.aizistral.enigmaticlegacy.items.GolemHeart;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketPermadeath;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayerMotion;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketPatchouliForce;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketSetEntryState;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketSlotUnlocked;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketPlayerSetlook;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketCosmicRevive;
+import com.aizistral.enigmaticlegacy.packets.server.PacketEnderRingKey;
+import com.aizistral.enigmaticlegacy.packets.server.PacketToggleMagnetEffects;
+import com.aizistral.enigmaticlegacy.packets.server.PacketXPScrollKey;
+import com.aizistral.enigmaticlegacy.packets.server.PacketInkwellField;
+import com.aizistral.enigmaticlegacy.packets.server.PacketEnchantingGUI;
+import com.aizistral.enigmaticlegacy.platform.Services;
+import com.aizistral.enigmaticlegacy.platform.accessory.AccessoryDrops;
+import com.aizistral.enigmaticlegacy.platform.accessory.DropRule;
+import com.aizistral.enigmaticlegacy.platform.network.PacketDirection;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticAttributes;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticEffects;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticEnchantments;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticPotions;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticBlocks;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticItems;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticTiles;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticLootFunctions;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticRecipes;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticSounds;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticTabs;
+import com.aizistral.enigmaticlegacy.triggers.BeheadingTrigger;
+import com.aizistral.enigmaticlegacy.triggers.ForbiddenFruitTrigger;
+import com.aizistral.enigmaticlegacy.triggers.RevelationGainTrigger;
+import com.aizistral.enigmaticlegacy.triggers.RevelationTomeBurntTrigger;
+import com.aizistral.enigmaticlegacy.triggers.CursedInventoryChangedTrigger;
+import com.aizistral.enigmaticlegacy.triggers.CursedRingEquippedTrigger;
+import com.aizistral.enigmaticlegacy.triggers.EquipAccessoryTrigger;
+import com.aizistral.enigmaticlegacy.triggers.UseUnholyGrailTrigger;
+import com.aizistral.omniconfig.packets.PacketSyncOptions;
+
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.server.level.ServerPlayer;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketWitherParticles;
+import com.aizistral.enigmaticlegacy.packets.server.PacketSpellstoneKey;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticEntities;
+import com.aizistral.enigmaticlegacy.registries.EnigmaticMenus;
+import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.registry.FuelRegistry;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+
+/**
+ * Fabric entry point. Enigmatic Legacy is created and owned by Aizistral;
+ * this class is part of the unofficial Fabric port (see CHANGES.md).
+ */
+public class EnigmaticLegacyFabric implements ModInitializer {
+	public static final String MODID = EnigmaticLegacy.MODID;
+	public static final LoggerWrapper LOGGER = EnigmaticLegacy.LOGGER;
+
+	@Override
+	public void onInitialize() {
+		LOGGER.info("Enigmatic Legacy (Fabric port) initializing");
+		FabricPlatformHelper.init();
+		OmniconfigHandler.initialize();
+		EnigmaticEffects.init();
+		EnigmaticPotions.init();
+		EnigmaticSounds.init();
+		EnigmaticAttributes.init();
+		EnigmaticEnchantments.init();
+		EnigmaticBlocks.init();
+		EnigmaticTiles.init();
+		EnigmaticItems.init();
+		EnigmaticEntities.init();
+		EnigmaticMenus.init();
+		EnigmaticLootFunctions.init();
+		// Port: upstream RevelationTome.getBurnTime.
+		FuelRegistry.INSTANCE.add(EnigmaticItems.TATTERED_TOME, 400);
+		FuelRegistry.INSTANCE.add(EnigmaticItems.WITHERED_TOME, 400);
+		FuelRegistry.INSTANCE.add(EnigmaticItems.CORRUPTED_TOME, 400);
+		// Port: upstream adds this in onLoadComplete.
+		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.ANGEL_BLESSING);
+		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.GOLEM_HEART);
+		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.OCEAN_STONE);
+		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.BLAZING_CORE);
+		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.EYE_OF_NEBULA);
+		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.VOID_PEARL);
+		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.THE_CUBE);
+		EnigmaticItems.SPELLSTONES.add(EnigmaticItems.ENIGMATIC_ITEM);
+		EnigmaticRecipes.init();
+		EnigmaticRecipes.registerBrewingRecipes();
+		EnigmaticRecipes.registerHiddenRecipes();
+		EnigmaticTabs.init();
+		TrinketsAccessorySlots.init();
+		// Port: upstream onCurioDrops (Curios DropRulesEvent).
+		AccessoryDrops.register((entity, stack) -> EnigmaticEnchantments.getLevel(EnigmaticEnchantments.ETERNAL_BINDING, stack) > 0 ? DropRule.ALWAYS_KEEP : null);
+		AccessoryDrops.register((entity, stack) -> entity instanceof ServerPlayer player
+				&& EnigmaticEventHandler.POSTMORTAL_POSESSIONS.containsEntry(player, EnigmaticItems.ELDRITCH_AMULET)
+				&& EnigmaticEnchantments.getLevel(Enchantments.VANISHING_CURSE, stack) <= 0 ? DropRule.ALWAYS_KEEP : null);
+		// Port: 1.21 enchantments are data-driven. Stands in for upstream's per-enchantment canEnchant
+		// overrides, the config toggles, and the items' canApplyAtEnchantingTable/isBookEnchantable.
+		EnchantmentEvents.ALLOW_ENCHANTING.register((enchantment, stack, context) -> {
+			ResourceKey<Enchantment> own = EnigmaticEnchantments.ownKey(enchantment);
+			if (own != null && !OmniconfigHandler.isItemEnabled(own))
+				return TriState.FALSE;
+
+			if (enchantment.is(EnigmaticEnchantments.ETERNAL_BINDING)) {
+				Boolean applies = EternalBindingCurse.canApplyTo(stack);
+				if (applies != null)
+					return TriState.of(applies);
+			}
+
+			// Port: upstream's MixinBindingCurseEnchantment (BindingCurseEnchantment is gone in 1.21).
+			if (enchantment.is(Enchantments.BINDING_CURSE) && stack.getItem() instanceof IBindable)
+				return TriState.TRUE;
+
+			if (stack.getItem() instanceof EldritchPan) {
+				ItemStack sword = new ItemStack(Items.DIAMOND_SWORD);
+				return TriState.of(context == EnchantingContext.PRIMARY ? enchantment.value().isPrimaryItem(sword) : enchantment.value().canEnchant(sword));
+			}
+
+			if (stack.getItem() instanceof TheAcknowledgment && enchantment.is(Enchantments.BANE_OF_ARTHROPODS))
+				return TriState.TRUE;
+
+			if (stack.getItem() instanceof CursedRing && enchantment.is(Enchantments.VANISHING_CURSE))
+				return TriState.FALSE;
+
+			return TriState.DEFAULT;
+		});
+		// Port: Forge's IForgeItem canElytraFly/elytraFlightTick (and Caelus' flight attribute).
+		EntityElytraEvents.CUSTOM.register((entity, tickElytra) -> {
+			ItemStack stack = SuperpositionHandler.getEnigmaticElytra(entity);
+
+			if (stack != null && EnigmaticItems.ENIGMATIC_ELYTRA.canElytraFly(stack, entity)) {
+				if (tickElytra) {
+					EnigmaticItems.ENIGMATIC_ELYTRA.elytraFlightTick(stack, entity, entity.getFallFlyingTicks());
+				}
+				return true;
+			}
+
+			return false;
+		});
+		EnabledCondition.register();
+		PlayerPlaytimeCounter.registerStats();
+		registerPackets();
+		Registry.register(BuiltInRegistries.TRIGGER_TYPES, BeheadingTrigger.ID, BeheadingTrigger.INSTANCE);
+		Registry.register(BuiltInRegistries.TRIGGER_TYPES, UseUnholyGrailTrigger.ID, UseUnholyGrailTrigger.INSTANCE);
+		Registry.register(BuiltInRegistries.TRIGGER_TYPES, CursedRingEquippedTrigger.ID, CursedRingEquippedTrigger.INSTANCE);
+		Registry.register(BuiltInRegistries.TRIGGER_TYPES, EquipAccessoryTrigger.ID, EquipAccessoryTrigger.INSTANCE);
+		Registry.register(BuiltInRegistries.TRIGGER_TYPES, CursedInventoryChangedTrigger.ID, CursedInventoryChangedTrigger.INSTANCE);
+		Registry.register(BuiltInRegistries.TRIGGER_TYPES, ForbiddenFruitTrigger.ID, ForbiddenFruitTrigger.INSTANCE);
+		Registry.register(BuiltInRegistries.TRIGGER_TYPES, RevelationGainTrigger.ID, RevelationGainTrigger.INSTANCE);
+		Registry.register(BuiltInRegistries.TRIGGER_TYPES, RevelationTomeBurntTrigger.ID, RevelationTomeBurntTrigger.INSTANCE);
+
+		// Port-only: the multiplayer playtest, where a dedicated server runs the scenarios (see DevPlaytest).
+		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER && !DevHooks.playtestMode().isEmpty()
+				&& !DevHooks.playtestMode().equals("false")) {
+			DevPlaytestScenarios.register(DevHooks.playtestMode());
+			DevPlaytestScenarios.start();
+		}
+
+		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+			OmniconfigSync.onPlayerLoggedIn(handler.getPlayer());
+			EnigmaticEventHandler.onPlayerJoin(handler.getPlayer());
+		});
+		ServerLivingEntityEvents.ALLOW_DAMAGE.register(EnigmaticEventHandler::onLivingAttack);
+		ServerLivingEntityEvents.ALLOW_DEATH.register(EnigmaticEventHandler::onLivingDeath);
+		ServerLivingEntityEvents.AFTER_DEATH.register(EnigmaticEventHandler::onEntityKilled);
+		// Port: upstream EntityJoinLevelEvent (arthropods avoid Acknowledgment holders).
+		ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> EnigmaticEventHandler.onEntityLoad(entity));
+		// Forge keeps the PlayerPersisted compound across respawns; copy ours over too.
+		ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
+			((PersistentData) newPlayer).enigmaticlegacy$setPersistedTag(
+					((PersistentData) oldPlayer).enigmaticlegacy$getPersistedTag().copy());
+			EnigmaticEventHandler.onPlayerClone(oldPlayer, newPlayer, alive);
+		});
+		// Port: upstream reapplies the lost-soul max health penalty in its PlayerEvent.Clone handler.
+		ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
+			EnigmaticItems.SOUL_CRYSTAL.updatePlayerSoulMap(newPlayer);
+			// Port: upstream onPlayerRespawn (PlayerRespawnEvent).
+			EnigmaticEventHandler.LAST_SOUL_COMPASS_UPDATE.remove(newPlayer);
+			// Fabric's alive flag is true exactly when upstream's isEndConquered is.
+			EnigmaticEventHandler.onPlayerRespawnQuotes(newPlayer, alive);
+			EnigmaticEventHandler.onPlayerRespawnSlots(newPlayer, alive);
+		});
+		// Port: upstream onPlayerTravel (PlayerChangedDimensionEvent).
+		ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> {
+			EnigmaticEventHandler.LAST_SOUL_COMPASS_UPDATE.remove(player);
+			EnigmaticEventHandler.onPlayerTravelQuotes(player);
+		});
+		ServerTickEvents.END_SERVER_TICK.register(server -> {
+			for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+				EnigmaticEventHandler.onPlayerTick(player);
+			}
+		});
+		// Port: upstream builds this in common setup, after every mod has registered its items.
+		ServerLifecycleEvents.SERVER_STARTING.register(server -> GolemHeart.buildArmorExclusions());
+		ServerLifecycleEvents.SERVER_STARTING.register(SoulArchive::initialize);
+		ServerLifecycleEvents.SERVER_STOPPED.register(server -> EnigmaticEventHandler.onServerStopped());
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> EnigmaticEventHandler.onCommandRegistry(dispatcher));
+		// Port: stands in for upstream's AttackEntityEvent subscriber in RegisteredMeleeAttack.
+		AttackEntityCallback.EVENT.register((player, world, hand, entity, hit) -> {
+			if (!world.isClientSide) {
+				RegisteredMeleeAttack.registerAttack(player);
+			}
+
+			return InteractionResult.PASS;
+		});
+		LootTableEvents.MODIFY.register((key, tableBuilder, source, registries) ->
+				EnigmaticEventHandler.onLootTablesLoaded(key, registries, tableBuilder::pool));
+		// Port: maps loot tables to their ids for SpecialLootModifier (Forge gives them on the context).
+		LootTableEvents.ALL_LOADED.register((resourceManager, lootRegistry) ->
+				SpecialLootModifier.onLootTablesLoaded(lootRegistry));
+	}
+
+	private static void registerPackets() {
+		var network = Services.NETWORK;
+		network.register(PacketSyncPlayTime.class, PacketDirection.TO_CLIENT, PacketSyncPlayTime::encode,
+				PacketSyncPlayTime::decode, PacketSyncPlayTime::handle);
+		network.register(PacketUpdateCompass.class, PacketDirection.TO_CLIENT, PacketUpdateCompass::encode,
+				PacketUpdateCompass::decode, PacketUpdateCompass::handle);
+		network.register(PacketSyncFireImmunity.class, PacketDirection.TO_CLIENT, PacketSyncFireImmunity::encode,
+				PacketSyncFireImmunity::decode, PacketSyncFireImmunity::handle);
+		network.register(PacketPlayQuote.class, PacketDirection.TO_CLIENT, PacketPlayQuote::encode,
+				PacketPlayQuote::decode, PacketPlayQuote::handle);
+		network.register(PacketSyncForbiddenFruit.class, PacketDirection.TO_CLIENT, PacketSyncForbiddenFruit::encode,
+				PacketSyncForbiddenFruit::decode, PacketSyncForbiddenFruit::handle);
+		network.register(PacketSyncOptions.class, PacketDirection.TO_CLIENT, PacketSyncOptions::encode,
+				PacketSyncOptions::decode, PacketSyncOptions::handle);
+		network.register(PacketPortalParticles.class, PacketDirection.TO_CLIENT, PacketPortalParticles::encode,
+				PacketPortalParticles::decode, PacketPortalParticles::handle);
+		network.register(PacketFlameParticles.class, PacketDirection.TO_CLIENT, PacketFlameParticles::encode,
+				PacketFlameParticles::decode, PacketFlameParticles::handle);
+		network.register(PacketGenericParticleEffect.class, PacketDirection.TO_CLIENT, PacketGenericParticleEffect::encode,
+				PacketGenericParticleEffect::decode, PacketGenericParticleEffect::handle);
+		network.register(PacketRecallParticles.class, PacketDirection.TO_CLIENT, PacketRecallParticles::encode,
+				PacketRecallParticles::decode, PacketRecallParticles::handle);
+		network.register(PacketHandleItemPickup.class, PacketDirection.TO_CLIENT, PacketHandleItemPickup::encode,
+				PacketHandleItemPickup::decode, PacketHandleItemPickup::handle);
+		network.register(PacketEnderRingKey.class, PacketDirection.TO_SERVER, PacketEnderRingKey::encode,
+				PacketEnderRingKey::decode, PacketEnderRingKey::handle);
+		network.register(PacketToggleMagnetEffects.class, PacketDirection.TO_SERVER, PacketToggleMagnetEffects::encode,
+				PacketToggleMagnetEffects::decode, PacketToggleMagnetEffects::handle);
+		network.register(PacketSyncMagnetEffects.class, PacketDirection.TO_CLIENT, PacketSyncMagnetEffects::encode,
+				PacketSyncMagnetEffects::decode, PacketSyncMagnetEffects::handle);
+		network.register(PacketXPScrollKey.class, PacketDirection.TO_SERVER, PacketXPScrollKey::encode,
+				PacketXPScrollKey::decode, PacketXPScrollKey::handle);
+		network.register(PacketInkwellField.class, PacketDirection.TO_SERVER, PacketInkwellField::encode,
+				PacketInkwellField::decode, PacketInkwellField::handle);
+		network.register(PacketEnchantingGUI.class, PacketDirection.TO_SERVER, PacketEnchantingGUI::encode,
+				PacketEnchantingGUI::decode, PacketEnchantingGUI::handle);
+		network.register(PacketWitherParticles.class, PacketDirection.TO_CLIENT, PacketWitherParticles::encode,
+				PacketWitherParticles::decode, PacketWitherParticles::handle);
+		network.register(PacketSpellstoneKey.class, PacketDirection.TO_SERVER, PacketSpellstoneKey::encode,
+				PacketSpellstoneKey::decode, PacketSpellstoneKey::handle);
+		network.register(PacketForceArrowRotations.class, PacketDirection.TO_CLIENT, PacketForceArrowRotations::encode,
+				PacketForceArrowRotations::decode, PacketForceArrowRotations::handle);
+		network.register(PacketSlotUnlocked.class, PacketDirection.TO_CLIENT, PacketSlotUnlocked::encode,
+				PacketSlotUnlocked::decode, PacketSlotUnlocked::handle);
+		network.register(PacketSetEntryState.class, PacketDirection.TO_CLIENT, PacketSetEntryState::encode,
+				PacketSetEntryState::decode, PacketSetEntryState::handle);
+		network.register(PacketPatchouliForce.class, PacketDirection.TO_CLIENT, PacketPatchouliForce::encode,
+				PacketPatchouliForce::decode, PacketPatchouliForce::handle);
+		network.register(PacketPermadeath.class, PacketDirection.TO_CLIENT, PacketPermadeath::encode,
+				PacketPermadeath::decode, PacketPermadeath::handle);
+		network.register(PacketPlayerMotion.class, PacketDirection.TO_CLIENT, PacketPlayerMotion::encode,
+				PacketPlayerMotion::decode, PacketPlayerMotion::handle);
+		network.register(PacketPlayerSetlook.class, PacketDirection.TO_CLIENT, PacketPlayerSetlook::encode,
+				PacketPlayerSetlook::decode, PacketPlayerSetlook::handle);
+		network.register(PacketCosmicRevive.class, PacketDirection.TO_CLIENT, PacketCosmicRevive::encode,
+				PacketCosmicRevive::decode, PacketCosmicRevive::handle);
+		network.register(PacketUpdateElytraBoosting.class, PacketDirection.TO_SERVER, PacketUpdateElytraBoosting::encode,
+				PacketUpdateElytraBoosting::decode, PacketUpdateElytraBoosting::handle);
+		network.register(PacketSyncElytraBoosting.class, PacketDirection.TO_CLIENT, PacketSyncElytraBoosting::encode,
+				PacketSyncElytraBoosting::decode, PacketSyncElytraBoosting::handle);
+	}
+}

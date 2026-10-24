@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:the_twist"
+    }
+  ],
+  "pattern": [
+    "ERE",
+    "IXI",
+    "ECE"
+  ],
+  "key": {
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "E": {
+      "item": "enigmaticlegacy:evil_essence"
+    },
+    "I": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "C": {
+      "item": "enigmaticlegacy:twisted_heart"
+    },
+    "X": {
+      "item": "enigmaticlegacy:the_acknowledgment"
+    }
+  },
+  "result": {
+    "id": "enigmaticlegacy:the_twist"
+  }
+}

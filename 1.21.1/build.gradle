@@ -1,0 +1,137 @@
+plugins {
+	id 'fabric-loom' version "${loom_version}"
+}
+
+base {
+	archivesName = 'enigmaticlegacy-fabric-1.21.1'
+}
+
+repositories {
+	maven { name = 'ParchmentMC'; url = 'https://maven.parchmentmc.org' }
+	maven { name = 'TerraformersMC'; url = 'https://maven.terraformersmc.com/releases' } // Mod Menu
+	maven { name = 'Modrinth'; url = 'https://api.modrinth.com/maven'; content { includeGroup 'maven.modrinth' } }
+	maven { name = 'Ladysnake'; url = 'https://maven.ladysnake.org/releases' } // Cardinal Components
+	maven { name = 'BlameJared'; url = 'https://maven.blamejared.com' } // Patchouli
+}
+
+loom {
+	accessWidenerPath = file('src/main/resources/enigmaticlegacy.accesswidener')
+
+	// Dev runs use ./run. Dan's ./run is a junction to B:/EnigmaticLegacyPort/run-1.21.1 so worlds stay off C:.
+	mods {
+		"enigmaticlegacy" {
+			sourceSet sourceSets.main
+		}
+	}
+	runs {
+		// Its own dir, so a dev server and a dev client can run at once. A junction to B: like ./run.
+		server {
+			runDir 'run-server'
+		}
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings loom.layered() {
+		officialMojangMappings()
+		parchment("org.parchmentmc.data:parchment-${project.minecraft_version}:${project.parchment_version}@zip")
+	}
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+
+	// Curios -> Trinkets (rings, charms, scrolls, spellstones, back slot)
+	// Trinkets from Modrinth: the TerraformersMC maven jar of 3.7.2 has an unremapped mixin shadow and crashes Mojmap dev runs.
+	modImplementation "maven.modrinth:trinkets:${project.trinkets_version}"
+	// Playtime counter (upstream: Forge capability)
+	modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-base:${project.cca_version}"
+	modImplementation "org.ladysnake.cardinal-components-api:cardinal-components-entity:${project.cca_version}"
+	// The Acknowledgment guide book
+	modImplementation "vazkii.patchouli:Patchouli:${project.patchouli_version}"
+
+	// Dev client only
+	modLocalRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"
+}
+
+processResources {
+	def version = project.version
+	inputs.property "version", version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 21
+	it.options.encoding = 'UTF-8'
+	it.options.compilerArgs += ['-Xmaxerrs', '10000']
+}
+
+java {
+	withSourcesJar()
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+}
+
+jar {
+	from(rootProject.file('../LICENSE.md'))
+	from(rootProject.file('../CHANGES.md'))
+}
+
+// Run the game on Java 21 like a real 1.21.1 install (Gradle itself runs on JDK 21).
+tasks.withType(JavaExec).configureEach {
+	javaLauncher = javaToolchains.launcherFor {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+// Dev client defaults (Dan): music and narrator off, no first-launch accessibility screen.
+// Only these keys are forced; other options set in game are kept.
+def devOptions = file('run/options.txt')
+tasks.named('runClient') {
+	// Dan (2026-10-21, 2026-10-23): dev clients always open on the 2nd monitor, without focus.
+	systemProperty 'enigmaticlegacy.monitor2', 'true'
+	// Port: -Pdevcheck=true (or =exit) turns on the DevSelfCheck smoke test.
+	if (project.hasProperty('devcheck')) {
+		systemProperty 'enigmaticlegacy.devcheck', project.property('devcheck')
+	}
+	// Port: -Pplaytest=all,exit (or a comma list of scenario ids) runs the DevPlaytest in-world checks.
+	if (project.hasProperty('playtest')) {
+		systemProperty 'enigmaticlegacy.playtest', project.property('playtest')
+	}
+	doFirst {
+		// Dan (2026-10-23): no sound at all, and no pause menu when the window is in the background.
+		def forced = ['soundCategory_music': '0.0', 'soundCategory_master': '0.0', 'narrator': '0',
+				'onboardAccessibility': 'false', 'pauseOnLostFocus': 'false', 'tutorialStep': 'none']
+		def lines = devOptions.exists() ? devOptions.readLines('UTF-8') : []
+		lines = lines.findAll { line -> !forced.keySet().any { line.startsWith(it + ':') } }
+		forced.each { k, v -> lines << "${k}:${v}".toString() }
+		devOptions.parentFile.mkdirs()
+		devOptions.write(lines.join('\n') + '\n', 'UTF-8')
+	}
+}
+
+def serverDir = file('run-server')
+tasks.named('runServer') {
+	// Port: -Pplaytest=all,exit runs the DevPlaytest scenarios on this dedicated server; join it with
+	// ./gradlew runClient -Pplaytest=remote,exit. The server stops itself when the results are written.
+	if (project.hasProperty('playtest')) {
+		systemProperty 'enigmaticlegacy.playtest', project.property('playtest')
+	}
+	if (project.hasProperty('devcheck')) {
+		systemProperty 'enigmaticlegacy.devcheck', project.property('devcheck')
+	}
+	doFirst {
+		def dir = serverDir
+		dir.mkdirs()
+		new File(dir, 'eula.txt').write('eula=true\n', 'UTF-8')
+		def props = new File(dir, 'server.properties')
+		def forced = ['online-mode': 'false', 'spawn-monsters': 'false', 'view-distance': '6',
+				'level-seed': '20261023', 'gamemode': 'creative', 'motd': 'Enigmatic Legacy playtest']
+		def lines = props.exists() ? props.readLines('UTF-8') : []
+		lines = lines.findAll { line -> !forced.keySet().any { line.startsWith(it + '=') } }
+		forced.each { k, v -> lines << "${k}=${v}".toString() }
+		props.write(lines.join('\n') + '\n', 'UTF-8')
+	}
+}

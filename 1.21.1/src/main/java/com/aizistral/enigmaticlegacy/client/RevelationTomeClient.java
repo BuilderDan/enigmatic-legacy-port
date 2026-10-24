@@ -1,0 +1,50 @@
+package com.aizistral.enigmaticlegacy.client;
+
+import net.minecraft.resources.ResourceLocation;
+import com.mojang.blaze3d.systems.RenderSystem;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.toasts.Toast;
+import net.minecraft.client.gui.components.toasts.ToastComponent;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.world.item.ItemStack;
+
+/**
+ * Port: upstream's ClientProxy.pushRevelationToast and its RevelationTomeToast, in one
+ * client-only class. RevelationTome only calls into it on the logical client.
+ */
+public class RevelationTomeClient {
+
+	public static void pushToast(ItemStack tome, int xp, int revelation) {
+		Minecraft.getInstance().getToasts().addToast(new RevelationTomeToast(tome, xp, revelation));
+	}
+
+	public static class RevelationTomeToast implements Toast {
+		private final ItemStack tome;
+		private final int xpPoints;
+		private final int revelationPoints;
+
+		public RevelationTomeToast(ItemStack tome, int xp, int revelation) {
+			this.tome = tome.copy();
+			this.xpPoints = xp;
+			this.revelationPoints = revelation;
+		}
+
+		@Override
+		public Visibility render(GuiGraphics graphics, ToastComponent toastGui, long delta) {
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+			// Port: 1.21 toasts use sprites; upstream drew the recipe toast row of the old atlas.
+			graphics.blitSprite(ResourceLocation.withDefaultNamespace("toast/recipe"), 0, 0, 160, 32);
+			Font font = toastGui.getMinecraft().font;
+
+			graphics.drawString(font, I18n.get("enigmaticlegacy.toasts.revelationTome.title", this.xpPoints), 30, 7, -11534256);
+			graphics.drawString(font, I18n.get("enigmaticlegacy.toasts.revelationTome.text", this.revelationPoints), 30, 17, -16777216);
+			graphics.renderFakeItem(this.tome, 8, 8);
+
+			return delta >= 5000L ? Visibility.HIDE : Visibility.SHOW;
+		}
+	}
+
+}

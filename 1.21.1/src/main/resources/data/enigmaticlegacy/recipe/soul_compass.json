@@ -1,0 +1,37 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:soul_compass"
+    }
+  ],
+  "pattern": [
+    " S ",
+    "BXB",
+    "GCI"
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:blaze_powder"
+    },
+    "S": {
+      "item": "minecraft:soul_lantern"
+    },
+    "I": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "C": {
+      "item": "enigmaticlegacy:twisted_heart"
+    },
+    "X": {
+      "item": "minecraft:compass"
+    }
+  },
+  "result": {
+    "id": "enigmaticlegacy:soul_compass"
+  }
+}
