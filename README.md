@@ -12,15 +12,16 @@ the creator. Official mod and source:
 
 ## Status
 
-Planning. No release yet. Nothing will be published before the creator has been asked
-for permission. See [PLAN.md](PLAN.md).
+All four Minecraft versions are ported and pass a full dev-client playtest. No release
+yet: nothing will be published before the creator has been asked for permission.
+See [PLAN.md](PLAN.md).
 
 | Minecraft | Loaders | Status |
 |---|---|---|
-| 1.20.1 | Fabric | planned |
-| 1.21.1 | Fabric | planned |
-| 26.3 (latest) | NeoForge, Fabric | planned |
-| 1.21.11 | NeoForge, Fabric | planned |
+| 1.20.1 | Fabric | ported, playtested |
+| 1.21.1 | Fabric | ported, playtested |
+| 26.3 (latest) | NeoForge, Fabric | ported, playtested |
+| 1.21.11 | NeoForge, Fabric | ported, playtested |
 
 **NeoForge on 1.21.1:** use [Enigmatic Legacy Plus](https://modrinth.com/mod/enigmaticlegacy-plus)
 by Auviotre, an existing port. This project does not target that version.

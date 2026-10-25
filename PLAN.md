@@ -99,6 +99,11 @@ decided otherwise.
 3. **26.3** Fabric (Trinkets Updated) and NeoForge (Curios), one multiloader project (started 2026-10-24).
    Dev-client playtest 39/39 on both loaders (2026-10-24).
 4. Mid-point version: **1.21.11** Fabric and NeoForge (1.21.4 has no Fabric Trinkets build), started 2026-10-25.
+   Dev-client playtest 40/40 on both loaders (2026-10-25).
+
+All four versions ported (2026-10-25). Upstream `1.20.X` had no new commits as of
+2026-10-25, and 26.3 is still the latest stable release (26.4 in snapshots).
+Next: release jars, then the permission request (section 8) before any upload.
 
 A version counts as done only after a full dev-client playtest of every item.
 

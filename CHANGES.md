@@ -12,9 +12,9 @@ commit `a0294f1` (mod version 2.30.1, Forge 1.20.1).
 
 ## Per version
 
-Sections are added here as each Minecraft version / loader is ported.
+One section per Minecraft version; later sections list only what differs from the version before.
 
-### 1.20.1 Fabric (`1.20.1/`, in progress)
+### 1.20.1 Fabric (`1.20.1/`)
 
 - Build: Forge Gradle replaced with Fabric Loom (Mojang mappings + Parchment).
   Upstream's `EL_logo.png` is used as the mod icon.
@@ -835,7 +835,7 @@ Sections are added here as each Minecraft version / loader is ported.
   `DevMixinPlugin`) never load in a normal game. `DevMixinWindow` opens every dev client hidden,
   moves it to the second monitor and shows it without taking focus.
 
-### 1.21.1 Fabric (`1.21.1/`, in progress)
+### 1.21.1 Fabric (`1.21.1/`)
 
 Ported from the 1.20.1 Fabric port above; every change listed there also applies here. The
 changes below are the extra ones Minecraft 1.21 required. Unless noted, behavior matches upstream.
@@ -885,7 +885,7 @@ changes below are the extra ones Minecraft 1.21 required. Unless noted, behavior
 - Dev only, port-only: devcheck and the 39 playtest scenarios are updated for 1.21; the mixin
   audit only checks handlers that still exist; devcheck builds only the mod's creative tabs.
 
-### 26.3 Fabric and NeoForge (`26.3/`, in progress)
+### 26.3 Fabric and NeoForge (`26.3/`)
 
 Ported from the 1.21.1 Fabric port above; every change listed there also applies here. The
 changes below are the extra ones Minecraft 26.3 and the NeoForge loader required. Unless noted,
