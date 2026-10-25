@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:mega_sponge"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:mega_sponge"
+    }
+  ],
+  "pattern": [
+    "SES",
+    "XNX",
+    "STS"
+  ],
+  "key": {
+    "X": "minecraft:heart_of_the_sea",
+    "N": "minecraft:nautilus_shell",
+    "S": "minecraft:sponge",
+    "E": "minecraft:ender_eye",
+    "T": "minecraft:ghast_tear"
+  },
+  "result": {
+    "id": "enigmaticlegacy:mega_sponge"
+  }
+}

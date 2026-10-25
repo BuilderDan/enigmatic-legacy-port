@@ -1,0 +1,7 @@
+accessWidener v2 named
+
+# Port-only: lets MixinServerPlayer return an End Anchor respawn position (1.21 respawn API).
+accessible class net/minecraft/server/level/ServerPlayer$RespawnPosAngle
+# Port-only: 1.21.11 BlockEntityType has no public constructor or builder.
+accessible method net/minecraft/world/level/block/entity/BlockEntityType <init> (Lnet/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier;Ljava/util/Set;)V
+accessible class net/minecraft/world/level/block/entity/BlockEntityType$BlockEntitySupplier

@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "fabric:load_conditions": [],
+  "ingredients": [
+    "enigmaticlegacy:etherium_ingot"
+  ],
+  "result": {
+    "id": "enigmaticlegacy:etherium_nugget",
+    "count": 9
+  }
+}

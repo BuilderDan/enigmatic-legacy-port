@@ -1,0 +1,82 @@
+plugins {
+    id 'multiloader-loader'
+    id 'fabric-loom'
+}
+
+dependencies {
+    minecraft("com.mojang:minecraft:${minecraft_version}")
+    mappings(loom.officialMojangMappings())
+    modImplementation("net.fabricmc:fabric-loader:${fabric_loader_version}")
+    modImplementation("net.fabricmc.fabric-api:fabric-api:${fabric_version}")
+
+    // Curios -> Trinkets (rings, charms, scrolls, spellstones, back slot). Trinkets Updated (Patbox fork, MIT) is
+    // the Trinkets line that supports 1.21.11; same mod id and API package as Trinkets.
+    modImplementation("maven.modrinth:trinkets-updated:${trinkets_version}")
+    // Playtime counter (upstream: Forge capability)
+    modImplementation("org.ladysnake.cardinal-components-api:cardinal-components-base:${cca_version}")
+    modImplementation("org.ladysnake.cardinal-components-api:cardinal-components-entity:${cca_version}")
+    // Patchouli (The Acknowledgment guide book) has no 1.21.11 build; the book is optional, see CHANGES.md.
+    // Compile against the 26.1 Fabric build (Identifier-based API); all use is guarded by isModLoaded("patchouli").
+    compileOnly("maven.modrinth:patchouli:AveV4Tjn")
+
+    // Dev client only
+    modLocalRuntime("maven.modrinth:modmenu:${modmenu_version}")
+}
+
+loom {
+    def aw = project(':common').file("src/main/resources/${mod_id}.accesswidener")
+    if (aw.exists()) {
+        accessWidenerPath.set(aw)
+    }
+    mixin {
+        defaultRefmapName.set("${mod_id}.refmap.json")
+    }
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+    runs {
+        client {
+            client()
+            setConfigName('Fabric Client')
+            ideConfigGenerated(true)
+            runDir('run')
+        }
+        server {
+            server()
+            setConfigName('Fabric Server')
+            ideConfigGenerated(true)
+            runDir('run-server')
+        }
+    }
+}
+
+tasks.named('runClient') {
+    systemProperties(devProperties(true))
+    doFirst { prepareDevClient(file('run')) }
+}
+tasks.named('runServer') {
+    // -Pplaytest=all,exit runs the DevPlaytest scenarios here; join with ./gradlew :fabric:runClient -Pplaytest=remote,exit
+    systemProperties(devProperties(false))
+    doFirst { prepareDevServer(file('run-server')) }
+}
+
+// mcgradleconventions loader attribute
+def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
+['apiElements', 'runtimeElements', 'sourcesElements', 'includeInternal', 'modCompileClasspath'].each { variant ->
+    configurations.named(variant) {
+        attributes {
+            attribute(loaderAttribute, 'fabric')
+        }
+    }
+}
+sourceSets.configureEach {
+    [it.compileClasspathConfigurationName, it.runtimeClasspathConfigurationName].each { variant ->
+        configurations.named(variant) {
+            attributes {
+                attribute(loaderAttribute, 'fabric')
+            }
+        }
+    }
+}

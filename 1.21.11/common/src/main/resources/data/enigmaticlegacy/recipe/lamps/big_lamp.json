@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:big_lamp"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:big_lamp"
+    }
+  ],
+  "pattern": [
+    "ici",
+    "gXg",
+    "igi"
+  ],
+  "key": {
+    "X": "minecraft:glowstone",
+    "i": "minecraft:iron_ingot",
+    "g": "minecraft:gold_nugget",
+    "c": "minecraft:iron_chain"
+  },
+  "result": {
+    "id": "enigmaticlegacy:big_lamp",
+    "count": 2
+  }
+}

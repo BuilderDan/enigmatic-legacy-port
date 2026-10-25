@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:forbidden_axe"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:forbidden_axe"
+    }
+  ],
+  "pattern": [
+    "ISI",
+    "PXP",
+    " R "
+  ],
+  "key": {
+    "X": "minecraft:diamond_axe",
+    "I": "minecraft:netherite_ingot",
+    "P": "minecraft:blaze_powder",
+    "R": "minecraft:blaze_rod",
+    "S": "minecraft:wither_skeleton_skull"
+  },
+  "result": {
+    "id": "enigmaticlegacy:forbidden_axe"
+  }
+}

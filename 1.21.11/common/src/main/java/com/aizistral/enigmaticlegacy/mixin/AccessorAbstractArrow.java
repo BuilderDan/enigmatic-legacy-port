@@ -1,0 +1,25 @@
+package com.aizistral.enigmaticlegacy.mixin;
+
+import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.gen.Invoker;
+
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+
+/**
+ * Port: was upstream's AccessorAbstractArrowEntity, whose clearHitEntities invoked the same
+ * private method.
+ */
+@Mixin(AbstractArrow.class)
+public interface AccessorAbstractArrow {
+	@Invoker("resetPiercedEntities")
+	void enigmaticlegacy$resetPiercedEntities();
+
+	// Port: setPierceLevel became private in 1.21.
+	@Invoker("setPierceLevel")
+	void enigmaticlegacy$setPierceLevel(byte level);
+
+	// Port: getBaseDamage was removed in 26.3.
+	@Accessor("baseDamage")
+	double enigmaticlegacy$getBaseDamage();
+}

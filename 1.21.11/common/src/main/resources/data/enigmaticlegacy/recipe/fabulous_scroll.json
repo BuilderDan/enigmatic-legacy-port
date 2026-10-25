@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:fabulous_scroll"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:fabulous_scroll"
+    }
+  ],
+  "pattern": [
+    "IAI",
+    "AXA",
+    "BEB"
+  ],
+  "key": {
+    "X": "enigmaticlegacy:heaven_scroll",
+    "I": "enigmaticlegacy:etherium_ingot",
+    "A": "enigmaticlegacy:astral_dust",
+    "B": "minecraft:dragon_breath",
+    "E": "minecraft:elytra"
+  },
+  "result": {
+    "id": "enigmaticlegacy:fabulous_scroll"
+  }
+}

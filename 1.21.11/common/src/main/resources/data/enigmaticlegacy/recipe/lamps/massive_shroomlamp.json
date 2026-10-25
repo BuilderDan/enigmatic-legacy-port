@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:massive_shroomlamp"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:massive_shroomlamp"
+    }
+  ],
+  "ingredients": [
+    "enigmaticlegacy:big_shroomlamp",
+    "minecraft:glass"
+  ],
+  "result": {
+    "id": "enigmaticlegacy:massive_shroomlamp"
+  }
+}

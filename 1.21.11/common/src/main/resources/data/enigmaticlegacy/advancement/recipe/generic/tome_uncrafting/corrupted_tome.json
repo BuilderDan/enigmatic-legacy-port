@@ -1,0 +1,34 @@
+{
+  "parent": "enigmaticlegacy:recipe/root",
+  "rewards": {
+    "recipes": [
+      "enigmaticlegacy:tome_uncrafting/corrupted_tome"
+    ]
+  },
+  "criteria": {
+    "has_items": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "enigmaticlegacy:corrupted_tome"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipes": "enigmaticlegacy:tome_uncrafting/corrupted_tome"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_items",
+      "has_the_recipe"
+    ]
+  ]
+}

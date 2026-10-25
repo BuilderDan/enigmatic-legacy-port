@@ -940,3 +940,35 @@ behavior matches upstream.
 - Dev only, port-only: devcheck and the playtest run on both loaders; on NeoForge the devcheck
   turns off the IDE-only component check while it binds components from the tag-less
   vanilla lookup.
+
+### 1.21.11 Fabric and NeoForge (`1.21.11/`, mid-point version)
+
+Backported from the 26.3 port above; every change listed there applies here too, except where
+1.21.11 still has the older vanilla API (tool, armor and sword item classes, recipe serializers
+with data, `Explosion` as a class). The changes below are the extra ones 1.21.11 required.
+Unless noted, behavior matches upstream.
+
+- Build: same multiloader layout as 26.3, compiled for Java 21 with a Java 25 compiler (the
+  optional Patchouli API classes are Java 25). Fabric: Loom, Fabric Loader 0.20.1, Fabric API
+  0.141.6+1.21.11, Trinkets Updated 3.11.0-beta.2+1.21.11 (mod id `trinkets`), Cardinal
+  Components API 7.3.2, ModMenu 17.0.1. NeoForge: ModDevGradle, NeoForge 21.11.48, Curios
+  14.0.0+1.21.11.
+- Guide book: Patchouli has no 1.21.11 build. The port compiles against the 26.1 API and only
+  touches Patchouli when it is installed; without it, The Acknowledgment opens no book.
+- Cursed and blessed shaped recipes: 1.21.11 ingredients hold items, not stacks, so recipe
+  viewers no longer show the tainted/blessed marking on the inputs (upstream marked the
+  ingredient stacks). Crafting still requires tainted or blessed items, as upstream.
+- Client: the Enigmatic Elytra's enchantment glint is drawn as its own render pass; the
+  Acknowledgment's header texture is drawn inline. Key bindings, creative tabs, world-change
+  and HUD hooks use the Fabric API names of this version.
+- Tome of Hungering Wisdom fuel and block entity type access are registered per loader.
+- NeoForge only: 1.21.11 has no gliding attribute (upstream used Caelus'), so a port-only mixin
+  lets the Enigmatic Elytra in the Curios back slot count as a glider and spend durability in
+  flight, like Fabric's elytra event. The Curios adapter no longer adds a flight modifier.
+- Death drops: 1.21.11 sends inventory, armor and offhand drops through
+  `LivingEntity.drop`, so the common drop capture hooks only that method (26.3 needed extra
+  `Inventory` and `EntityEquipment` mixins, which this version does not have).
+- Mixin configs ask for Java 21, the runtime this version ships with.
+- NeoForge: the Curios dependency range starts at 14.0.0 (the 1.21.11 line).
+- Dev only, port-only: the playtest has an extra Enigmatic Elytra scenario (glide from the
+  accessory slot, durability spent) for the NeoForge glider mixin.

@@ -1,0 +1,5 @@
+{
+  "amount": 0,
+  "icon": "enigmaticlegacy:slots/empty_spellstone_slot",
+  "validator_predicates": ["trinkets:tag"]
+}

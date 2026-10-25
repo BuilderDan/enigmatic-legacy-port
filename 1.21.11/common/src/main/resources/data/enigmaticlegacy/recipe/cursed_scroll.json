@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:cursed_scroll"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:cursed_scroll"
+    }
+  ],
+  "pattern": [
+    "MHM",
+    "IXF",
+    "RBR"
+  ],
+  "key": {
+    "X": "enigmaticlegacy:darkest_scroll",
+    "M": "minecraft:phantom_membrane",
+    "B": "minecraft:enchanted_book",
+    "H": "enigmaticlegacy:twisted_heart",
+    "F": "minecraft:feather",
+    "I": "minecraft:ink_sac",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "enigmaticlegacy:cursed_scroll"
+  }
+}

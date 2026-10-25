@@ -1,0 +1,17 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "com.aizistral.enigmaticlegacy.neoforge.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"MixinItemStack",
+		"MixinLivingEntity",
+		"MixinLivingEntityElytra"
+	],
+	"client": [
+		"AccessorCreativeModeInventoryScreen"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

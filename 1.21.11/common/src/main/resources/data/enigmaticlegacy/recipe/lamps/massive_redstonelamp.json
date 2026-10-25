@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:massive_redstonelamp"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:massive_redstonelamp"
+    }
+  ],
+  "ingredients": [
+    "enigmaticlegacy:big_redstonelamp",
+    "minecraft:glass"
+  ],
+  "result": {
+    "id": "enigmaticlegacy:massive_redstonelamp"
+  }
+}

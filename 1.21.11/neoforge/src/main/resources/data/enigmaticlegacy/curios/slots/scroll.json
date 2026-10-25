@@ -1,0 +1,6 @@
+{
+  "order": 210,
+  "size": 0,
+  "icon": "enigmaticlegacy:slots/empty_scroll_slot",
+  "validators": ["curios:tag"]
+}

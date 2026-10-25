@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:mining_charm"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:mining_charm"
+    }
+  ],
+  "pattern": [
+    "NDN",
+    "IXI",
+    "GTG"
+  ],
+  "key": {
+    "D": "minecraft:diamond",
+    "N": "minecraft:iron_nugget",
+    "I": "minecraft:gold_ingot",
+    "G": "minecraft:glowstone_dust",
+    "T": "minecraft:ghast_tear",
+    "X": "enigmaticlegacy:earth_heart"
+  },
+  "result": {
+    "id": "enigmaticlegacy:mining_charm"
+  }
+}

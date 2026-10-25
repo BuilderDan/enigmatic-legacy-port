@@ -20,6 +20,7 @@ for permission. See [PLAN.md](PLAN.md).
 | 1.20.1 | Fabric | planned |
 | 1.21.1 | Fabric | planned |
 | 26.3 (latest) | NeoForge, Fabric | planned |
+| 1.21.11 | NeoForge, Fabric | planned |
 
 **NeoForge on 1.21.1:** use [Enigmatic Legacy Plus](https://modrinth.com/mod/enigmaticlegacy-plus)
 by Auviotre, an existing port. This project does not target that version.

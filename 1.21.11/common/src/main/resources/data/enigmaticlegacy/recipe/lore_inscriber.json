@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:lore_inscriber"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:lore_inscriber"
+    }
+  ],
+  "pattern": [
+    " a ",
+    "iXf",
+    " b "
+  ],
+  "key": {
+    "X": "minecraft:glass_bottle",
+    "b": "minecraft:blaze_powder",
+    "i": "minecraft:ink_sac",
+    "f": "minecraft:feather",
+    "a": "enigmaticlegacy:astral_dust"
+  },
+  "result": {
+    "id": "enigmaticlegacy:lore_inscriber"
+  }
+}

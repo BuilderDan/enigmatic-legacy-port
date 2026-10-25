@@ -1,0 +1,7 @@
+{
+  "values": {
+    "enigmaticlegacy:tattered_tome": { "burn_time": 400 },
+    "enigmaticlegacy:withered_tome": { "burn_time": 400 },
+    "enigmaticlegacy:corrupted_tome": { "burn_time": 400 }
+  }
+}

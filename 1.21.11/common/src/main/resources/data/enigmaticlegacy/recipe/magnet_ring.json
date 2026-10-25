@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:magnet_ring"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:magnet_ring"
+    }
+  ],
+  "pattern": [
+    " D ",
+    "IXG",
+    " R "
+  ],
+  "key": {
+    "D": "minecraft:diamond",
+    "G": "minecraft:gold_ingot",
+    "R": "minecraft:redstone",
+    "I": "minecraft:iron_ingot",
+    "X": "enigmaticlegacy:iron_ring"
+  },
+  "result": {
+    "id": "enigmaticlegacy:magnet_ring"
+  }
+}

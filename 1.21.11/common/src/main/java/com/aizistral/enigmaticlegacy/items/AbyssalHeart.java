@@ -1,0 +1,50 @@
+package com.aizistral.enigmaticlegacy.items;
+
+import net.minecraft.client.Minecraft;
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
+import java.util.List;
+
+import com.aizistral.enigmaticlegacy.api.items.IEldritch;
+import com.aizistral.enigmaticlegacy.helpers.ItemLoreHelper;
+import com.aizistral.enigmaticlegacy.items.generic.ItemBase;
+
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+
+public class AbyssalHeart extends ItemBase implements IEldritch {
+
+	public AbyssalHeart() {
+		super(ItemBase.getDefaultProperties().rarity(Rarity.EPIC).stacksTo(1));
+	}
+
+	@Environment(EnvType.CLIENT)
+	@Override
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flagIn) {
+		if (Minecraft.getInstance().hasShiftDown()) {
+			ItemLoreHelper.indicateWorthyOnesOnly(list);
+		} else {
+			//if (SuperpositionHandler.isTheWorthyOne(Minecraft.getInstance().player)) {
+			list.add(Component.translatable("tooltip.enigmaticlegacy.abyssalHeart1"));
+			list.add(Component.translatable("tooltip.enigmaticlegacy.abyssalHeart2"));
+			list.add(Component.translatable("tooltip.enigmaticlegacy.abyssalHeart3"));
+			list.add(Component.translatable("tooltip.enigmaticlegacy.abyssalHeart4"));
+			//} else {
+			//	list.add(Component.translatable("tooltip.enigmaticlegacy.abyssalHeart1_obf"));
+			//	list.add(Component.translatable("tooltip.enigmaticlegacy.abyssalHeart2_obf"));
+			//	list.add(Component.translatable("tooltip.enigmaticlegacy.abyssalHeart3_obf"));
+			//	list.add(Component.translatable("tooltip.enigmaticlegacy.abyssalHeart4_obf"));
+			//}
+
+			ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.void");
+			ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.holdShift");
+			ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.void");
+			ItemLoreHelper.indicateCursedOnesOnly(list);
+		}
+	}
+
+}

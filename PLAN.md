@@ -70,6 +70,7 @@ One Gradle project per Minecraft version, side by side in this repo:
 1.20.1/   single Fabric Loom project
 1.21.1/   single Fabric Loom project
 26.3/     common/ fabric/ neoforge/   (multiloader)
+1.21.11/  common/ fabric/ neoforge/   (multiloader)
 ```
 
 Fabric-only versions skip the common/fabric split: loader-specific code lives in a
@@ -97,7 +98,7 @@ decided otherwise.
 2. **1.21.1 Fabric** (NeoForge skipped: Enigmatic Legacy Plus covers it).
 3. **26.3** Fabric (Trinkets Updated) and NeoForge (Curios), one multiloader project (started 2026-10-24).
    Dev-client playtest 39/39 on both loaders (2026-10-24).
-4. Mid-point version (e.g. 1.21.4) only if cheap.
+4. Mid-point version: **1.21.11** Fabric and NeoForge (1.21.4 has no Fabric Trinkets build), started 2026-10-25.
 
 A version counts as done only after a full dev-client playtest of every item.
 

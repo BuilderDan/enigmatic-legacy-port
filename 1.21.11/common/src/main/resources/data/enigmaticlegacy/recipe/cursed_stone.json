@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:cursed_stone"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:cursed_stone"
+    }
+  ],
+  "pattern": [
+    "LXL",
+    "ERE",
+    "CSC"
+  ],
+  "key": {
+    "R": "minecraft:stone",
+    "L": "minecraft:lava_bucket",
+    "C": "minecraft:prismarine_crystals",
+    "S": "minecraft:nether_star",
+    "E": "enigmaticlegacy:evil_essence",
+    "X": "enigmaticlegacy:twisted_heart"
+  },
+  "result": {
+    "id": "enigmaticlegacy:cursed_stone"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:curse_transposer"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:curse_transposer"
+    }
+  ],
+  "pattern": [
+    "RTR",
+    "PXP",
+    "RER"
+  ],
+  "key": {
+    "X": "enigmaticlegacy:enchantment_transposer",
+    "E": "enigmaticlegacy:evil_essence",
+    "T": "minecraft:ghast_tear",
+    "P": "minecraft:phantom_membrane",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "enigmaticlegacy:curse_transposer"
+  }
+}

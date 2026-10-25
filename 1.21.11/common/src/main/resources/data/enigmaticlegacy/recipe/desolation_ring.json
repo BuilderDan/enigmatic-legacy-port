@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:desolation_ring"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:desolation_ring"
+    }
+  ],
+  "pattern": [
+    "HAH",
+    "NXN",
+    "EPE"
+  ],
+  "key": {
+    "X": "enigmaticlegacy:golden_ring",
+    "H": "enigmaticlegacy:cosmic_heart",
+    "E": "enigmaticlegacy:evil_essence",
+    "A": "enigmaticlegacy:abyssal_heart",
+    "P": "enigmaticlegacy:void_pearl",
+    "N": "minecraft:netherite_ingot"
+  },
+  "result": {
+    "id": "enigmaticlegacy:desolation_ring"
+  }
+}

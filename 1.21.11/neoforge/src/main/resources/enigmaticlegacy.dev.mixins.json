@@ -1,0 +1,20 @@
+{
+	"required": true,
+	"minVersion": "0.8",
+	"package": "com.aizistral.enigmaticlegacy.neoforge.devmixin",
+	"plugin": "com.aizistral.enigmaticlegacy.neoforge.DevMixinPlugin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"DevMixinServerLevel"
+	],
+	"client": [
+		"DevMixinKeybindHandler",
+		"DevMixinMinecraft",
+		"DevMixinMouseHandler",
+		"DevMixinSoundManager",
+		"DevMixinWindow"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

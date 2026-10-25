@@ -1,0 +1,23 @@
+{
+    "name": "book.enigmaticlegacy.entry.nemesis_curse.name",
+    "icon": "minecraft:enchanted_book",
+    "category": "enigmaticlegacy:enchantments",
+	"advancement": "enigmaticlegacy:book/enchantments/generic",
+    "secret": false,
+    "priority": false,
+    "read_by_default": false,
+    "sortnum": 20,
+    "pages": [
+        {
+            "type": "text",
+            "text": "book.enigmaticlegacy.entry.nemesis_curse.page.1"
+        },
+		{
+            "type": "spotlight",
+			"item": "minecraft:diamond_sword[minecraft:enchantments={levels:{'enigmaticlegacy:nemesis':1}}]",
+			"link_recipe": false,
+			"title": "book.enigmaticlegacy.entry.nemesis_curse.heading.1",
+            "text": "book.enigmaticlegacy.entry.nemesis_curse.page.2"
+        }
+    ]
+}

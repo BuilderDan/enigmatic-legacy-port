@@ -1,0 +1,69 @@
+plugins {
+    id 'multiloader-common'
+}
+
+configurations {
+    commonJava {
+        canBeResolved = true
+    }
+    commonResources {
+        canBeResolved = true
+    }
+}
+
+dependencies {
+    compileOnly(project(':common')) {
+        def loaderAttribute = Attribute.of('io.github.mcgradleconventions.loader', String)
+        attributes {
+            attribute(loaderAttribute, 'common')
+        }
+    }
+    commonJava(project(path: ':common', configuration: 'commonJava'))
+    commonResources(project(path: ':common', configuration: 'commonResources'))
+}
+
+tasks.named('compileJava', JavaCompile) {
+    dependsOn(configurations.commonJava)
+    source(configurations.commonJava)
+}
+
+processResources {
+    dependsOn(configurations.commonResources)
+    from(configurations.commonResources)
+}
+
+
+tasks.named('sourcesJar', Jar) {
+    dependsOn(configurations.commonJava)
+    from(configurations.commonJava)
+    dependsOn(configurations.commonResources)
+    from(configurations.commonResources)
+}
+
+// Dev runs (Dan): ./run and ./run-server in each loader folder are junctions to B:/EnigmaticLegacyPort/run-1.21.11-<loader>
+// and run-server-1.21.11-<loader>, so worlds stay off C:. These helpers force a few keys and keep every other line.
+ext.forceKeys = { File file, Map forced, String sep ->
+    def lines = file.exists() ? file.readLines('UTF-8') : []
+    lines = lines.findAll { line -> !forced.keySet().any { line.startsWith(it + sep) } }
+    forced.each { k, v -> lines << "${k}${sep}${v}".toString() }
+    file.parentFile.mkdirs()
+    file.write(lines.join('\n') + '\n', 'UTF-8')
+}
+// Dan (2026-10-21, 2026-10-23): no sound at all, narrator off, no onboarding, no pause menu in the background.
+ext.prepareDevClient = { File runDir ->
+    forceKeys(new File(runDir, 'options.txt'), ['soundCategory_music': '0.0', 'soundCategory_master': '0.0', 'narrator': '0',
+            'onboardAccessibility': 'false', 'pauseOnLostFocus': 'false', 'tutorialStep': 'none'], ':')
+}
+ext.prepareDevServer = { File runDir ->
+    runDir.mkdirs()
+    new File(runDir, 'eula.txt').write('eula=true\n', 'UTF-8')
+    forceKeys(new File(runDir, 'server.properties'), ['online-mode': 'false', 'spawn-monsters': 'false', 'view-distance': '6',
+            'level-seed': '20261023', 'gamemode': 'creative', 'motd': 'Enigmatic Legacy playtest'], '=')
+}
+// Port flags: -Pdevcheck=true|exit (DevSelfCheck smoke test), -Pplaytest=all,exit|remote,exit|<ids> (DevPlaytest).
+ext.devProperties = { boolean client ->
+    def props = [:]
+    if (client) props['enigmaticlegacy.monitor2'] = 'true' // Dan: dev clients open on the 2nd monitor, without focus
+    ['devcheck', 'playtest'].each { if (project.hasProperty(it)) props["enigmaticlegacy.${it}".toString()] = project.property(it) }
+    return props
+}

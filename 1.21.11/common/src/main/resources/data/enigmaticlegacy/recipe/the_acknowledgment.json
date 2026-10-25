@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:the_acknowledgment"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:the_acknowledgment"
+    }
+  ],
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:lantern"
+  ],
+  "result": {
+    "id": "enigmaticlegacy:the_acknowledgment"
+  }
+}

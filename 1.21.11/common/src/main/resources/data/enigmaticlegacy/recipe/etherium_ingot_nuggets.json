@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [],
+  "group": "enigmaticlegacy_etheriumingot",
+  "pattern": [
+    "III",
+    "III",
+    "III"
+  ],
+  "key": {
+    "I": "enigmaticlegacy:etherium_nugget"
+  },
+  "result": {
+    "id": "enigmaticlegacy:etherium_ingot"
+  }
+}

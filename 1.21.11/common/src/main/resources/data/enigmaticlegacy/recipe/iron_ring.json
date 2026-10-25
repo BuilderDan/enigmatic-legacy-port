@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:iron_ring"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:iron_ring"
+    }
+  ],
+  "pattern": [
+    "nXn",
+    "X X",
+    "nXn"
+  ],
+  "key": {
+    "X": "minecraft:iron_ingot",
+    "n": "minecraft:iron_nugget"
+  },
+  "result": {
+    "id": "enigmaticlegacy:iron_ring"
+  }
+}

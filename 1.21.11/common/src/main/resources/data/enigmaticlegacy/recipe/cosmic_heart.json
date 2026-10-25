@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:cosmic_heart"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:cosmic_heart"
+    }
+  ],
+  "pattern": [
+    "DSD",
+    "PXP",
+    "DED"
+  ],
+  "key": {
+    "X": "minecraft:heart_of_the_sea",
+    "D": "enigmaticlegacy:astral_dust",
+    "E": "minecraft:ender_eye",
+    "P": "minecraft:blaze_powder",
+    "S": "minecraft:nether_star"
+  },
+  "result": {
+    "id": "enigmaticlegacy:cosmic_heart"
+  }
+}

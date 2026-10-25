@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:astral_block"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:astral_block"
+    }
+  ],
+  "ingredients": [
+    "enigmaticlegacy:astral_dust",
+    "enigmaticlegacy:astral_dust",
+    "enigmaticlegacy:astral_dust",
+    "enigmaticlegacy:astral_dust",
+    "enigmaticlegacy:astral_dust",
+    "enigmaticlegacy:astral_dust",
+    "enigmaticlegacy:astral_dust",
+    "enigmaticlegacy:astral_dust",
+    "enigmaticlegacy:astral_dust"
+  ],
+  "result": {
+    "id": "enigmaticlegacy:astral_block"
+  }
+}

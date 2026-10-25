@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:escape_scroll"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:escape_scroll"
+    }
+  ],
+  "pattern": [
+    "MPM",
+    "IXF",
+    "MEM"
+  ],
+  "key": {
+    "X": "enigmaticlegacy:thicc_scroll",
+    "M": "minecraft:phantom_membrane",
+    "P": "enigmaticlegacy:recall_potion",
+    "E": "enigmaticlegacy:eye_of_nebula",
+    "F": "minecraft:feather",
+    "I": "minecraft:ink_sac"
+  },
+  "result": {
+    "id": "enigmaticlegacy:escape_scroll"
+  }
+}

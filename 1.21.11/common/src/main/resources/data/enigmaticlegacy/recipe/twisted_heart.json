@@ -1,0 +1,30 @@
+{
+  "type": "enigmaticlegacy:crafting_shaped_cursed",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:twisted_heart"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:twisted_heart"
+    }
+  ],
+  "pattern": [
+    " T ",
+    "PXP",
+    "RER"
+  ],
+  "key": {
+    "P": "minecraft:blaze_powder",
+    "R": "minecraft:redstone",
+    "E": "minecraft:ender_eye",
+    "T": "minecraft:ghast_tear",
+    "X": "enigmaticlegacy:earth_heart"
+  },
+  "result": {
+    "id": "enigmaticlegacy:twisted_heart"
+  }
+}

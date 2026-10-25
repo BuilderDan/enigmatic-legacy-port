@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:eldritch_pan"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:eldritch_pan"
+    }
+  ],
+  "pattern": [
+    "ESE",
+    "IHI",
+    "TRT"
+  ],
+  "key": {
+    "E": "enigmaticlegacy:evil_essence",
+    "T": "minecraft:ghast_tear",
+    "H": "enigmaticlegacy:abyssal_heart",
+    "I": "enigmaticlegacy:evil_ingot",
+    "S": "enigmaticlegacy:void_stone",
+    "R": "enigmaticlegacy:ender_rod"
+  },
+  "result": {
+    "id": "enigmaticlegacy:eldritch_pan"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:etherium_scythe"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:etherium_scythe"
+    }
+  ],
+  "pattern": [
+    " XX",
+    " S ",
+    " S "
+  ],
+  "key": {
+    "X": "enigmaticlegacy:etherium_ingot",
+    "S": "enigmaticlegacy:ender_rod"
+  },
+  "result": {
+    "id": "enigmaticlegacy:etherium_scythe"
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "property": "enigmaticlegacy:infinitum_open",
+    "entries": [
+      {
+        "threshold": 0,
+        "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:display_context",
+          "cases": [
+            {
+              "when": "gui",
+              "model": {
+                "type": "minecraft:model",
+                "model": "enigmaticlegacy:item/gui/the_infinitum_0_gui"
+              }
+            },
+            {
+              "when": [
+                "fixed",
+                "ground"
+              ],
+              "model": {
+                "type": "minecraft:model",
+                "model": "enigmaticlegacy:item/3d/the_infinitum_2_3d"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "enigmaticlegacy:item/3d/the_infinitum_0_3d"
+          }
+        }
+      },
+      {
+        "threshold": 0.5,
+        "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:display_context",
+          "cases": [
+            {
+              "when": "gui",
+              "model": {
+                "type": "minecraft:model",
+                "model": "enigmaticlegacy:item/gui/the_infinitum_1_gui"
+              }
+            },
+            {
+              "when": [
+                "fixed",
+                "ground"
+              ],
+              "model": {
+                "type": "minecraft:model",
+                "model": "enigmaticlegacy:item/3d/the_infinitum_2_3d"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "enigmaticlegacy:item/3d/the_infinitum_1_3d"
+          }
+        }
+      },
+      {
+        "threshold": 1,
+        "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:display_context",
+          "cases": [
+            {
+              "when": "gui",
+              "model": {
+                "type": "minecraft:model",
+                "model": "enigmaticlegacy:item/gui/the_infinitum_2_gui"
+              }
+            },
+            {
+              "when": [
+                "fixed",
+                "ground"
+              ],
+              "model": {
+                "type": "minecraft:model",
+                "model": "enigmaticlegacy:item/3d/the_infinitum_2_3d"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "enigmaticlegacy:item/3d/the_infinitum_2_3d"
+          }
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "enigmaticlegacy:item/the_infinitum"
+    }
+  }
+}

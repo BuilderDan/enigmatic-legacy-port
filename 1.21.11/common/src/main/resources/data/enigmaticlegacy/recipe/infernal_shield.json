@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:infernal_shield"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:infernal_shield"
+    }
+  ],
+  "pattern": [
+    "PIP",
+    "RSR",
+    "OCO"
+  ],
+  "key": {
+    "P": "minecraft:blaze_powder",
+    "R": "minecraft:blaze_rod",
+    "O": "minecraft:obsidian",
+    "S": "minecraft:shield",
+    "I": "minecraft:netherite_ingot",
+    "C": "enigmaticlegacy:twisted_heart"
+  },
+  "result": {
+    "id": "enigmaticlegacy:infernal_shield"
+  }
+}

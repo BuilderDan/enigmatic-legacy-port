@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:extradimensional_eye"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:extradimensional_eye"
+    }
+  ],
+  "pattern": [
+    " M ",
+    "IXI",
+    "NBN"
+  ],
+  "key": {
+    "X": "minecraft:ender_eye",
+    "I": "minecraft:gold_ingot",
+    "N": "minecraft:gold_nugget",
+    "B": "minecraft:blaze_powder",
+    "M": "minecraft:phantom_membrane"
+  },
+  "result": {
+    "id": "enigmaticlegacy:extradimensional_eye"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "nXn",
+    " X ",
+    "   "
+  ],
+  "key": {
+    "X": "minecraft:paper",
+    "n": "minecraft:stick"
+  },
+  "result": {
+    "id": "enigmaticlegacy:lore_fragment"
+  }
+}

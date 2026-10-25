@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:bonuswoolrecipes"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:bonuswoolrecipes"
+    }
+  ],
+  "group": "enigmaticlegacy_bonuswoolrecipes",
+  "pattern": [
+    "www",
+    "wXw",
+    "www"
+  ],
+  "key": {
+    "X": "minecraft:green_dye",
+    "w": "minecraft:white_wool"
+  },
+  "result": {
+    "id": "minecraft:green_wool",
+    "count": 8
+  }
+}

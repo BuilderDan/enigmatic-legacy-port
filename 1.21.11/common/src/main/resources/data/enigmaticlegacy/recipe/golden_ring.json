@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:golden_ring"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:golden_ring"
+    }
+  ],
+  "pattern": [
+    "nIn",
+    "IXI",
+    "nIn"
+  ],
+  "key": {
+    "X": "enigmaticlegacy:iron_ring",
+    "I": "minecraft:gold_ingot",
+    "n": "minecraft:gold_nugget"
+  },
+  "result": {
+    "id": "enigmaticlegacy:golden_ring"
+  }
+}
