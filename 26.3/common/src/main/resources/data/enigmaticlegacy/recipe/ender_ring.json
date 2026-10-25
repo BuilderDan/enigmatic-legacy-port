@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:ender_ring"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:ender_ring"
+    }
+  ],
+  "pattern": [
+    " C ",
+    "IXI",
+    "NPN"
+  ],
+  "key": {
+    "X": "enigmaticlegacy:iron_ring",
+    "C": "minecraft:ender_chest",
+    "I": "minecraft:gold_ingot",
+    "N": "minecraft:gold_nugget",
+    "P": "minecraft:ender_pearl"
+  },
+  "result": {
+    "id": "enigmaticlegacy:ender_ring"
+  }
+}

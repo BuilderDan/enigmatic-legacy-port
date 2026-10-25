@@ -1,0 +1,112 @@
+package com.aizistral.enigmaticlegacy.crafting;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.jetbrains.annotations.Nullable;
+
+import com.aizistral.enigmaticlegacy.helpers.ItemNBTHelper;
+
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.CustomRecipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.level.Level;
+
+/**
+ * Special recipe type for binding items to player using Gem of Binding.
+ * @author Integral
+ */
+
+public class BindToPlayerRecipe extends CustomRecipe {
+	// Port: 26.3 custom recipes have no data, so the serializer encodes one shared instance.
+	public static final BindToPlayerRecipe INSTANCE = new BindToPlayerRecipe();
+	public static final RecipeSerializer<BindToPlayerRecipe> SERIALIZER = new RecipeSerializer<>(MapCodec.unit(INSTANCE), StreamCodec.unit(INSTANCE));
+
+	public BindToPlayerRecipe() {
+		super();
+	}
+
+	@Override
+	public ItemStack assemble(CraftingInput inv) {
+		List<ItemStack> stackList = new ArrayList<ItemStack>();
+
+		ItemStack gem = null;
+
+		for (int i = 0; i < inv.size(); i++) {
+			ItemStack slotStack = inv.getItem(i);
+
+			if (!slotStack.isEmpty()) {
+				if (/*slotStack.getItem() == EnigmaticLegacy.gemOfBinding*/ false) {
+					if (gem == null) {
+						gem = slotStack;
+					} else
+						return ItemStack.EMPTY;
+				} else {
+					stackList.add(slotStack);
+				}
+			}
+		}
+
+		if (stackList.size() == 1 && stackList.get(0).getItem() instanceof IBound && gem != null && ItemNBTHelper.verifyExistance(gem, "BoundPlayer") && ItemNBTHelper.containsUUID(gem, "BoundUUID")) {
+			ItemStack returned = stackList.get(0).copy();
+			ItemNBTHelper.setString(returned, "BoundPlayer", ItemNBTHelper.getString(gem, "BoundPlayer", "Herobrine"));
+			ItemNBTHelper.setUUID(returned, "BoundUUID", ItemNBTHelper.getUUID(gem, "BoundUUID", null));
+
+			return returned;
+		}
+
+		return ItemStack.EMPTY;
+	}
+
+	@Override
+	public boolean matches(CraftingInput inv, Level world) {
+		List<ItemStack> stackList = new ArrayList<ItemStack>();
+
+		ItemStack gem = null;
+
+		for (int i = 0; i < inv.size(); i++) {
+			ItemStack slotStack = inv.getItem(i);
+
+			if (!slotStack.isEmpty()) {
+				if (/*slotStack.getItem() == EnigmaticLegacy.gemOfBinding*/ false) {
+					if (gem == null) {
+						gem = slotStack;
+					} else
+						return false;
+				} else {
+					stackList.add(slotStack);
+				}
+			}
+		}
+
+		if (stackList.size() == 1 && stackList.get(0).getItem() instanceof IBound && gem != null && ItemNBTHelper.verifyExistance(gem, "BoundPlayer") && ItemNBTHelper.containsUUID(gem, "BoundUUID"))
+			return true;
+
+		return false;
+	}
+
+	@Override
+	public RecipeSerializer<BindToPlayerRecipe> getSerializer() {
+		return SERIALIZER;
+	}
+
+	public interface IBound {
+
+		@Nullable
+		default Player getBoundPlayer(Level world, ItemStack stack) {
+			if (ItemNBTHelper.verifyExistance(stack, "BoundPlayer") && ItemNBTHelper.containsUUID(stack, "BoundUUID")) {
+				UUID id = ItemNBTHelper.getUUID(stack, "BoundUUID", null);
+
+				return world.getPlayerByUUID(id);
+			}
+
+			return null;
+		}
+	}
+
+}

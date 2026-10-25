@@ -1,0 +1,182 @@
+package com.aizistral.enigmaticlegacy.items;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.InteractionResult;
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
+import java.util.List;
+
+import org.jetbrains.annotations.Nullable;
+
+import com.aizistral.enigmaticlegacy.EnigmaticLegacy;
+import com.aizistral.enigmaticlegacy.api.generic.SubscribeConfig;
+import com.aizistral.enigmaticlegacy.helpers.ItemLoreHelper;
+import com.aizistral.enigmaticlegacy.items.generic.ItemBase;
+import com.aizistral.enigmaticlegacy.handlers.SuperpositionHandler;
+import com.aizistral.enigmaticlegacy.packets.clients.PacketSyncForbiddenFruit;
+import com.aizistral.enigmaticlegacy.platform.Services;
+import com.aizistral.enigmaticlegacy.triggers.ForbiddenFruitTrigger;
+import com.aizistral.omniconfig.Configuration;
+import com.aizistral.omniconfig.wrappers.Omniconfig;
+import com.aizistral.omniconfig.wrappers.OmniconfigWrapper;
+
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
+
+public class ForbiddenFruit extends ItemBase {
+	public static final String consumedFruitTag = "ConsumedForbiddenFruit";
+	public static Omniconfig.PerhapsParameter regenerationSubtraction;
+	public static Omniconfig.DoubleParameter debuffDurationMultiplier;
+	public static Omniconfig.BooleanParameter renderHungerBar;
+	public static Omniconfig.BooleanParameter replaceHungerBar;
+
+	@SubscribeConfig(receiveClient = true)
+	public static void onConfig(OmniconfigWrapper builder) {
+		builder.pushPrefix("ForbiddenFruit");
+		if (builder.config.getSidedType() != Configuration.SidedConfigType.CLIENT) {
+			regenerationSubtraction = builder
+					.comment("How much should be subtracted from regeneration of player who have consumed The Forbidden Fruit. ")
+					.max(100)
+					.getPerhaps("RegenerationSubtraction", 80);
+
+			debuffDurationMultiplier = builder
+					.comment("Multiplier for duration of debuffs applied upon consumption of The Forbidden Fruit. Setting it to 0 will disable debuffs entirely.")
+					.getDouble("DebuffDurationMultiplier", 1.0);
+		} else {
+			renderHungerBar = builder
+					.comment("Whether or not hunger bar should be rendered at all after Forbidden Fruit was consumed.")
+					.getBoolean("RenderHungerbar", true);
+
+			replaceHungerBar = builder
+					.comment("Whether or not food icons on hunger bar should be replaced when custom ones after Forbidden Fruit was consumed.")
+					.getBoolean("ReplaceHungerBar", true);
+		}
+
+		builder.popPrefix();
+	}
+
+	public ForbiddenFruit() {
+		super(getDefaultProperties().rarity(Rarity.RARE).fireResistant());
+	}
+
+
+	@Environment(EnvType.CLIENT)
+	@Override
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flagIn) {
+		if (Minecraft.getInstance().hasShiftDown()) {
+			ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.forbiddenFruit1");
+			ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.forbiddenFruit2");
+			ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.forbiddenFruit3", ChatFormatting.GOLD, regenerationSubtraction+"%");
+		} else {
+			ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.forbiddenFruitLore");
+			ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.void");
+			ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.holdShift");
+		}
+	}
+
+	/**
+	 * Port: the client's own copy of the flag, set by {@link PacketSyncForbiddenFruit}. Upstream
+	 * kept it in {@code TransientPlayerData}, which is not ported.
+	 */
+	public static boolean clientConsumedFruit = false;
+
+	/**
+	 * Port: upstream read {@code TransientPlayerData}, which saves to the same persistent tag.
+	 * The server reads the player's persistent NBT; the client reads the synced copy.
+	 */
+	public boolean haveConsumedFruit(Player player) {
+		if (player.level().isClientSide())
+			return clientConsumedFruit;
+
+		return SuperpositionHandler.getPersistentBoolean(player, consumedFruitTag, false);
+	}
+
+	public void defineConsumedFruit(Player player, boolean consumedOrNot) {
+		if (player.level().isClientSide()) {
+			clientConsumedFruit = consumedOrNot;
+			return;
+		}
+
+		SuperpositionHandler.setPersistentBoolean(player, consumedFruitTag, consumedOrNot);
+
+		if (player instanceof ServerPlayer serverPlayer) {
+			this.syncConsumedFruit(serverPlayer);
+		}
+	}
+
+	/** Port-only: sends the flag to its player (on change and on join). */
+	public void syncConsumedFruit(ServerPlayer player) {
+		Services.NETWORK.sendToPlayer(player, new PacketSyncForbiddenFruit(this.haveConsumedFruit(player)));
+	}
+
+	@Override
+	public ItemStack finishUsingItem(ItemStack stack, Level worldIn, LivingEntity entityLiving) {
+		worldIn.playSound(null, entityLiving.getX(), entityLiving.getY(), entityLiving.getZ(), SoundEvents.GENERIC_EAT, SoundSource.NEUTRAL, 1.0F, 1.0F + (entityLiving.getRandom().nextFloat() - entityLiving.getRandom().nextFloat()) * 0.4F);
+
+		if (!(entityLiving instanceof Player) || !((Player)entityLiving).getAbilities().instabuild) {
+			stack.shrink(1);
+		}
+
+		entityLiving.gameEvent(GameEvent.EAT);
+
+		if (entityLiving instanceof Player) {
+			this.onConsumed(worldIn, (Player) entityLiving, stack);
+		}
+
+		return super.finishUsingItem(stack, worldIn, entityLiving);
+	}
+
+	public void onConsumed(Level worldIn, Player player, ItemStack food) {
+		this.defineConsumedFruit(player, true);
+
+		if (player instanceof ServerPlayer playerMP) {
+			ForbiddenFruitTrigger.INSTANCE.trigger(playerMP);
+			double multiplier = debuffDurationMultiplier.getValue();
+
+			player.addEffect(new MobEffectInstance(MobEffects.WITHER,            (int) (300 * multiplier), 3, false, true));
+			player.addEffect(new MobEffectInstance(MobEffects.NAUSEA,         (int) (300 * multiplier), 2, false, true));
+			player.addEffect(new MobEffectInstance(MobEffects.WEAKNESS,          (int) (400 * multiplier), 3, false, true));
+			player.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, (int) (500 * multiplier), 2, false, true));
+		}
+	}
+
+	public boolean canEat(Level world, Player player, ItemStack food) {
+		return !this.haveConsumedFruit(player);
+	}
+
+	@Override
+	public InteractionResult use(Level worldIn, Player playerIn, InteractionHand handIn) {
+		if (this.canEat(worldIn, playerIn, playerIn.getItemInHand(handIn))) {
+			playerIn.startUsingItem(handIn);
+			return InteractionResult.CONSUME;
+		} else
+			return InteractionResult.PASS;
+	}
+
+	@Override
+	public int getUseDuration(ItemStack pStack, LivingEntity entity) {
+		return 32;
+	}
+
+	@Override
+	public ItemUseAnimation getUseAnimation(ItemStack pStack) {
+		return ItemUseAnimation.EAT;
+	}
+
+}

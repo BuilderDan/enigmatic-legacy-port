@@ -1,0 +1,116 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:astral_breaker"
+    },
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:etherium_pickaxe"
+    },
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:etherium_axe"
+    },
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:etherium_shovel"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:astral_breaker"
+    },
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:etherium_pickaxe"
+    },
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:etherium_axe"
+    },
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:etherium_shovel"
+    }
+  ],
+  "parent": "enigmaticlegacy:recipe/root",
+  "rewards": {
+    "recipes": [
+      "enigmaticlegacy:astral_breaker"
+    ]
+  },
+  "criteria": {
+    "has_items": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "enigmaticlegacy:astral_dust"
+            ]
+          }
+        ]
+      }
+    },
+    "has_recipe_result": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "enigmaticlegacy:astral_breaker"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipes": "enigmaticlegacy:astral_breaker"
+      }
+    },
+    "has_parent_recipe_1": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipes": "enigmaticlegacy:etherium_pickaxe"
+      }
+    },
+    "has_parent_recipe_2": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipes": "enigmaticlegacy:etherium_axe"
+      }
+    },
+    "has_parent_recipe_3": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipes": "enigmaticlegacy:etherium_shovel"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_recipe_result",
+      "has_the_recipe",
+      "has_items"
+    ],
+    [
+      "has_recipe_result",
+      "has_the_recipe",
+      "has_parent_recipe_1"
+    ],
+    [
+      "has_recipe_result",
+      "has_the_recipe",
+      "has_parent_recipe_2"
+    ],
+    [
+      "has_recipe_result",
+      "has_the_recipe",
+      "has_parent_recipe_3"
+    ]
+  ]
+}

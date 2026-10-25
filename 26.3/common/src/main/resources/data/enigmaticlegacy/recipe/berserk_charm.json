@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:berserk_charm"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:berserk_charm"
+    }
+  ],
+  "pattern": [
+    "MSM",
+    "PXP",
+    "TIT"
+  ],
+  "key": {
+    "M": "minecraft:crimson_fungus",
+    "S": "minecraft:golden_sword",
+    "P": "minecraft:blaze_powder",
+    "T": "minecraft:ghast_tear",
+    "I": "minecraft:netherite_ingot",
+    "X": "enigmaticlegacy:twisted_heart"
+  },
+  "result": {
+    "id": "enigmaticlegacy:berserk_charm"
+  }
+}

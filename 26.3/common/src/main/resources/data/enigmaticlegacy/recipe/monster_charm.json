@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:monster_charm"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:monster_charm"
+    }
+  ],
+  "pattern": [
+    " S ",
+    "PXP",
+    "EIE"
+  ],
+  "key": {
+    "X": "minecraft:skeleton_skull",
+    "P": "minecraft:blaze_powder",
+    "E": "minecraft:experience_bottle",
+    "S": "minecraft:soul_lantern",
+    "I": "minecraft:netherite_ingot"
+  },
+  "result": {
+    "id": "enigmaticlegacy:monster_charm"
+  }
+}

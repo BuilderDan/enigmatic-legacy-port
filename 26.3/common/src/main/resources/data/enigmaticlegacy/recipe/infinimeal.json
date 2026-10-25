@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:infinimeal"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:infinimeal"
+    }
+  ],
+  "pattern": [
+    "CVF",
+    "AXW",
+    "PLN"
+  ],
+  "key": {
+    "X": "enigmaticlegacy:earth_heart",
+    "C": "minecraft:cocoa_beans",
+    "V": "minecraft:weeping_vines",
+    "F": "minecraft:warped_fungus",
+    "W": "minecraft:wheat",
+    "N": "minecraft:nether_wart",
+    "L": "minecraft:lily_pad",
+    "P": "minecraft:poppy",
+    "A": "minecraft:apple"
+  },
+  "result": {
+    "id": "enigmaticlegacy:infinimeal"
+  }
+}

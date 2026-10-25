@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:enchantment_transposer"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:enchantment_transposer"
+    }
+  ],
+  "pattern": [
+    "pnp",
+    "lXl",
+    "brb"
+  ],
+  "key": {
+    "X": "minecraft:book",
+    "b": "minecraft:blaze_powder",
+    "l": "minecraft:lapis_lazuli",
+    "p": "minecraft:prismarine_crystals",
+    "n": "minecraft:gold_nugget",
+    "r": "minecraft:redstone"
+  },
+  "result": {
+    "id": "enigmaticlegacy:enchantment_transposer"
+  }
+}

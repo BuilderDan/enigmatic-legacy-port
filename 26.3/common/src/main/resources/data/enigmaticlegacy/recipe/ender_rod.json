@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  b",
+    "aXa",
+    "b  "
+  ],
+  "key": {
+    "X": "minecraft:ender_pearl",
+    "b": "minecraft:blaze_rod",
+    "a": "enigmaticlegacy:astral_dust"
+  },
+  "result": {
+    "id": "enigmaticlegacy:ender_rod",
+    "count": 2
+  }
+}

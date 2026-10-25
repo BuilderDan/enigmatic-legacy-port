@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:twisted_mirror"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:twisted_mirror"
+    }
+  ],
+  "pattern": [
+    "IPI",
+    "RXR",
+    " I "
+  ],
+  "key": {
+    "P": "minecraft:glass_pane",
+    "I": "minecraft:iron_ingot",
+    "R": "enigmaticlegacy:recall_potion",
+    "X": "enigmaticlegacy:twisted_heart"
+  },
+  "result": {
+    "id": "enigmaticlegacy:twisted_mirror"
+  }
+}

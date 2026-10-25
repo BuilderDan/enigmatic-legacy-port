@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:super_magnet_ring"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:super_magnet_ring"
+    }
+  ],
+  "pattern": [
+    "LEL",
+    "GXG",
+    "LGL"
+  ],
+  "key": {
+    "X": "enigmaticlegacy:magnet_ring",
+    "G": "minecraft:gold_ingot",
+    "E": "minecraft:ender_eye",
+    "L": "minecraft:lapis_lazuli"
+  },
+  "result": {
+    "id": "enigmaticlegacy:super_magnet_ring"
+  }
+}

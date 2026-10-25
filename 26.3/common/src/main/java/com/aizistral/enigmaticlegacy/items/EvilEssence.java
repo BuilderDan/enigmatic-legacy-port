@@ -1,0 +1,48 @@
+package com.aizistral.enigmaticlegacy.items;
+
+import net.minecraft.client.Minecraft;
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
+import java.util.List;
+
+import com.aizistral.enigmaticlegacy.EnigmaticLegacy;
+import com.aizistral.enigmaticlegacy.api.items.ICursed;
+import com.aizistral.enigmaticlegacy.handlers.SuperpositionHandler;
+import com.aizistral.enigmaticlegacy.helpers.ItemLoreHelper;
+import com.aizistral.enigmaticlegacy.items.generic.ItemBase;
+
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+
+public class EvilEssence extends ItemBase implements ICursed {
+
+	public EvilEssence() {
+		super(getDefaultProperties().rarity(Rarity.EPIC).stacksTo(8).fireResistant());
+	}
+
+	// Port: no longer an Item override in 1.21; MixinItemStack calls it.
+	public boolean canBeHurtBy(DamageSource source) {
+		return !SuperpositionHandler.isExplosion(source);
+	}
+
+	@Environment(EnvType.CLIENT)
+	@Override
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flagIn) {
+		if (Minecraft.getInstance().hasShiftDown()) {
+			ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.evilEssence1");
+			ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.evilEssence2");
+		} else {
+			ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.holdShift");
+		}
+
+		ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.void");
+		ItemLoreHelper.indicateCursedOnesOnly(list);
+	}
+
+}

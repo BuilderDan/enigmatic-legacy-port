@@ -1,0 +1,55 @@
+{
+	"schemaVersion": 1,
+	"id": "enigmaticlegacy",
+	"version": "${version}",
+	"name": "Enigmatic Legacy (Fabric port)",
+	"description": "Unofficial Fabric port of Enigmatic Legacy. Enigmatic Legacy is created and owned by Aizistral (Aizistral Studios); this port is not affiliated with them.",
+	"authors": [
+		"Aizistral (original author and owner)"
+	],
+	"contributors": [
+		"BuilderDan (Fabric port)"
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/enigmatic-legacy",
+		"sources": "https://github.com/BuilderDan/enigmatic-legacy-port",
+		"issues": "https://github.com/BuilderDan/enigmatic-legacy-port/issues"
+	},
+	"license": "LicenseRef-Enigmatic-Legacy-License-II",
+	"icon": "EL_logo.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.aizistral.enigmaticlegacy.fabric.EnigmaticLegacyFabric"
+		],
+		"client": [
+			"com.aizistral.enigmaticlegacy.fabric.EnigmaticLegacyFabricClient"
+		],
+		"cardinal-components-entity": [
+			"com.aizistral.enigmaticlegacy.fabric.platform.EnigmaticComponents"
+		]
+	},
+	"accessWidener": "enigmaticlegacy.accesswidener",
+	"mixins": [
+		"enigmaticlegacy.mixins.json",
+		"enigmaticlegacy.dev.mixins.json",
+		"enigmaticlegacy.patchouli.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=${fabric_loader_version}",
+		"minecraft": "~${minecraft_version}",
+		"java": ">=${java_version}",
+		"fabric-api": "*",
+		"trinkets_updated": ">=4.2.1",
+		"cardinal-components-base": "*",
+		"cardinal-components-entity": "*"
+	},
+	"custom": {
+		"cardinal-components": [
+			"enigmaticlegacy:playtime_counter"
+		]
+	},
+	"suggests": {
+		"patchouli": "*"
+	}
+}

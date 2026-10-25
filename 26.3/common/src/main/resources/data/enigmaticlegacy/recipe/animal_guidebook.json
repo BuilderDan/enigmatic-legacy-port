@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:animal_guidebook"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:animal_guidebook"
+    }
+  ],
+  "pattern": [
+    " n ",
+    "fXf",
+    " a "
+  ],
+  "key": {
+    "X": "minecraft:book",
+    "n": "minecraft:gold_nugget",
+    "f": "minecraft:dandelion",
+    "a": "minecraft:apple"
+  },
+  "result": {
+    "id": "enigmaticlegacy:animal_guidebook"
+  }
+}

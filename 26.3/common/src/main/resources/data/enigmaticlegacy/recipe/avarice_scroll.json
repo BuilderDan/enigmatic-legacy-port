@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "fabric:load_conditions": [
+    {
+      "condition": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:avarice_scroll"
+    }
+  ],
+  "neoforge:conditions": [
+    {
+      "type": "enigmaticlegacy:is_enabled",
+      "item": "enigmaticlegacy:avarice_scroll"
+    }
+  ],
+  "pattern": [
+    "GRG",
+    "IXF",
+    "GHG"
+  ],
+  "key": {
+    "X": "enigmaticlegacy:darkest_scroll",
+    "G": "minecraft:gold_ingot",
+    "R": "enigmaticlegacy:golden_ring",
+    "H": "enigmaticlegacy:twisted_heart",
+    "F": "minecraft:feather",
+    "I": "minecraft:ink_sac"
+  },
+  "result": {
+    "id": "enigmaticlegacy:avarice_scroll"
+  }
+}

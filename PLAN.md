@@ -30,8 +30,8 @@ Written 2026-10-21. Living document: update it as decisions are made.
 
 | Upstream (Forge) | Used for | Fabric | NeoForge |
 |---|---|---|---|
-| Curios (38 files; slots: charm 11, ring 7, scroll 8, spellstone 8, back 1) | Rings, charms, scrolls, spellstones | **Trinkets** (1.20.1, 1.21.1). Accessories as fallback up to 1.21.10. **Nothing for 26.3 yet** | Curios (available up to 26.3) |
-| Patchouli (9 files + 2 GUI mixins) | The Acknowledgment guide book | Patchouli (1.20.1, 1.21.1; 26.1.2 is newest) | Patchouli |
+| Curios (38 files; slots: charm 11, ring 7, scroll 8, spellstone 8, back 1) | Rings, charms, scrolls, spellstones | **Trinkets** (1.20.1, 1.21.1); **Trinkets Updated** 4.2.1+26.3 (Patbox fork, same API) on 26.3 | Curios (available up to 26.3) |
+| Patchouli (9 files + 2 GUI mixins) | The Acknowledgment guide book | Patchouli (1.20.1, 1.21.1). **No 26.3 build** (newest 26.1-94-beta): optional on 26.3, compiled against 26.1, guarded by isModLoaded + mixin plugin | Patchouli |
 | Caelus (2 files) | Enigmatic Elytra (back slot) | Fabric API elytra events (1.20.1); vanilla glider component (1.21.2+) | Caelus (1.21.1); vanilla glider component later |
 | Omniconfig (bundled, by Aizistral) | All config | Keep the library; write a Fabric backend for its one Forge wrapper | Keep; port the wrapper |
 | Quark, Dark Utilities, CSG, Blue Skies, JEI (soft compat) | Small compat fixes | Drop at first; re-add per mod if the mod exists there | Same |
@@ -59,8 +59,8 @@ Design rule: game code talks to a small `common` interface (`SlotAccess`, `Netwo
   data-driven (all 8 must be rewritten as JSON + effect components); attribute and
   damage API changes; networking moves to payload codecs; Java 17 -> 21.
 - **1.21.1 -> 26.3:** check when we get there (new versioning scheme; expect rendering,
-  item model and registry changes). Fabric has no trinket API on 26.3 yet; this target
-  may have to wait or ship NeoForge-only first.
+  item model and registry changes). Trinkets Updated covers Fabric slots
+  (2026-10-24); Patchouli is optional there.
 
 ## 6. Repository layout
 
@@ -95,7 +95,8 @@ decided otherwise.
       Guide book (Patchouli) integration done 2026-10-23 (devcheck ok; in-world test pending).
    6. Playtest every item in the dev client (checklist in `docs/playtest-1.20.1.md`).
 2. **1.21.1 Fabric** (NeoForge skipped: Enigmatic Legacy Plus covers it).
-3. **26.3** NeoForge, then Fabric when a trinket API exists.
+3. **26.3** Fabric (Trinkets Updated) and NeoForge (Curios), one multiloader project (started 2026-10-24).
+   Dev-client playtest 39/39 on both loaders (2026-10-24).
 4. Mid-point version (e.g. 1.21.4) only if cheap.
 
 A version counts as done only after a full dev-client playtest of every item.
@@ -114,4 +115,4 @@ A version counts as done only after a full dev-client playtest of every item.
 - Mod name on the mod sites (e.g. "Enigmatic Legacy (Fabric)")?
 - Upstream has no `package-info.java`, so the license's API exemption covers nothing.
   Ask the creator about it in the permission request.
-- 26.3 Fabric: wait for Trinkets/Accessories, or write a minimal slot system?
+- ~~26.3 Fabric slot API~~ resolved 2026-10-24: Trinkets Updated.

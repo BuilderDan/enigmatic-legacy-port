@@ -880,5 +880,63 @@ changes below are the extra ones Minecraft 1.21 required. Unless noted, behavior
 - Patchouli book: entries use the 1.21 item component syntax for enchanted and potion icons.
 - Evil Essence and Evil Ingot use `canBeHurtBy` for fire immunity; permanent item entities use
   the 1.21 portal API.
+- Recipe advancements name `enigmaticlegacy:recipe/root` as parent (port fix: the folder
+  rename left the old `recipes/root` id, so they failed to load).
 - Dev only, port-only: devcheck and the 39 playtest scenarios are updated for 1.21; the mixin
   audit only checks handlers that still exist; devcheck builds only the mod's creative tabs.
+
+### 26.3 Fabric and NeoForge (`26.3/`, in progress)
+
+Ported from the 1.21.1 Fabric port above; every change listed there also applies here. The
+changes below are the extra ones Minecraft 26.3 and the NeoForge loader required. Unless noted,
+behavior matches upstream.
+
+- Build: one multiloader project (`common`, `fabric`, `neoforge`), Java 25, Mojang names.
+  Fabric: Loom, Fabric Loader 0.20.1, Fabric API 0.165.0+26.3, Trinkets Updated 4.2.1+26.3,
+  Cardinal Components API 8.1.0, ModMenu 21.0.0. NeoForge: ModDevGradle, NeoForge 26.3.0.97,
+  Curios 17.0.0-beta.3+26.3. Patchouli is optional on both loaders.
+- Accessory slots: Trinkets on Fabric, Curios on NeoForge (upstream's own slot API), behind one
+  common accessory layer.
+- Items: 26.3 has no `SwordItem`, `AxeItem`, `DiggerItem`, `ArmorItem` or `TieredItem`. Weapons,
+  tools and Etherium armor build their tool, equippable, attribute, durability and repair
+  components through item properties; blocking and axe shield-disabling use the
+  `BLOCKS_ATTACKS` component. Item models use 26.3 item model definitions.
+- Components: item components are bound when a world's registries load, so code that needs
+  default stacks waits for that. Item stacks are saved and read through `ItemStack.OPTIONAL_CODEC`.
+- Recipes and loot: recipes are read with codecs that mirror vanilla's; custom recipes carry no
+  data. Loot functions register their `MapCodec` directly (no `LootItemFunctionType`).
+- Explosions: `Explosion` is an interface; the wither explosion removes blocks itself, and the
+  explode packet carries the block count instead of the block list.
+- Players and entities: inventory armor/offhand lists and `getArmorSlots` are replaced by
+  equipment-slot reads in upstream's order; the phantom spawner and burn-duration hooks use
+  the 26.3 signatures.
+- Client: entity renderers and layers draw from render states; screens and toasts split
+  drawing into update and extract steps; the HUD hooks target `Hud` (`extractFood`,
+  `extractAirBubbles`, the experience bar's `ContextualBar`); key categories are registered
+  records (lang key `key.category.enigmaticlegacy.main`).
+- NeoForge only:
+  - Config conditions: every conditional recipe, advancement and loot JSON carries a
+    `neoforge:conditions` block of type `enigmaticlegacy:is_enabled` next to the Fabric one.
+  - Enchanting rules and the Eldritch Pan's kill-scaled modifiers override NeoForge's
+    `ItemStack` extension methods (`isPrimaryItemFor`, `supportsEnchantment`,
+    `getAttributeModifiers`); the common `forEachModifier` hook is optional there.
+  - The heat bar hook also targets NeoForge's `extractContextualInfoBarBackground`.
+  - Death handling runs on `LivingDeathEvent` (no damage amount; upstream's handler does not
+    use it), with the kill handlers in a lowest-priority pass.
+  - `neoforge.mods.toml` uses `bannerFile` for the logo.
+  - Curios 17 ignores per-slot attribute modifiers, so the Curios adapter applies each
+    accessory's modifiers itself on equip and unequip and re-checks them once a second (ids get
+    `/<slot>/<index>`), plus the `GLIDING_FLIGHT` modifier for the Enigmatic Elytra in the back
+    slot, dropped when the elytra is about to break. Curios' attribute
+    tooltip is empty for these items (tooltip difference from upstream).
+  - The Curios adapter fires the port's equip-accessory trigger, which the advancements use
+    on both loaders.
+  - NeoForge's `actuallyHurt` reads the damage from its `DamageContainer`, so a port-only
+    mixin copies the amount the common hurt hook returns into the container.
+  - Death drops go through `LivingDropsEvent`; the common drop capture is off there
+    (`PlatformHelper.firesLivingDrops`).
+- Recipe advancements name `enigmaticlegacy:recipe/root` as parent after the folder rename
+  (the old `recipes/root` id failed to load).
+- Dev only, port-only: devcheck and the playtest run on both loaders; on NeoForge the devcheck
+  turns off the IDE-only component check while it binds components from the tag-less
+  vanilla lookup.

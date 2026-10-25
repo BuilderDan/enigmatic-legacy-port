@@ -1,5 +1,5 @@
 {
-  "parent": "enigmaticlegacy:recipes/root",
+  "parent": "enigmaticlegacy:recipe/root",
   "rewards": {
     "recipes": [
       "enigmaticlegacy:cursed_scroll"

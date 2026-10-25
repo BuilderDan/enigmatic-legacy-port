@@ -1,0 +1,44 @@
+package com.aizistral.enigmaticlegacy.items;
+
+import net.minecraft.client.Minecraft;
+import net.fabricmc.api.Environment;
+import net.fabricmc.api.EnvType;
+import java.util.List;
+
+import org.jetbrains.annotations.Nullable;
+
+import com.aizistral.enigmaticlegacy.helpers.ItemLoreHelper;
+import com.aizistral.enigmaticlegacy.items.generic.ItemBase;
+
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+
+public class MendingMixture extends ItemBase {
+
+	public MendingMixture() {
+		super(ItemBase.getDefaultProperties().stacksTo(1).rarity(Rarity.EPIC).craftRemainder(Items.GLASS_BOTTLE));
+	}
+
+	@Environment(EnvType.CLIENT)
+	@Override
+	public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flagIn) {
+		if (Minecraft.getInstance().hasShiftDown()) {
+			ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.mendingMixture1");
+			ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.mendingMixture2");
+		} else {
+			ItemLoreHelper.addLocalizedString(list, "tooltip.enigmaticlegacy.holdShift");
+		}
+	}
+
+	@Environment(EnvType.CLIENT)
+	@Override
+	public boolean isFoil(ItemStack stack) {
+		return true;
+	}
+
+}

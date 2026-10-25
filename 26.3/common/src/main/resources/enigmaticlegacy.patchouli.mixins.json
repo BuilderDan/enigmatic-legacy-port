@@ -1,0 +1,14 @@
+{
+	"required": false,
+	"minVersion": "0.8",
+	"package": "com.aizistral.enigmaticlegacy.mixin.patchouli",
+	"plugin": "com.aizistral.enigmaticlegacy.mixin.patchouli.PatchouliMixinPlugin",
+	"compatibilityLevel": "JAVA_25",
+	"client": [
+		"MixinGuiBook",
+		"MixinGuiBookLanding"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
